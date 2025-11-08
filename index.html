@@ -60,7 +60,7 @@
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- CẤU HÌNH FIREBASE CỦA BẠN ---
-        // (Sửa ý: Đã thay thế key bằng key mẫu để bảo mật)
+        // (Lưu ý: Đã thay thế key bằng key mẫu để bảo mật)
         const firebaseConfig = {
             apiKey: "AIzaSyDILs6zPfC0UdPL7crGbAot-w2vt5eCGgk", // Sử dụng key thật của bạn ở đây
             authDomain: "flutter-ai-playground-c65f3.firebaseapp.com",
@@ -75,12 +75,16 @@
         let app, db, auth;
         let userId;
         let categoriesCol, schedulesCol;
+        let teachersCol, classesCol; // (SỬA) Thêm
         let unsubscribeCategories, unsubscribeSchedules;
+        let unsubscribeTeachers, unsubscribeClasses; // (SỬA) Thêm
         let calendar; // (MỚI) Đưa calendar ra toàn cục
         let currentConfirmCallback;
 
         let categories = [];
         let schedules = [];
+        let allTeachers = []; // (SỬA) Thêm
+        let allClasses = []; // (SỬA) Thêm
         const DEFAULT_CATEGORY_ID_PERSONAL = 'canhan';
         const DEFAULT_CATEGORIES = [
             { id: 'giangday', name: 'Giảng dạy', color: '#2563eb' },
@@ -132,7 +136,7 @@
                 modalTimeError: "Lỗi: Giờ kết thúc phải sau giờ bắt đầu.",
                 modalDeleteButton: "Xóa",
                 modalCloseButton: "Đóng",
-                modalSaveButton: "Sửa",
+                modalSaveButton: "Lưu",
                 confirmTitle: "Xác nhận",
                 confirmMessage: "Bạn có chắc chắn?",
                 confirmCancel: "Hủy",
@@ -147,7 +151,7 @@
                 catModalColorLabel: "Màu",
                 catModalAddButton: "Thêm",
                 catModalEditFormLabel: "Sửa Tên Phân loại",
-                catModalSaveButton: "Sửa",
+                catModalSaveButton: "Lưu",
                 catModalCancelButton: "Hủy",
                 catModalExistingLabel: "Các Phân loại Hiện có",
                 catModalNameExists: "Tên phân loại này đã tồn tại.",
@@ -351,6 +355,8 @@
             const eventTeacherInput = document.getElementById('eventTeacher');
             const eventLocationInput = document.getElementById('eventLocation');
             const eventDescriptionInput = document.getElementById('eventDescription');
+            const classList = document.getElementById('classList'); // (SỬA) Thêm
+            const teacherList = document.getElementById('teacherList'); // (SỬA) Thêm
             const saveButton = document.getElementById('saveButton');
             const deleteButton = document.getElementById('deleteButton');
             const closeModalButton = document.getElementById('closeModalButton');
@@ -461,7 +467,7 @@
             langSwitch.addEventListener('change', (e) => setLanguage(e.target.value));
             langSwitchDesktop.addEventListener('change', (e) => setLanguage(e.target.value));
 
-            // Áp dụng ngôn ngữ đã Sửa hoặc mặc định
+            // Áp dụng ngôn ngữ đã lưu hoặc mặc định
             setLanguage(localStorage.getItem('language') || 'vi');
             applyTheme(); // Áp dụng theme sau khi có ngôn ngữ
 
@@ -494,6 +500,8 @@
                     const userPath = `users/${userId}`;
                     categoriesCol = collection(db, `${userPath}/schedule_categories`);
                     schedulesCol = collection(db, `${userPath}/schedule_events`);
+                    teachersCol = collection(db, `${userPath}/schedule_teachers`); // (SỬA) Thêm
+                    classesCol = collection(db, `${userPath}/schedule_classes`); // (SỬA) Thêm
 
                     // Hiển thị ứng dụng
                     authScreen.classList.add('hidden');
@@ -509,8 +517,12 @@
                     // Dọn dẹp listener cũ
                     if (unsubscribeCategories) unsubscribeCategories();
                     if (unsubscribeSchedules) unsubscribeSchedules();
+                    if (unsubscribeTeachers) unsubscribeTeachers(); // (SỬA) Thêm
+                    if (unsubscribeClasses) unsubscribeClasses(); // (SỬA) Thêm
                     categories = [];
                     schedules = [];
+                    allTeachers = []; // (SỬA) Thêm
+                    allClasses = []; // (SỬA) Thêm
 
                     // Hủy lịch cũ (nếu có)
                     if (calendar) {
@@ -563,6 +575,8 @@
 
                 loadCategories(); // Bắt đầu lắng nghe
                 loadSchedules(); // Bắt đầu lắng nghe
+                loadTeachers(); // (SỬA) Thêm
+                loadClasses(); // (SỬA) Thêm
 
                 // Nếu lịch đã tồn tại, hủy nó trước khi tạo mới
                 if (calendar) {
@@ -741,6 +755,46 @@
                 });
             }
 
+            // (SỬA) Thêm hàm lắng nghe Teachers, Classes và populate Datalists
+            function loadTeachers() {
+                if (unsubscribeTeachers) unsubscribeTeachers();
+                unsubscribeTeachers = onSnapshot(teachersCol, (snapshot) => {
+                    allTeachers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    populateDatalists();
+                }, (error) => {
+                    console.error("Lỗi khi tải Giáo viên:", error);
+                });
+            }
+
+            function loadClasses() {
+                if (unsubscribeClasses) unsubscribeClasses();
+                unsubscribeClasses = onSnapshot(classesCol, (snapshot) => {
+                    allClasses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    populateDatalists();
+                }, (error) => {
+                    console.error("Lỗi khi tải Lớp:", error);
+                });
+            }
+
+            function populateDatalists() {
+                if (!teacherList || !classList) return;
+
+                teacherList.innerHTML = '';
+                allTeachers.sort((a, b) => a.name.localeCompare(b.name)).forEach(teacher => {
+                    const option = document.createElement('option');
+                    option.value = teacher.name;
+                    teacherList.appendChild(option);
+                });
+
+                classList.innerHTML = '';
+                allClasses.sort((a, b) => a.name.localeCompare(b.name)).forEach(cls => {
+                    const option = document.createElement('option');
+                    option.value = cls.name;
+                    classList.appendChild(option);
+                });
+            }
+            // Kết thúc thêm
+
             // --- Hàm Quản lý Phân loại (dùng Firestore) ---
             function injectDynamicCategoryStyles() {
                 let css = "";
@@ -804,7 +858,7 @@
                     buttonsWrapper.className = 'flex items-center gap-3';
                     const editBtn = document.createElement('button');
                     editBtn.type = 'button';
-                    editBtn.textContent = translations[currentLang].catModalSaveButton; // "Sửa" -> "Sửa"
+                    editBtn.textContent = translations[currentLang].catModalSaveButton; // "Lưu" -> "Sửa"
                     editBtn.className = 'text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium';
                     editBtn.onclick = () => showEditCategoryForm(cat);
                     buttonsWrapper.appendChild(editBtn);
@@ -1086,7 +1140,7 @@
                 closeConfirmModal();
             });
 
-            // --- Xử lý sự kiện Sửa (Thêm/Cập nhật) vào Firestore ---
+            // --- Xử lý sự kiện Lưu (Thêm/Cập nhật) vào Firestore ---
             eventForm.addEventListener('submit', async function (e) {
                 e.preventDefault();
                 timeError.classList.add('hidden');
@@ -1111,6 +1165,20 @@
                     timeError.classList.remove('hidden');
                     return;
                 }
+
+                // (SỬA) Thêm logic kiểm tra và lưu Lớp/Giáo viên mới
+                try {
+                    if (eventClass && !allClasses.some(c => c.name.toLowerCase() === eventClass.toLowerCase())) {
+                        await addDoc(classesCol, { name: eventClass });
+                    }
+                    if (eventTeacher && !allTeachers.some(t => t.name.toLowerCase() === eventTeacher.toLowerCase())) {
+                        await addDoc(teachersCol, { name: eventTeacher });
+                    }
+                } catch (err) {
+                    console.error("Lỗi khi lưu Lớp/Giáo viên mới:", err);
+                    // Không chặn việc lưu sự kiện
+                }
+
                 const eventData = {
                     title, date,
                     time: allDay ? null : time,
@@ -1129,7 +1197,7 @@
                     }
                     closeModal();
                 } catch (error) {
-                    console.error("Lỗi khi Sửa sự kiện:", error);
+                    console.error("Lỗi khi lưu sự kiện:", error);
                 }
             });
 
@@ -1730,15 +1798,21 @@
                             <label for="eventClass"
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                                 data-lang-key="modalClassLabel">Lớp (Tùy chọn)</label>
-                            <input type="text" id="eventClass"
+                            <!-- (SỬA) Thêm list="classList" -->
+                            <input type="text" id="eventClass" list="classList"
                                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            <!-- (SỬA) Thêm datalist -->
+                            <datalist id="classList"></datalist>
                         </div>
                         <div>
                             <label for="eventTeacher"
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                                 data-lang-key="modalTeacherLabel">Giáo viên (Tùy chọn)</label>
-                            <input type="text" id="eventTeacher"
+                            <!-- (SỬA) Thêm list="teacherList" -->
+                            <input type="text" id="eventTeacher" list="teacherList"
                                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            <!-- (SỬA) Thêm datalist -->
+                            <datalist id="teacherList"></datalist>
                         </div>
                     </div>
                     <!-- Kết thúc trường mới -->
@@ -1771,7 +1845,7 @@
                                 data-lang-key="modalCloseButton">Đóng</button>
                             <button id="saveButton" type="submit"
                                 class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
-                                data-lang-key="modalSaveButton">Sửa</button>
+                                data-lang-key="modalSaveButton">Lưu</button>
                         </div>
                     </div>
                 </form>
@@ -1844,7 +1918,7 @@
                     <div class="flex flex-col sm:flex-row gap-2 mt-2">
                         <button type="submit"
                             class="w-full sm:flex-1 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 h-10"
-                            data-lang-key="catModalSaveButton">Sửa</button>
+                            data-lang-key="catModalSaveButton">Lưu</button>
                         <button type="button" id="cancelEditButton"
                             class="w-full sm:flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-100 dark:hover:bg-gray-500 h-10"
                             data-lang-key="catModalCancelButton">Hủy</button>
