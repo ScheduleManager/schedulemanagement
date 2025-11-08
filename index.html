@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<!-- (MỚI) Thêm class 'dark' ở đây nếu cần, nhưng JS sẽ quản lý -->
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- (MỚI) Title sẽ được cập nhật bằng JS -->
+    <title data-lang-key="pageTitle">Quản lý Thời khóa biểu</title>
+
+    <!-- Tải Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- (MỚI) Cấu hình Tailwind cho Chế độ Tối -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // Bật chế độ 'class'
+            theme: {
+                extend: {
+                    // Bạn có thể thêm các tùy chỉnh khác ở đây nếu muốn
+                }
+            }
+        }
+    </script>
+
+    <!-- Tải FullCalendar (Thư viện Lịch) -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+    <!-- (MỚI) Tải các gói ngôn ngữ cho FullCalendar -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/locales/vi.global.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/locales/fr.global.min.js'></script>
+
+    <!-- Tải SheetJS (Thư viện Excel) -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+    <!-- (MỚI) Tải Firebase SDK - DẠNG MODULE -->
+    <script type="module">
+        // (MỚI) Import thêm các hàm Xác thực Google
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import {
+            getAuth,
+            onAuthStateChanged,
+            GoogleAuthProvider,
+            signInWithPopup,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            doc,
+            addDoc,
+            setDoc,
+            updateDoc,
+            deleteDoc,
+            onSnapshot,
+            query,
+            where,
+            getDocs,
+            writeBatch,
+            setLogLevel
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- CẤU HÌNH FIREBASE CỦA BẠN ---
+        // (Sửa ý: Đã thay thế key bằng key mẫu để bảo mật)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDILs6zPfC0UdPL7crGbAot-w2vt5eCGgk", // Sử dụng key thật của bạn ở đây
+            authDomain: "flutter-ai-playground-c65f3.firebaseapp.com",
+            projectId: "flutter-ai-playground-c65f3",
+            storageBucket: "flutter-ai-playground-c65f3.appspot.com",
+            messagingSenderId: "932092331324",
+            appId: "1:932092331324:web:dcbb33b44b5d55a43cca39"
+        };
+        // -------------------------------------------------------------
+
+        // --- Biến toàn cục ---
+        let app, db, auth;
+        let userId;
+        let categoriesCol, schedulesCol;
+        let unsubscribeCategories, unsubscribeSchedules;
+        let calendar; // (MỚI) Đưa calendar ra toàn cục
+        let currentConfirmCallback;
+
+        let categories = [];
+        let schedules = [];
+        const DEFAULT_CATEGORY_ID_PERSONAL = 'canhan';
+        const DEFAULT_CATEGORIES = [
+            { id: 'giangday', name: 'Giảng dạy', color: '#2563eb' },
+            { id: 'hop', name: 'Họp', color: '#d97706' },
+            { id: 'coithi', name: 'Coi thi', color: '#dc2626' },
+            { id: DEFAULT_CATEGORY_ID_PERSONAL, name: 'Việc cá nhân', color: '#57534e', nodelete: true }
+        ];
+
+        // (MỚI) Icon cho Chế độ Sáng/Tối
+        const sunIcon = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>`;
+        const moonIcon = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>`;
+
+        // (MỚI) Biến cho Ngôn ngữ
+        let currentLang = 'vi';
+        const translations = {
+            'vi': {
+                pageTitle: "Quản lý Thời khóa biểu",
+                mainTitle: "Quản lý Thời khóa biểu",
+                connecting: "Đang kết nối...",
+                notLoggedIn: "Chưa đăng nhập",
+                loginWelcome: "Chào mừng bạn đến với Lịch",
+                loginPrompt: "Vui lòng đăng nhập để đồng bộ hóa thời khóa biểu của bạn.",
+                loginButton: "Đăng nhập bằng Google",
+                loginError: "Lỗi đăng nhập: {message}. Vui lòng thử lại.",
+                menuLabel: "Chức năng",
+                searchPlaceholder: "Tìm kiếm...",
+                filterLabel: "Lọc theo:",
+                allOption: "Tất cả",
+                manageCategories: "Quản lý Phân loại",
+                exportExcel: "Xuất Excel",
+                themeLight: "Chế độ Sáng",
+                themeDark: "Chế độ Tối",
+                language: "Ngôn ngữ",
+                logout: "Đăng xuất",
+                calendarButtonText: { today: 'Hôm nay', month: 'Tháng', week: 'Tuần', day: 'Ngày' },
+                modalTitleAdd: "Thêm Sự kiện",
+                modalTitleEdit: "Sửa Sự kiện",
+                modalTitleLabel: "Tiêu đề",
+                modalDateLabel: "Ngày",
+                modalTimeStartLabel: "Giờ Bắt đầu",
+                modalTimeEndLabel: "Giờ Kết thúc",
+                modalAllDayLabel: "Cả ngày",
+                modalCompletedLabel: "Đã hoàn thành", // MỚI
+                modalCategoryLabel: "Phân loại",
+                modalClassLabel: "Lớp (Tùy chọn)",
+                modalTeacherLabel: "Giáo viên (Tùy chọn)",
+                modalLocationLabel: "Địa điểm (Tùy chọn)",
+                modalDescriptionLabel: "Mô tả (Tùy chọn)",
+                modalTimeError: "Lỗi: Giờ kết thúc phải sau giờ bắt đầu.",
+                modalDeleteButton: "Xóa",
+                modalCloseButton: "Đóng",
+                modalSaveButton: "Sửa",
+                confirmTitle: "Xác nhận",
+                confirmMessage: "Bạn có chắc chắn?",
+                confirmCancel: "Hủy",
+                confirmOK: "OK",
+                confirmDeleteTitle: "Xác nhận Xóa",
+                confirmDeleteEvent: "Bạn có chắc chắn muốn xóa sự kiện này?",
+                confirmDeleteEventOK: "Xóa",
+                personalCategory: "Việc cá nhân", // (SỬA) Thêm key dịch chuẩn
+                confirmDeleteCategoryMsg: `Xóa "{name}"? Các sự kiện dùng phân loại này sẽ được chuyển thành "Việc cá nhân".`,
+                catModalTitle: "Quản lý Phân loại",
+                catModalAddFormLabel: "Tên Phân loại",
+                catModalColorLabel: "Màu",
+                catModalAddButton: "Thêm",
+                catModalEditFormLabel: "Sửa Tên Phân loại",
+                catModalSaveButton: "Sửa",
+                catModalCancelButton: "Hủy",
+                catModalExistingLabel: "Các Phân loại Hiện có",
+                catModalNameExists: "Tên phân loại này đã tồn tại.",
+                tooltipCategory: "Phân loại",
+                tooltipClass: "Lớp",
+                tooltipTeacher: "Giáo viên",
+                tooltipLocation: "Địa điểm",
+                tooltipDescription: "Mô tả",
+                tooltipStatus: "Trạng thái", // MỚI
+                excelNoData: "Không có dữ liệu để xuất.",
+                excelError: "Đã xảy ra lỗi khi cố gắng xuất tệp Excel.",
+                excelSheetName: "ThoiKhoaBieu",
+                excelHeaders: ["Tiêu đề", "Ngày", "Giờ bắt đầu", "Giờ kết thúc", "Phân loại", "Lớp", "Giáo viên dạy", "Địa điểm", "Mô tả", "Trạng thái"], // MỚI
+                excelAllDay: "Cả ngày",
+                statusCompleted: "Đã hoàn thành", // MỚI
+                statusInProgress: "Chưa xong", // MỚI
+                notifyTomorrowTitle: "Thông báo Lịch trình Ngày mai",
+                notifyTomorrowMsg: `Bạn có {count} sự kiện vào ngày mai ({date}): {events}.`,
+                notifyOK: "Đã hiểu"
+            },
+            'en': {
+                pageTitle: "Schedule Management",
+                mainTitle: "Schedule Management",
+                connecting: "Connecting...",
+                notLoggedIn: "Not logged in",
+                loginWelcome: "Welcome to Calendar",
+                loginPrompt: "Please log in to sync your schedule.",
+                loginButton: "Sign in with Google",
+                loginError: "Login error: {message}. Please try again.",
+                menuLabel: "Functions",
+                searchPlaceholder: "Search...",
+                filterLabel: "Filter by:",
+                allOption: "All",
+                manageCategories: "Manage Categories",
+                exportExcel: "Export Excel",
+                themeLight: "Light Mode",
+                themeDark: "Dark Mode",
+                language: "Language",
+                logout: "Logout",
+                calendarButtonText: { today: 'Today', month: 'Month', week: 'Week', day: 'Day' },
+                modalTitleAdd: "Add Event",
+                modalTitleEdit: "Edit Event",
+                modalTitleLabel: "Title",
+                modalDateLabel: "Date",
+                modalTimeStartLabel: "Start Time",
+                modalTimeEndLabel: "End Time",
+                modalAllDayLabel: "All day",
+                modalCompletedLabel: "Completed", // MỚI
+                modalCategoryLabel: "Category",
+                modalClassLabel: "Class (Optional)",
+                modalTeacherLabel: "Teacher (Optional)",
+                modalLocationLabel: "Location (Optional)",
+                modalDescriptionLabel: "Description (Optional)",
+                modalTimeError: "Error: End time must be after start time.",
+                modalDeleteButton: "Delete",
+                modalCloseButton: "Close",
+                modalSaveButton: "Save",
+                confirmTitle: "Confirm",
+                confirmMessage: "Are you sure?",
+                confirmCancel: "Cancel",
+                confirmOK: "OK",
+                confirmDeleteTitle: "Confirm Deletion",
+                confirmDeleteEvent: "Are you sure you want to delete this event?",
+                confirmDeleteEventOK: "Delete",
+                personalCategory: "Personal", // (SỬA) Thêm key dịch chuẩn
+                confirmDeleteCategoryMsg: `Delete "{name}"? Events using this category will be moved to "Personal".`,
+                catModalTitle: "Manage Categories",
+                catModalAddFormLabel: "Category Name",
+                catModalColorLabel: "Color",
+                catModalAddButton: "Add",
+                catModalEditFormLabel: "Edit Category Name",
+                catModalSaveButton: "Save",
+                catModalCancelButton: "Cancel",
+                catModalExistingLabel: "Existing Categories",
+                catModalNameExists: "This category name already exists.",
+                tooltipCategory: "Category",
+                tooltipClass: "Class",
+                tooltipTeacher: "Teacher",
+                tooltipLocation: "Location",
+                tooltipDescription: "Description",
+                tooltipStatus: "Status", // MỚI
+                excelNoData: "No data to export.",
+                excelError: "An error occurred while trying to export the Excel file.",
+                excelSheetName: "Schedule",
+                excelHeaders: ["Title", "Date", "Start Time", "End Time", "Category", "Class", "Teacher", "Location", "Description", "Status"], // MỚI
+                excelAllDay: "All day",
+                statusCompleted: "Completed", // MỚI
+                statusInProgress: "In Progress", // MỚI
+                notifyTomorrowTitle: "Tomorrow's Schedule Notification",
+                notifyTomorrowMsg: `You have {count} events tomorrow ({date}): {events}.`,
+                notifyOK: "Got it"
+            },
+            'fr': {
+                pageTitle: "Gestion d'horaire",
+                mainTitle: "Gestion d'horaire",
+                connecting: "Connexion...",
+                notLoggedIn: "Non connecté",
+                loginWelcome: "Bienvenue au Calendrier",
+                loginPrompt: "Veuillez vous connecter pour synchroniser votre horaire.",
+                loginButton: "Se connecter avec Google",
+                loginError: "Erreur de connexion : {message}. Veuillez réessayer.",
+                menuLabel: "Fonctions",
+                searchPlaceholder: "Rechercher...",
+                filterLabel: "Filtrer par :",
+                allOption: "Tous",
+                manageCategories: "Gérer les Catégories",
+                exportExcel: "Exporter Excel",
+                themeLight: "Mode Clair",
+                themeDark: "Mode Sombre",
+                language: "Langue",
+                logout: "Déconnexion",
+                calendarButtonText: { today: "Aujourd'hui", month: 'Mois', week: 'Semaine', day: 'Jour' },
+                modalTitleAdd: "Ajouter un Événement",
+                modalTitleEdit: "Modifier l'Événement",
+                modalTitleLabel: "Titre",
+                modalDateLabel: "Date",
+                modalTimeStartLabel: "Heure de début",
+                modalTimeEndLabel: "Heure de fin",
+                modalAllDayLabel: "Toute la journée",
+                modalCompletedLabel: "Terminé", // MỚI
+                modalCategoryLabel: "Catégorie",
+                modalClassLabel: "Classe (Optionnel)",
+                modalTeacherLabel: "Enseignant (Optionnel)",
+                modalLocationLabel: "Lieu (Optionnel)",
+                modalDescriptionLabel: "Description (Optionnel)",
+                modalTimeError: "Erreur : L'heure de fin doit être après l'heure de début.",
+                modalDeleteButton: "Supprimer",
+                modalCloseButton: "Fermer",
+                modalSaveButton: "Enregistrer",
+                confirmTitle: "Confirmer",
+                confirmMessage: "Êtes-vous sûr ?",
+                confirmCancel: "Annuler",
+                confirmOK: "OK",
+                confirmDeleteTitle: "Confirmer la Suppression",
+                confirmDeleteEvent: "Êtes-vous sûr de vouloir supprimer cet événement ?",
+                confirmDeleteEventOK: "Supprimer",
+                personalCategory: "Personnel", // (SỬA) Thêm key dịch chuẩn
+                confirmDeleteCategoryMsg: `Supprimer "{name}" ? Les événements utilisant cette catégorie seront déplacés vers "Personnel".`,
+                catModalTitle: "Gérer les Catégories",
+                catModalAddFormLabel: "Nom de la Catégorie",
+                catModalColorLabel: "Couleur",
+                catModalAddButton: "Ajouter",
+                catModalEditFormLabel: "Modifier le Nom de la Catégorie",
+                catModalSaveButton: "Enregistrer",
+                catModalCancelButton: "Annuler",
+                catModalExistingLabel: "Catégories Existantes",
+                catModalNameExists: "Ce nom de catégorie existe déjà.",
+                tooltipCategory: "Catégorie",
+                tooltipClass: "Classe",
+                tooltipTeacher: "Enseignant",
+                tooltipLocation: "Lieu",
+                tooltipDescription: "Description",
+                tooltipStatus: "Statut", // MỚI
+                excelNoData: "Aucune donnée à exporter.",
+                excelError: "Une erreur est survenue lors de l'exportation du fichier Excel.",
+                excelSheetName: "Horaire",
+                excelHeaders: ["Titre", "Date", "Heure de début", "Heure de fin", "Catégorie", "Classe", "Enseignant", "Lieu", "Description", "Statut"], // MỚI
+                excelAllDay: "Toute la journée",
+                statusCompleted: "Terminé", // MỚI
+                statusInProgress: "En cours", // MỚI
+                notifyTomorrowTitle: "Notification d'horaire de demain",
+                notifyTomorrowMsg: `Vous avez {count} événements demain ({date}) : {events}.`,
+                notifyOK: "Compris"
+            }
+        };
+
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            // --- Lấy các phần tử DOM ---
+            // (MỚI) DOM cho Chế độ Sáng/Tối
+            const themeToggle = document.getElementById('themeToggle');
+            const themeToggleDesktop = document.getElementById('themeToggleDesktop');
+
+            // (MỚI) DOM cho Ngôn ngữ
+            const langSwitch = document.getElementById('langSwitch');
+            const langSwitchDesktop = document.getElementById('langSwitchDesktop');
+
+            // (MỚI) DOM cho Xác thực
+            const authScreen = document.getElementById('authScreen');
+            const loginButton = document.getElementById('loginButton');
+            const userInfoDisplay = document.getElementById('userInfoDisplay');
+            const logoutButton = document.getElementById('logoutButton');
+            const logoutButtonDesktop = document.getElementById('logoutButtonDesktop');
+
+            const appContent = document.getElementById('appContent');
+            const calendarEl = document.getElementById('calendar');
+            const modal = document.getElementById('eventModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const eventForm = document.getElementById('eventForm');
+            const eventIdInput = document.getElementById('eventIdInput');
+            const eventTitleInput = document.getElementById('eventTitle');
+            const eventDateInput = document.getElementById('eventDate');
+            const eventTimeInput = document.getElementById('eventTime');
+            const eventEndTimeInput = document.getElementById('eventEndTime');
+            const timeInputGroup = document.getElementById('timeInputGroup');
+            const eventAllDayInput = document.getElementById('eventAllDay');
+            const eventCompletedInput = document.getElementById('eventCompleted'); // MỚI
+            const eventCategoryInput = document.getElementById('eventCategory');
+            // (MỚI) DOM cho trường Lớp và Giáo viên
+            const eventClassInput = document.getElementById('eventClass');
+            const eventTeacherInput = document.getElementById('eventTeacher');
+            const eventLocationInput = document.getElementById('eventLocation');
+            const eventDescriptionInput = document.getElementById('eventDescription');
+            const saveButton = document.getElementById('saveButton');
+            const deleteButton = document.getElementById('deleteButton');
+            const closeModalButton = document.getElementById('closeModalButton');
+            const timeError = document.getElementById('timeError');
+            const confirmModal = document.getElementById('confirmModal');
+            const confirmTitle = document.getElementById('confirmTitle');
+            const confirmMessage = document.getElementById('confirmMessage');
+            const confirmCancel = document.getElementById('confirmCancel');
+            const confirmOK = document.getElementById('confirmOK');
+            const categoryModal = document.getElementById('categoryModal');
+            const closeCategoryModalButton = document.getElementById('closeCategoryModalButton');
+            const addCategoryForm = document.getElementById('addCategoryForm');
+            const newCategoryNameInput = document.getElementById('newCategoryName');
+            const newCategoryColorInput = document.getElementById('newCategoryColor');
+            const categoryList = document.getElementById('categoryList');
+            const dynamicStyles = document.getElementById('dynamic-category-styles');
+            const editCategoryForm = document.getElementById('editCategoryForm');
+            const editCategoryIdInput = document.getElementById('editCategoryId');
+            const editCategoryNameInput = document.getElementById('editCategoryName');
+            const editCategoryColorInput = document.getElementById('editCategoryColor');
+            const cancelEditButton = document.getElementById('cancelEditButton');
+            const menuOpenButton = document.getElementById('menuOpenButton');
+            const menuCloseButton = document.getElementById('menuCloseButton');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const searchInput = document.getElementById('searchInput');
+            const searchInputDesktop = document.getElementById('searchInputDesktop');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const manageCategoriesButton = document.getElementById('manageCategoriesButton');
+            const categoryFilterDesktop = document.getElementById('categoryFilterDesktop');
+            const manageCategoriesButtonDesktop = document.getElementById('manageCategoriesButtonDesktop');
+            const exportExcelButton = document.getElementById('exportExcelButton');
+            const exportExcelButtonDesktop = document.getElementById('exportExcelButtonDesktop');
+
+            // --- (MỚI) 0. Khởi tạo Chế độ Sáng/Tối ---
+            function updateThemeUI(isDarkMode) {
+                const icon = isDarkMode ? sunIcon : moonIcon;
+                const text = isDarkMode ? translations[currentLang].themeLight : translations[currentLang].themeDark;
+                themeToggle.innerHTML = `${icon}<span>${text}</span>`;
+                themeToggleDesktop.innerHTML = icon;
+                themeToggleDesktop.setAttribute('aria-label', text);
+            }
+
+            function applyTheme() {
+                const theme = localStorage.getItem('theme');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (theme === 'dark' || (!theme && prefersDark)) {
+                    document.documentElement.classList.add('dark');
+                    updateThemeUI(true);
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    updateThemeUI(false);
+                }
+            }
+
+            function toggleTheme() {
+                const isDarkMode = document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+                updateThemeUI(isDarkMode);
+            }
+
+            themeToggle.addEventListener('click', toggleTheme);
+            themeToggleDesktop.addEventListener('click', toggleTheme);
+            // applyTheme() sẽ được gọi bên trong setLanguage()
+
+            // --- (MỚI) 0. Khởi tạo Ngôn ngữ ---
+            function setLanguage(lang) {
+                if (!translations[lang]) lang = 'vi';
+                currentLang = lang;
+                localStorage.setItem('language', lang);
+                document.documentElement.lang = lang;
+
+                // Cập nhật các select
+                langSwitch.value = lang;
+                langSwitchDesktop.value = lang;
+
+                // Dịch tất cả các phần tử có data-lang-key
+                document.querySelectorAll('[data-lang-key]').forEach(el => {
+                    const key = el.getAttribute('data-lang-key');
+                    const translation = translations[lang][key];
+                    if (translation) {
+                        el.innerText = translation;
+                    }
+                });
+
+                // Dịch các placeholder
+                document.querySelectorAll('[data-lang-key-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-lang-key-placeholder');
+                    const translation = translations[lang][key];
+                    if (translation) {
+                        el.placeholder = translation;
+                    }
+                });
+
+                // Cập nhật Locale cho Calendar (nếu đã khởi tạo)
+                if (calendar) {
+                    calendar.setOption('locale', lang);
+                    calendar.setOption('buttonText', translations[lang].calendarButtonText);
+                }
+
+                // Cập nhật lại UI Sáng/Tối (vì text đã thay đổi)
+                updateThemeUI(document.documentElement.classList.contains('dark'));
+
+                // (MỚI) Cập nhật các option trong filter
+                populateCategoryDropdowns();
+            }
+
+            langSwitch.addEventListener('change', (e) => setLanguage(e.target.value));
+            langSwitchDesktop.addEventListener('change', (e) => setLanguage(e.target.value));
+
+            // Áp dụng ngôn ngữ đã Sửa hoặc mặc định
+            setLanguage(localStorage.getItem('language') || 'vi');
+            applyTheme(); // Áp dụng theme sau khi có ngôn ngữ
+
+
+            // --- (MỚI) 1. Khởi tạo Firebase (Đơn giản hóa) ---
+            try {
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                setLogLevel('Debug');
+            } catch (error) {
+                console.error("Lỗi khởi tạo Firebase:", error);
+                authScreen.innerHTML = `<div class="text-center text-red-600">Lỗi nghiêm trọng khi khởi tạo Firebase: ${error.message}</div>`;
+                return;
+            }
+
+            // --- (MỚI) 2. Bộ não Xác thực: Lắng nghe thay đổi Đăng nhập/Đăng xuất ---
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    // --- A. NGƯỜI DÙNG ĐÃ ĐĂNG NHẬP ---
+                    userId = user.uid;
+
+                    // Cập nhật UI
+                    userInfoDisplay.innerText = user.displayName || user.email || 'Người dùng';
+                    userInfoDisplay.title = `UserID: ${user.uid}`;
+                    logoutButton.classList.remove('hidden');
+                    logoutButtonDesktop.classList.remove('hidden');
+
+                    // Định nghĩa đường dẫn CSDL cho người dùng này
+                    const userPath = `users/${userId}`;
+                    categoriesCol = collection(db, `${userPath}/schedule_categories`);
+                    schedulesCol = collection(db, `${userPath}/schedule_events`);
+
+                    // Hiển thị ứng dụng
+                    authScreen.classList.add('hidden');
+                    appContent.classList.remove('hidden');
+
+                    // Khởi động listener và vẽ lịch
+                    await startAppListenersAndCalendar();
+
+                } else {
+                    // --- B. NGƯỜI DÙNG ĐÃ ĐĂNG XUẤT ---
+                    userId = null;
+
+                    // Dọn dẹp listener cũ
+                    if (unsubscribeCategories) unsubscribeCategories();
+                    if (unsubscribeSchedules) unsubscribeSchedules();
+                    categories = [];
+                    schedules = [];
+
+                    // Hủy lịch cũ (nếu có)
+                    if (calendar) {
+                        calendar.destroy();
+                        calendar = null;
+                    }
+
+                    // Cập nhật UI
+                    userInfoDisplay.innerText = translations[currentLang].notLoggedIn;
+                    userInfoDisplay.title = '';
+                    logoutButton.classList.add('hidden');
+                    logoutButtonDesktop.classList.add('hidden');
+
+                    // Hiển thị màn hình đăng nhập
+                    authScreen.classList.remove('hidden');
+                    appContent.classList.add('hidden');
+                }
+            });
+
+            // --- (MỚI) 3. Xử lý các nút Đăng nhập / Đăng xuất ---
+            async function handleLogin() {
+                const provider = new GoogleAuthProvider();
+                try {
+                    await signInWithPopup(auth, provider);
+                    // onAuthStateChanged sẽ tự động xử lý phần còn lại
+                } catch (error) {
+                    console.error("Lỗi khi đăng nhập Google:", error);
+                    authScreen.querySelector('#loginError').innerText = translations[currentLang].loginError.replace('{message}', error.message);
+                }
+            }
+
+            async function handleLogout() {
+                try {
+                    await signOut(auth);
+                    // onAuthStateChanged sẽ tự động xử lý phần còn lại
+                } catch (error) {
+                    console.error("Lỗi khi đăng xuất:", error);
+                }
+            }
+
+            loginButton.addEventListener('click', handleLogin);
+            logoutButton.addEventListener('click', handleLogout);
+            logoutButtonDesktop.addEventListener('click', handleLogout);
+
+            // --- (MỚI) 4. Hàm khởi động ứng dụng (SAU KHI ĐĂNG NHẬP) ---
+            async function startAppListenersAndCalendar() {
+                if (!userId) return; // Bảo vệ
+
+                await checkAndSeedCategories();
+
+                loadCategories(); // Bắt đầu lắng nghe
+                loadSchedules(); // Bắt đầu lắng nghe
+
+                // Nếu lịch đã tồn tại, hủy nó trước khi tạo mới
+                if (calendar) {
+                    calendar.destroy();
+                    calendar = null;
+                }
+
+                calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    locale: currentLang, // (MỚI) Sử dụng ngôn ngữ hiện tại
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                    },
+                    buttonText: translations[currentLang].calendarButtonText, // (MỚI) Sử dụng text từ bản dịch
+                    editable: true,
+                    selectable: true,
+                    eventResizableFromStart: true,
+                    events: function (fetchInfo, successCallback, failureCallback) {
+                        try {
+                            const selectedCategory = categoryFilterDesktop.value;
+                            const searchTerm = searchInputDesktop.value.toLowerCase().trim();
+                            const canhanCatId = DEFAULT_CATEGORY_ID_PERSONAL;
+                            let filteredSchedules = [...schedules];
+                            if (selectedCategory !== 'all') {
+                                filteredSchedules = filteredSchedules.filter(item => {
+                                    const itemCatId = item.category || canhanCatId;
+                                    return itemCatId === selectedCategory;
+                                });
+                            }
+                            if (searchTerm) {
+                                filteredSchedules = filteredSchedules.filter(item =>
+                                    item.title.toLowerCase().includes(searchTerm) ||
+                                    (item.location || '').toLowerCase().includes(searchTerm) ||
+                                    (item.description || '').toLowerCase().includes(searchTerm) ||
+                                    (item.class || '').toLowerCase().includes(searchTerm) ||
+                                    (item.teacher || '').toLowerCase().includes(searchTerm)
+                                );
+                            }
+                            const events = mapSchedulesToCalendarEvents(filteredSchedules);
+                            successCallback(events);
+                        } catch (e) {
+                            failureCallback(e);
+                        }
+                    },
+                    dateClick: function (info) {
+                        openModal({ date: info.dateStr });
+                    },
+                    eventClick: function (info) {
+                        if (!info.event.id) return;
+                        openModal({ eventId: info.event.id });
+                    },
+                    eventDrop: async function (info) {
+                        const eventId = info.event.id;
+                        if (!eventId) return;
+                        const item = schedules.find(s => s.id === eventId);
+                        if (!item) return;
+                        const newStartDate = info.event.start;
+                        if (!newStartDate) return;
+                        const newDate = formatDate(newStartDate);
+                        const isAllDay = info.event.allDay;
+                        let newTime = null;
+                        let newEndTime = null;
+                        if (!isAllDay) {
+                            newTime = formatTime(newStartDate);
+                            if (item.time && item.endTime) {
+                                const oldStartMS = (parseInt(item.time.split(':')[0]) * 60 + parseInt(item.time.split(':')[1])) * 60000;
+                                const oldEndMS = (parseInt(item.endTime.split(':')[0]) * 60 + parseInt(item.endTime.split(':')[1])) * 60000;
+                                const duration = oldEndMS - oldStartMS;
+                                if (duration > 0) {
+                                    const newEndTimeObj = new Date(newStartDate.getTime() + duration);
+                                    newEndTime = formatTime(newEndTimeObj);
+                                }
+                            }
+                        }
+                        try {
+                            const eventRef = doc(schedulesCol, eventId);
+                            await updateDoc(eventRef, {
+                                date: newDate,
+                                allDay: isAllDay,
+                                time: newTime,
+                                endTime: newEndTime
+                            });
+                        } catch (error) {
+                            console.error("Lỗi khi kéo thả sự kiện:", error);
+                            info.revert();
+                        }
+                    },
+                    eventResize: async function (info) {
+                        const eventId = info.event.id;
+                        if (!eventId) return;
+                        const item = schedules.find(s => s.id === eventId);
+                        if (!item || item.allDay) return;
+                        try {
+                            const eventRef = doc(schedulesCol, eventId);
+                            await updateDoc(eventRef, {
+                                time: formatTime(info.event.start),
+                                endTime: formatTime(info.event.end)
+                            });
+                        } catch (error) {
+                            console.error("Lỗi khi thay đổi kích thước sự kiện:", error);
+                            info.revert();
+                        }
+                    },
+                    eventMouseEnter: function (info) {
+                        const props = info.event.extendedProps;
+                        const categoryName = categories.find(c => c.id === props.category)?.name || '...';
+                        const trans = translations[currentLang];
+                        let title = `${trans.tooltipCategory}: ${categoryName}\n`;
+                        // (MỚI) Thêm Lớp, Giáo viên, Trạng thái vào tooltip
+                        if (props.class) title += `${trans.tooltipClass}: ${props.class}\n`;
+                        if (props.teacher) title += `${trans.tooltipTeacher}: ${props.teacher}\n`;
+                        if (props.location) title += `${trans.tooltipLocation}: ${props.location}\n`;
+                        if (props.description) title += `${trans.tooltipDescription}: ${props.description}\n`;
+                        if (props.completed) title += `${trans.tooltipStatus}: ${trans.statusCompleted}\n`; // MỚI
+                        info.el.title = title.trim();
+                    }
+                });
+
+                calendar.render();
+                calendar.updateSize(); // Sửa lỗi UI
+            }
+
+            // --- (MỚI) Hàm kiểm tra và thêm Phân loại mặc định ---
+            async function checkAndSeedCategories() {
+                const snapshot = await getDocs(categoriesCol);
+                if (snapshot.empty) {
+                    console.log("Không tìm thấy phân loại, đang thêm mặc định...");
+                    const batch = writeBatch(db);
+                    // (MỚI) Dùng ID làm key thay vì name, để hỗ trợ đa ngôn ngữ
+                    // Tên sẽ được dịch, nhưng ID là cố định
+                    // Tên mặc định ở đây là Tiếng Việt, vì logic cũ là vậy
+                    DEFAULT_CATEGORIES.forEach(cat => {
+                        const docRef = doc(categoriesCol, cat.id);
+                        batch.set(docRef, {
+                            name: cat.name, // Tên 'gốc' (tiếng Việt)
+                            color: cat.color,
+                            nodelete: cat.nodelete || false
+                        });
+                    });
+                    await batch.commit();
+                }
+            }
+
+            // --- (MỚI) Hàm lắng nghe thay đổi Phân loại ---
+            function loadCategories() {
+                if (unsubscribeCategories) unsubscribeCategories();
+                unsubscribeCategories = onSnapshot(categoriesCol, (snapshot) => {
+                    categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    injectDynamicCategoryStyles();
+                    populateCategoryDropdowns();
+                    if (!categoryModal.classList.contains('hidden')) {
+                        renderCategoryList();
+                    }
+                    if (calendar) {
+                        calendar.refetchEvents();
+                    }
+                }, (error) => {
+                    console.error("Lỗi khi tải Phân loại:", error);
+                });
+            }
+
+            // --- (MỚI) Hàm lắng nghe thay đổi Sự kiện ---
+            function loadSchedules() {
+                if (unsubscribeSchedules) unsubscribeSchedules();
+                unsubscribeSchedules = onSnapshot(schedulesCol, (snapshot) => {
+                    schedules = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    if (calendar) {
+                        calendar.refetchEvents();
+                    }
+                    // (MỚI) Kiểm tra lịch ngày mai sau khi tải
+                    checkTomorrowSchedule(schedules);
+                }, (error) => {
+                    console.error("Lỗi khi tải Sự kiện:", error);
+                });
+            }
+
+            // --- Hàm Quản lý Phân loại (dùng Firestore) ---
+            function injectDynamicCategoryStyles() {
+                let css = "";
+                categories.forEach(cat => {
+                    css += `.fc-event.event-${cat.id} { background-color: ${cat.color}; border-color: ${cat.color}; color: #ffffff; }`;
+                });
+                // (MỚI) Thêm style cho sự kiện đã hoàn thành
+                css += `.fc-event.event-completed { opacity: 0.8; /* Chỉ làm mờ, không gạch ngang */ }`;
+                dynamicStyles.innerHTML = css;
+            }
+
+            function populateCategoryDropdowns() {
+                const currentFilterValue = categoryFilter.value || categoryFilterDesktop.value || 'all';
+                const allOptionText = translations[currentLang].allOption;
+
+                categoryFilter.innerHTML = `<option value="all">${allOptionText}</option>`;
+                categoryFilterDesktop.innerHTML = `<option value="all">${allOptionText}</option>`;
+                eventCategoryInput.innerHTML = '';
+
+                categories.forEach(cat => {
+                    // (MỚI) Tạm thời chỉ hiển thị tên gốc, vì việc dịch tên phân loại do người dùng tạo ra rất phức tạp
+                    // Nếu "Việc cá nhân" thì dịch
+                    // (SỬA) Dùng key 'personalCategory' thay vì logic split() bị lỗi
+                    const catName = (cat.id === DEFAULT_CATEGORY_ID_PERSONAL) ? translations[currentLang].personalCategory : cat.name;
+
+                    const filterOption = document.createElement('option');
+                    filterOption.value = cat.id;
+                    filterOption.textContent = catName;
+                    const filterOptionDesktop = filterOption.cloneNode(true);
+                    categoryFilter.appendChild(filterOption);
+                    categoryFilterDesktop.appendChild(filterOptionDesktop);
+
+                    const formOption = document.createElement('option');
+                    formOption.value = cat.id;
+                    formOption.textContent = catName;
+                    eventCategoryInput.appendChild(formOption);
+                });
+
+                categoryFilter.value = currentFilterValue;
+                categoryFilterDesktop.value = currentFilterValue;
+            }
+
+            function renderCategoryList() {
+                categoryList.innerHTML = '';
+                categories.forEach(cat => {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center justify-between p-2 border rounded-md dark:border-gray-600';
+                    const left = document.createElement('div');
+                    left.className = 'flex items-center gap-2';
+                    const colorSwatch = document.createElement('span');
+                    colorSwatch.className = 'w-5 h-5 rounded-full inline-block border';
+                    colorSwatch.style.backgroundColor = cat.color;
+                    const name = document.createElement('span');
+                    // (MỚI) Dịch tên "Việc cá nhân"
+                    // (SỬA) Dùng key 'personalCategory' thay vì logic split() bị lỗi
+                    name.textContent = (cat.id === DEFAULT_CATEGORY_ID_PERSONAL) ? translations[currentLang].personalCategory : cat.name;
+                    left.appendChild(colorSwatch);
+                    left.appendChild(name);
+                    div.appendChild(left);
+                    const buttonsWrapper = document.createElement('div');
+                    buttonsWrapper.className = 'flex items-center gap-3';
+                    const editBtn = document.createElement('button');
+                    editBtn.type = 'button';
+                    editBtn.textContent = translations[currentLang].catModalSaveButton; // "Sửa" -> "Sửa"
+                    editBtn.className = 'text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium';
+                    editBtn.onclick = () => showEditCategoryForm(cat);
+                    buttonsWrapper.appendChild(editBtn);
+                    if (!cat.nodelete) {
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.type = 'button';
+                        deleteBtn.textContent = translations[currentLang].modalDeleteButton;
+                        deleteBtn.className = 'text-xs text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 font-medium';
+                        deleteBtn.onclick = () => deleteCategory(cat.id);
+                        buttonsWrapper.appendChild(deleteBtn);
+                    }
+                    div.appendChild(buttonsWrapper);
+                    categoryList.appendChild(div);
+                });
+            }
+
+            async function addCategory(e) {
+                e.preventDefault();
+                const name = newCategoryNameInput.value.trim();
+                const color = newCategoryColorInput.value;
+                if (!name) return;
+                if (categories.some(cat => cat.name.toLowerCase() === name.toLowerCase())) {
+                    newCategoryNameInput.setCustomValidity(translations[currentLang].catModalNameExists);
+                    newCategoryNameInput.reportValidity();
+                    setTimeout(() => newCategoryNameInput.setCustomValidity(""), 2000);
+                    return;
+                }
+                newCategoryNameInput.setCustomValidity("");
+                try {
+                    await addDoc(categoriesCol, { name, color, nodelete: false });
+                    newCategoryNameInput.value = '';
+                } catch (error) {
+                    console.error("Lỗi khi thêm phân loại:", error);
+                }
+            }
+
+            async function deleteCategory(idToDelete) {
+                if (categories.length <= 1) return;
+                const category = categories.find(c => c.id === idToDelete);
+                if (!category || category.nodelete) return;
+
+                // (SỬA) Dùng key 'personalCategory' thay vì logic split() bị lỗi
+                const catName = (category.id === DEFAULT_CATEGORY_ID_PERSONAL) ? translations[currentLang].personalCategory : category.name;
+                const message = translations[currentLang].confirmDeleteCategoryMsg.replace('"{name}"', `"${catName}"`);
+
+                openConfirmModal(message, translations[currentLang].confirmDeleteTitle, translations[currentLang].confirmDeleteEventOK, async () => {
+                    try {
+                        const q = query(schedulesCol, where("category", "==", idToDelete));
+                        const snapshot = await getDocs(q);
+                        const batch = writeBatch(db);
+                        snapshot.docs.forEach(doc => {
+                            batch.update(doc.ref, { category: DEFAULT_CATEGORY_ID_PERSONAL });
+                        });
+                        await batch.commit();
+                        await deleteDoc(doc(categoriesCol, idToDelete));
+                    } catch (error) {
+                        console.error("Lỗi khi xóa phân loại:", error);
+                    }
+                });
+            }
+
+            function showEditCategoryForm(category) {
+                addCategoryForm.classList.add('hidden');
+                editCategoryForm.classList.remove('hidden');
+                editCategoryIdInput.value = category.id;
+                // (MỚI) Dịch tên "Việc cá nhân"
+                // (SỬA) Dùng key 'personalCategory' thay vì logic split() bị lỗi
+                editCategoryNameInput.value = (category.id === DEFAULT_CATEGORY_ID_PERSONAL) ? translations[currentLang].personalCategory : category.name;
+                editCategoryColorInput.value = category.color;
+                editCategoryNameInput.disabled = !!category.nodelete;
+            }
+
+            function hideEditCategoryForm() {
+                editCategoryForm.classList.add('hidden');
+                addCategoryForm.classList.remove('hidden');
+                editCategoryIdInput.value = '';
+                editCategoryNameInput.value = '';
+                editCategoryNameInput.disabled = false;
+                editCategoryNameInput.setCustomValidity("");
+            }
+
+            async function handleUpdateCategory(e) {
+                e.preventDefault();
+                const id = editCategoryIdInput.value;
+                const name = editCategoryNameInput.value.trim();
+                const color = editCategoryColorInput.value;
+                if (!name) return;
+                const categoryToUpdate = categories.find(c => c.id === id);
+                if (!categoryToUpdate) return;
+                // (MỚI) Khi kiểm tra trùng lặp, phải so sánh với tên gốc, không phải tên đã dịch
+                // (SỬA) Sửa lại logic kiểm tra trùng lặp
+                // Chỉ kiểm tra nếu KHÔNG phải là phân loại mặc định (vì nó bị vô hiệu hóa)
+                if (!categoryToUpdate.nodelete && categories.some(cat => cat.id !== id && cat.name.toLowerCase() === name.toLowerCase())) {
+                    editCategoryNameInput.setCustomValidity(translations[currentLang].catModalNameExists);
+                    editCategoryNameInput.reportValidity();
+                    setTimeout(() => editCategoryNameInput.setCustomValidity(""), 2000);
+                    return;
+                }
+                editCategoryNameInput.setCustomValidity("");
+                try {
+                    const docRef = doc(categoriesCol, id);
+                    const dataToUpdate = { color };
+                    if (!categoryToUpdate.nodelete) {
+                        dataToUpdate.name = name; // (SỬA) Dùng tên từ form
+                    }
+                    await updateDoc(docRef, dataToUpdate);
+                    hideEditCategoryForm();
+                } catch (error) {
+                    console.error("Lỗi khi cập nhật phân loại:", error);
+                }
+            }
+
+            // --- Hàm chuyển đổi dữ liệu ---
+            function mapSchedulesToCalendarEvents(scheduleData) {
+                const canhanCatId = DEFAULT_CATEGORY_ID_PERSONAL;
+                return scheduleData.map((item) => {
+                    const categoryId = item.category && categories.find(c => c.id === item.category) ? item.category : canhanCatId;
+                    const event = {
+                        id: item.id,
+                        title: (item.completed ? '✅ ' : '') + item.title,
+                        allDay: item.allDay || false,
+                        // (MỚI) Thêm class 'event-completed'
+                        className: `event-${categoryId} ${item.allDay ? 'event-all-day' : ''} ${item.completed ? 'event-completed' : ''}`,
+                        extendedProps: {
+                            category: categoryId,
+                            location: item.location || '',
+                            description: item.description || '',
+                            class: item.class || '',
+                            teacher: item.teacher || '',
+                            completed: item.completed || false // MỚI
+                        }
+                    };
+                    if (item.allDay) {
+                        event.start = item.date;
+                    } else {
+                        event.start = `${item.date}T${item.time || '00:00'}`;
+                        if (item.endTime && item.time && item.endTime > item.time) {
+                            event.end = `${item.date}T${item.endTime}`;
+                        }
+                    }
+                    return event;
+                });
+            }
+
+            // --- Hàm định dạng thời gian ---
+            function formatTime(date) {
+                if (!date) return null;
+                return date.toTimeString().slice(0, 5); // "HH:MM"
+            }
+            function formatDate(date) {
+                if (!date) return null;
+                return date.toISOString().slice(0, 10);
+            }
+
+            // --- (MỚI) Hàm kiểm tra lịch ngày mai ---
+            function checkTomorrowSchedule(scheduleData) {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const tomorrowString = formatDate(tomorrow);
+
+                // (SỬA) Xóa_bỏ_sessionStorage_để_thông_báo_luôn_xuất_hiện_khi_tải_trang
+                // const notificationKey = `notified_tomorrow_${tomorrowString}`;
+
+                // Chỉ kiểm tra nếu chưa thông báo trong session này
+                // if (sessionStorage.getItem(notificationKey)) {
+                //     return;
+                // }
+
+                const tomorrowEvents = scheduleData.filter(item => item.date === tomorrowString);
+
+                if (tomorrowEvents.length > 0) {
+                    let eventTitles = tomorrowEvents.map(e => e.title).join(', ');
+                    if (eventTitles.length > 100) { // Cắt ngắn nếu quá dài
+                        eventTitles = eventTitles.substring(0, 100) + '...';
+                    }
+                    // (MỚI) Dùng bản dịch
+                    let message = translations[currentLang].notifyTomorrowMsg
+                        .replace('{count}', tomorrowEvents.length)
+                        .replace('{date}', tomorrowString)
+                        .replace('{events}', eventTitles);
+
+                    // Sử dụng modal xác nhận làm thông báo
+                    openConfirmModal(message, translations[currentLang].notifyTomorrowTitle, translations[currentLang].notifyOK, () => { });
+
+                    // (SỬA) Xóa_bỏ_sessionStorage_để_thông_báo_luôn_xuất_hiện_khi_tải_trang
+                    // sessionStorage.setItem(notificationKey, 'true');
+                }
+            }
+
+
+            // --- Hàm bật/tắt ô thời gian ---
+            function toggleTimeInput() {
+                if (eventAllDayInput.checked) {
+                    timeInputGroup.classList.add('hidden');
+                    eventTimeInput.required = false;
+                    eventEndTimeInput.required = false;
+                } else {
+                    timeInputGroup.classList.remove('hidden');
+                    eventTimeInput.required = true;
+                    eventEndTimeInput.required = false;
+                }
+            }
+            eventAllDayInput.addEventListener('change', toggleTimeInput);
+
+            // --- Hàm Mở Modal Sự kiện ---
+            function openModal({ date, eventId }) {
+                eventForm.reset();
+                timeError.classList.add('hidden');
+                const canhanCatId = DEFAULT_CATEGORY_ID_PERSONAL;
+                if (eventId) {
+                    const item = schedules.find(s => s.id === eventId);
+                    if (!item) {
+                        console.error("Không tìm thấy sự kiện với ID:", eventId);
+                        return;
+                    }
+                    modalTitle.innerText = translations[currentLang].modalTitleEdit;
+                    eventIdInput.value = item.id;
+                    eventTitleInput.value = item.title;
+                    eventDateInput.value = item.date;
+                    eventTimeInput.value = item.time || "08:00";
+                    eventEndTimeInput.value = item.endTime || "";
+                    eventCategoryInput.value = categories.find(c => c.id === item.category) ? item.category : canhanCatId;
+                    eventAllDayInput.checked = item.allDay || false;
+                    eventCompletedInput.checked = item.completed || false; // MỚI
+                    eventClassInput.value = item.class || '';
+                    eventTeacherInput.value = item.teacher || '';
+                    eventLocationInput.value = item.location || '';
+                    eventDescriptionInput.value = item.description || '';
+                    deleteButton.classList.remove('hidden');
+                } else {
+                    modalTitle.innerText = translations[currentLang].modalTitleAdd;
+                    eventIdInput.value = "";
+                    eventDateInput.value = date;
+                    eventTimeInput.value = "08:00";
+                    eventEndTimeInput.value = "";
+                    eventCategoryInput.value = categories[0]?.id || canhanCatId;
+                    eventAllDayInput.checked = false;
+                    eventCompletedInput.checked = false; // MỚI
+                    eventClassInput.value = '';
+                    eventTeacherInput.value = '';
+                    eventLocationInput.value = '';
+                    eventDescriptionInput.value = '';
+                    deleteButton.classList.add('hidden');
+                }
+                toggleTimeInput();
+                modal.classList.remove('hidden');
+            }
+
+            // --- Hàm Đóng Modal Sự kiện ---
+            function closeModal() {
+                modal.classList.add('hidden');
+            }
+
+            // --- Hàm cho Modal Xác nhận ---
+            function openConfirmModal(message, title = translations[currentLang].confirmTitle, okText = translations[currentLang].confirmOK, onConfirm) {
+                confirmTitle.innerText = title;
+                confirmMessage.innerText = message || translations[currentLang].confirmMessage;
+                confirmOK.innerText = okText;
+                // (MỚI) So sánh với text đã dịch
+                if (okText === translations[currentLang].confirmDeleteEventOK || okText === 'Ghi đè') {
+                    confirmOK.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'dark:bg-blue-500', 'dark:hover:bg-blue-600');
+                    confirmOK.classList.add('bg-red-600', 'hover:bg-red-700', 'dark:bg-red-500', 'dark:hover:bg-red-600');
+                } else {
+                    confirmOK.classList.remove('bg-red-600', 'hover:bg-red-700', 'dark:bg-red-500', 'dark:hover:bg-red-600');
+                    confirmOK.classList.add('bg-blue-600', 'hover:bg-blue-700', 'dark:bg-blue-500', 'dark:hover:bg-blue-600');
+                }
+                currentConfirmCallback = onConfirm;
+                confirmModal.classList.remove('hidden');
+            }
+            function closeConfirmModal() {
+                confirmModal.classList.add('hidden');
+                currentConfirmCallback = null;
+            }
+            confirmCancel.addEventListener('click', closeConfirmModal);
+            confirmOK.addEventListener('click', () => {
+                if (currentConfirmCallback) {
+                    currentConfirmCallback();
+                }
+                closeConfirmModal();
+            });
+
+            // --- Xử lý sự kiện Sửa (Thêm/Cập nhật) vào Firestore ---
+            eventForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                timeError.classList.add('hidden');
+                const title = eventTitleInput.value.trim();
+                const date = eventDateInput.value;
+                const time = eventTimeInput.value;
+                const endTime = eventEndTimeInput.value;
+                const category = eventCategoryInput.value;
+                const eventId = eventIdInput.value;
+                const allDay = eventAllDayInput.checked;
+                const completed = eventCompletedInput.checked; // MỚI
+                const eventClass = eventClassInput.value.trim();
+                const eventTeacher = eventTeacherInput.value.trim();
+                const location = eventLocationInput.value.trim();
+                const description = eventDescriptionInput.value.trim();
+                if (!title || !date) {
+                    console.error("Thiếu Tiêu đề hoặc Ngày");
+                    return;
+                }
+                if (!allDay && time && endTime && endTime <= time) {
+                    timeError.innerText = translations[currentLang].modalTimeError;
+                    timeError.classList.remove('hidden');
+                    return;
+                }
+                const eventData = {
+                    title, date,
+                    time: allDay ? null : time,
+                    endTime: (allDay || !endTime) ? null : endTime,
+                    category, allDay, completed, // MỚI
+                    class: eventClass,
+                    teacher: eventTeacher,
+                    location, description
+                };
+                try {
+                    if (eventId) {
+                        const eventRef = doc(schedulesCol, eventId);
+                        await updateDoc(eventRef, eventData);
+                    } else {
+                        await addDoc(schedulesCol, eventData);
+                    }
+                    closeModal();
+                } catch (error) {
+                    console.error("Lỗi khi Sửa sự kiện:", error);
+                }
+            });
+
+            // --- Xử lý sự kiện Xóa khỏi Firestore ---
+            deleteButton.addEventListener('click', function () {
+                const eventId = eventIdInput.value;
+                if (!eventId) return;
+                openConfirmModal(
+                    translations[currentLang].confirmDeleteEvent,
+                    translations[currentLang].confirmDeleteTitle,
+                    translations[currentLang].confirmDeleteEventOK,
+                    async () => {
+                        try {
+                            await deleteDoc(doc(schedulesCol, eventId));
+                            closeModal();
+                        } catch (error) {
+                            console.error("Lỗi khi xóa sự kiện:", error);
+                        }
+                    }
+                );
+            });
+
+            // --- Xử lý nút Đóng Modal Sự kiện ---
+            closeModalButton.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => (e.target === modal) && closeModal());
+
+            // --- Xử lý sự kiện cho Modal Phân loại ---
+            function openCategoryModal() {
+                renderCategoryList();
+                categoryModal.classList.remove('hidden');
+            }
+            manageCategoriesButton.addEventListener('click', () => {
+                openCategoryModal();
+                closeSidebar();
+            });
+            manageCategoriesButtonDesktop.addEventListener('click', openCategoryModal);
+            closeCategoryModalButton.addEventListener('click', () => {
+                categoryModal.classList.add('hidden');
+                hideEditCategoryForm();
+            });
+            categoryModal.addEventListener('click', (e) => {
+                if (e.target === categoryModal) {
+                    categoryModal.classList.add('hidden');
+                    hideEditCategoryForm();
+                }
+            });
+            addCategoryForm.addEventListener('submit', addCategory);
+            editCategoryForm.addEventListener('submit', handleUpdateCategory);
+            cancelEditButton.addEventListener('click', hideEditCategoryForm);
+
+            // --- Xử lý đồng bộ hóa Bộ lọc & Tìm kiếm ---
+            categoryFilter.addEventListener('change', () => {
+                categoryFilterDesktop.value = categoryFilter.value;
+                calendar.refetchEvents();
+                closeSidebar();
+            });
+            categoryFilterDesktop.addEventListener('change', () => {
+                categoryFilter.value = categoryFilterDesktop.value;
+                calendar.refetchEvents();
+            });
+            function handleSearch() {
+                calendar.refetchEvents();
+            }
+            searchInput.addEventListener('input', () => {
+                searchInputDesktop.value = searchInput.value;
+                handleSearch();
+            });
+            searchInputDesktop.addEventListener('input', () => {
+                searchInput.value = searchInputDesktop.value;
+                handleSearch();
+            });
+
+            // --- Xử lý Xuất Excel (Cập nhật) ---
+            function exportToExcel() {
+                if (!schedules || schedules.length === 0) {
+                    openConfirmModal(translations[currentLang].excelNoData, translations[currentLang].notifyTomorrowTitle, translations[currentLang].notifyOK, () => { });
+                    return;
+                }
+                const categoriesMap = new Map(categories.map(cat => {
+                    // (SỬA) Dùng key 'personalCategory' thay vì logic split() bị lỗi
+                    const catName = (cat.id === DEFAULT_CATEGORY_ID_PERSONAL) ? translations[currentLang].personalCategory : cat.name;
+                    return [cat.id, catName];
+                }));
+                const canhanCatId = DEFAULT_CATEGORY_ID_PERSONAL;
+
+                const dataForExcel = schedules.map(item => {
+                    const categoryId = item.category && categoriesMap.has(item.category) ? item.category : canhanCatId;
+                    const trans = translations[currentLang];
+                    return {
+                        [trans.excelHeaders[0]]: item.title,
+                        [trans.excelHeaders[1]]: item.date,
+                        [trans.excelHeaders[2]]: item.allDay ? trans.excelAllDay : (item.time || ""),
+                        [trans.excelHeaders[3]]: item.allDay ? "" : (item.endTime || ""),
+                        [trans.excelHeaders[4]]: categoriesMap.get(categoryId) || "...",
+                        [trans.excelHeaders[5]]: item.class || "",
+                        [trans.excelHeaders[6]]: item.teacher || "",
+                        [trans.excelHeaders[7]]: item.location || "",
+                        [trans.excelHeaders[8]]: item.description || "",
+                        [trans.excelHeaders[9]]: item.completed ? trans.statusCompleted : trans.statusInProgress // MỚI
+                    };
+                });
+
+                try {
+                    const ws = XLSX.utils.json_to_sheet(dataForExcel);
+                    // (MỚI) Đặt độ rộng cột
+                    ws['!cols'] = [
+                        { wch: 30 }, // Tiêu đề
+                        { wch: 12 }, // Ngày
+                        { wch: 12 }, // Giờ bắt đầu
+                        { wch: 12 }, // Giờ kết thúc
+                        { wch: 15 }, // Phân loại
+                        { wch: 15 }, // Lớp
+                        { wch: 20 }, // Giáo viên dạy
+                        { wch: 20 }, // Địa điểm
+                        { wch: 30 }, // Mô tả
+                        { wch: 15 }  // Trạng thái (MỚI)
+                    ];
+
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, translations[currentLang].excelSheetName);
+                    XLSX.writeFile(wb, `thoi_khoa_bieu_${new Date().toISOString().slice(0, 10)}.xlsx`);
+                } catch (e) {
+                    console.error("Lỗi khi xuất Excel:", e);
+                    openConfirmModal(translations[currentLang].excelError, "Error", translations[currentLang].notifyOK, () => { });
+                }
+            }
+            exportExcelButton.addEventListener('click', exportToExcel);
+            exportExcelButtonDesktop.addEventListener('click', exportToExcel);
+
+            // --- Xử lý Mobile Sidebar ---
+            function openSidebar() {
+                sidebar.classList.add('open');
+                sidebarOverlay.classList.add('open');
+            }
+            function closeSidebar() {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('open');
+            }
+            menuOpenButton.addEventListener('click', openSidebar);
+            menuCloseButton.addEventListener('click', closeSidebar);
+            sidebarOverlay.addEventListener('click', closeSidebar);
+        });
+    </script>
+
+    <!-- CSS (Cập nhật cho Chế độ Tối và Trạng thái Hoàn thành) -->
+    <style id="dynamic-category-styles"></style>
+    <style>
+        :root {
+            --fc-border-color: #e2e8f0;
+            /* gray-200 */
+            --fc-today-bg-color: #fefcbf;
+            /* yellow-50 */
+            --fc-day-text-color: #374151;
+            /* gray-700 */
+            --fc-header-text-color: #4b5563;
+            /* gray-600 */
+            --fc-title-text-color: #1f2937;
+            /* gray-800 */
+        }
+
+        html.dark {
+            --fc-border-color: #4b5563;
+            /* gray-600 */
+            --fc-today-bg-color: rgba(75, 85, 99, 0.5);
+            /* gray-600 with opacity */
+            --fc-day-text-color: #d1d5db;
+            /* gray-300 */
+            --fc-header-text-color: #9ca3af;
+            /* gray-400 */
+            --fc-title-text-color: #f3f4f6;
+            /* gray-100 */
+        }
+
+        /* (MỚI) Tùy chỉnh màu văn bản cho FullCalendar */
+        .fc .fc-daygrid-day-number {
+            color: var(--fc-day-text-color);
+        }
+
+        .fc .fc-col-header-cell-cushion {
+            color: var(--fc-header-text-color);
+            text-decoration: none;
+            /* Bỏ gạch chân mặc định */
+        }
+
+        .fc .fc-toolbar-title {
+            color: var(--fc-title-text-color);
+            font-size: 1.5rem;
+            /* (SỬA) 24px - Thu nhỏ_từ_mặc_định_28px */
+        }
+
+        .fc .fc-button {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+            text-transform: capitalize;
+            border-radius: 0.375rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .fc .fc-button:hover {
+            background-color: #2563eb;
+        }
+
+        .fc .fc-button-primary:not(:disabled).fc-button-active,
+        .fc .fc-button-primary:not(:disabled):active {
+            background-color: #1d4ed8;
+        }
+
+        /* (MỚI) Sửa lỗi nút "Hôm nay" khi ở chế độ tối */
+        html.dark .fc .fc-dayGridMonth-button.fc-button-active,
+        html.dark .fc .fc-timeGridWeek-button.fc-button-active,
+        html.dark .fc .fc-timeGridDay-button.fc-button-active {
+            background-color: #1d4ed8 !important;
+        }
+
+        /* (MỚI) Nút "Hôm nay" không active ở chế độ tối */
+        html.dark .fc .fc-today-button {
+            background-color: #3b82f6 !important;
+        }
+
+        html.dark .fc .fc-today-button:hover {
+            background-color: #2563eb !important;
+        }
+
+
+        .fc-event.event-all-day {
+            font-weight: bold;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+
+        .search-input {
+            padding-left: 2.5rem !important;
+        }
+
+        @media (max-width: 768px) {
+            .fc .fc-toolbar-title {
+                font-size: 1.25rem;
+                /* (SỬA) 20px cho mobile */
+            }
+
+            .fc .fc-button {
+                font-size: 0.875rem;
+                padding: 0.4rem 0.8rem;
+            }
+
+            .fc .fc-toolbar.fc-header-toolbar {
+                /* (SỬA) Bố trí lại thanh công cụ cho mobile */
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                /* Tăng khoảng cách một chút */
+                align-items: center;
+            }
+
+            /* (MỚI) Tinh chỉnh sự kiện trên mobile cho dễ đọc */
+            .fc-event {
+                font-size: 0.75rem !important;
+                /* 12px, nhỏ hơn mặc định */
+                padding: 1px 4px !important;
+                /* Giảm padding */
+                line-height: 1.3 !important;
+                /* Giảm chiều cao dòng */
+            }
+
+            /* (MỚI) Cho phép tiêu đề sự kiện trên Lịch Tháng (dayGrid) được ngắt dòng */
+            .fc-daygrid-event {
+                white-space: normal !important;
+                /* Cho phép ngắt dòng */
+                /* (SỬA) Bỏ overflow: hidden để text (và status) có thể wrap và hiển thị đầy đủ */
+                /* overflow: hidden; */
+                /* Ẩn phần thừa */
+            }
+
+            /* (MỚI - GIẢI QUYẾT YÊU CẦU) Thu nhỏ text header của "Tuần" (timeGrid) trên mobile */
+            .fc .fc-col-header-cell-cushion {
+                font-size: 0.75rem !important;
+                /* 12px */
+                line-height: 1.3 !important;
+                /* Giảm chiều cao dòng */
+                padding: 2px 0 !important;
+                /* Giảm padding dọc */
+                white-space: normal !important;
+                /* Đảm bảo cho phép ngắt dòng */
+            }
+        }
+
+        #sidebar.open {
+            transform: translateX(0);
+        }
+
+        #sidebarOverlay.open {
+            display: block;
+        }
+
+        /* (MỚI) Style cho input select ngôn ngữ */
+        .lang-select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%239ca3af%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2013l128%20128c3.6%203.6%207.8%205.4%2013%205.4s9.4-1.8%2013-5.4l128-128c3.6-3.6%205.4-7.8%205.4-13%200-5-1.8-9.3-5.4-13z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 0.65em auto;
+            padding-right: 2rem;
+            /* Thêm không gian cho icon */
+        }
+
+        html.dark .lang-select {
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23d1d5db%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2013l128%20128c3.6%203.6%207.8%205.4%2013%205.4s9.4-1.8%2013-5.4l128-128c3.6-3.6%205.4-7.8%205.4-13%200-5-1.8-9.3-5.4-13z%22%2F%3E%3C%2Fsvg%3E');
+        }
+    </style>
+</head>
+
+<!-- (MỚI) Thêm class dark:bg-gray-900 cho body -->
+
+<body
+    class="bg-gray-100 dark:bg-gray-900 font-sans leading-normal tracking-normal transition-colors duration-300 flex flex-col min-h-screen">
+
+    <!-- (MỚI) Màn hình Xác thực / Tải (Thêm style dark) -->
+    <div id="authScreen" class="flex items-center justify-center h-screen">
+        <div class="text-center p-8 bg-white dark:bg-gray-800 shadow-lg rounded-lg">
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6" data-lang-key="loginWelcome">Chào mừng
+                bạn đến với Lịch</h1>
+            <p class="text-gray-600 dark:text-gray-300 mb-6" data-lang-key="loginPrompt">Vui lòng đăng nhập để đồng bộ
+                hóa thời khóa biểu của bạn.</p>
+            <button id="loginButton"
+                class="w-full flex items-center justify-center gap-3 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-semibold transition duration-200">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
+                    <path
+                        d="M12 5.38c1.63 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                </svg>
+                <span data-lang-key="loginButton">Đăng nhập bằng Google</span>
+            </button>
+            <p id="loginError" class="text-red-600 text-sm mt-4"></p>
+        </div>
+    </div>
+
+    <!-- (MỚI) Nội dung chính của Ứng dụng (ẩn ban đầu) -->
+    <div id="appContent" class="hidden flex-grow w-full">
+
+        <!-- (MỚI) Header / Navbar Cố định -->
+        <nav id="mainHeader" class="sticky top-0 z-20 bg-white dark:bg-gray-800 shadow-md">
+            <div class="container mx-auto max-w-7xl px-4">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Brand và Nút Mobile -->
+                    <div class="flex-shrink-0 flex items-center">
+                        <button id="menuOpenButton"
+                            class="md:hidden text-gray-700 dark:text-gray-300 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <!-- (SỬA) Sửa lại_path_của_SVG_để_hiển_thị_đúng_3_vạch -->
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 6h16M4 12h16M4 18h16">
+                                </path>
+                            </svg>
+                        </button>
+                        <!-- (SỬA) Thu nhỏ H1 -->
+                        <h1 class="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100 ml-2 md:ml-0"
+                            data-lang-key="mainTitle">
+                            📅 Quản lý Thời khóa biểu
+                        </h1>
+                    </div>
+
+                    <!-- Menu Desktop -->
+                    <div class="hidden md:flex items-center space-x-2">
+                        <!-- Tìm kiếm -->
+                        <div class="relative">
+                            <label for="searchInputDesktop" class="sr-only" data-lang-key="searchPlaceholder">Tìm
+                                kiếm</label>
+                            <input type="text" id="searchInputDesktop" data-lang-key-placeholder="searchPlaceholder"
+                                placeholder="Tìm kiếm..."
+                                class="w-40 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm search-input bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            <svg class="w-4 h-4 search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <!-- Lọc -->
+                        <div class="flex items-center">
+                            <label for="categoryFilterDesktop"
+                                class="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2"
+                                data-lang-key="filterLabel">Lọc:</label>
+                            <select id="categoryFilterDesktop"
+                                class="w-36 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 lang-select">
+                                <option value="all" data-lang-key="allOption">Tất cả</option>
+                            </select>
+                        </div>
+                        <!-- Các nút -->
+                        <button id="manageCategoriesButtonDesktop"
+                            class="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-100 font-medium"
+                            data-lang-key="manageCategories">
+                            Quản lý Phân loại
+                        </button>
+                        <button id="exportExcelButtonDesktop"
+                            class="px-3 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 font-medium"
+                            data-lang-key="exportExcel">
+                            Xuất Excel
+                        </button>
+                        <!-- Ngôn ngữ -->
+                        <select id="langSwitchDesktop"
+                            class="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 lang-select">
+                            <option value="vi">Tiếng Việt</option>
+                            <option value="en">English</option>
+                            <option value="fr">Français</option>
+                        </select>
+                        <!-- Sáng/Tối -->
+                        <button id="themeToggleDesktop"
+                            class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+                            <!-- Nội dung được chèn bởi JS -->
+                        </button>
+                        <!-- Người dùng -->
+                        <span id="userInfoDisplay"
+                            class="text-sm text-gray-700 dark:text-gray-200 font-medium bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full truncate max-w-xs"
+                            title="UserID" data-lang-key="connecting">
+                            Đang kết nối...
+                        </span>
+                        <button id="logoutButtonDesktop"
+                            class="px-3 py-2 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 font-medium hidden"
+                            data-lang-key="logout">
+                            Đăng xuất
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+
+        <!-- Sidebar Overlay (Mobile) -->
+        <div id="sidebarOverlay" class="hidden md:hidden fixed inset-0 bg-black bg-opacity-50 z-30"></div>
+
+        <!-- Sidebar (Mobile) (Thêm style dark) -->
+        <div id="sidebar" class="fixed md:hidden inset-y-0 left-0 z-40
+                                w-72 max-w-xs h-screen p-6 bg-white dark:bg-gray-800 shadow-xl
+                                transform -translate-x-full
+                                transition-transform duration-300 ease-in-out
+                                overflow-y-auto">
+            <button id="menuCloseButton"
+                class="absolute top-4 right-4 text-gray-600 dark:text-gray-300 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-6" data-lang-key="menuLabel">Chức năng</h2>
+            <div class="flex flex-col gap-4">
+                <div class="relative w-full">
+                    <label for="searchInput" class="sr-only" data-lang-key="searchPlaceholder">Tìm kiếm</label>
+                    <input type="text" id="searchInput" data-lang-key-placeholder="searchPlaceholder"
+                        placeholder="Tìm kiếm..."
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm search-input bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                    <svg class="w-4 h-4 search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label for="categoryFilter" class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                        data-lang-key="filterLabel">Lọc theo:</label>
+                    <select id="categoryFilter"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 lang-select">
+                        <option value="all" data-lang-key="allOption">Tất cả</option>
+                    </select>
+                </div>
+                <!-- (MỚI) Select Ngôn ngữ Mobile -->
+                <div class="flex flex-col gap-2">
+                    <label for="langSwitch" class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                        data-lang-key="language">Ngôn ngữ:</label>
+                    <select id="langSwitch"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 lang-select">
+                        <option value="vi">Tiếng Việt</option>
+                        <option value="en">English</option>
+                        <option value="fr">Français</option>
+                    </select>
+                </div>
+                <button id="manageCategoriesButton"
+                    class="w-full px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-100 font-medium"
+                    data-lang-key="manageCategories">
+                    Quản lý Phân loại
+                </button>
+                <button id="exportExcelButton"
+                    class="w-full px-3 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 font-medium"
+                    data-lang-key="exportExcel">
+                    Xuất Excel
+                </button>
+                <!-- (MỚI) Nút Chế độ Sáng/Tối Mobile -->
+                <button id="themeToggle"
+                    class="w-full px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-100 font-medium flex items-center justify-center gap-2">
+                    <!-- Nội dung được chèn bởi JS -->
+                </button>
+                <!-- (MỚI) Nút Đăng xuất Mobile -->
+                <button id="logoutButton"
+                    class="w-full px-3 py-2 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 font-medium hidden"
+                    data-lang-key="logout">
+                    Đăng xuất
+                </button>
+            </div>
+        </div>
+
+        <!-- Main content wrapper (Container của Lịch) -->
+        <div class="container mx-auto max-w-7xl p-4 md:p-8 flex-grow">
+            <!-- (Sửa) Xóa các thanh điều khiển cũ ở đây, vì đã chuyển lên Header -->
+            <div id="calendar-container"
+                class="bg-white dark:bg-gray-800 p-2 sm:p-6 rounded-lg shadow-xl transition-colors duration-300 h-full">
+                <div id="calendar" class="h-full"></div>
+            </div>
+        </div>
+
+        <!-- Modals (Toàn bộ HTML của các Modal được cập nhật cho Chế độ Tối và Ngôn ngữ) -->
+        <div id="eventModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <!-- (MỚI) Thêm style dark cho modal -->
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-lg mx-4 overflow-y-auto"
+                style="max-height: 90vh;">
+                <h2 id="modalTitle" class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100"
+                    data-lang-key="modalTitleAdd">Thêm Sự kiện</h2>
+                <form id="eventForm">
+                    <input type="hidden" id="eventIdInput" value="">
+                    <div class="mb-4">
+                        <label for="eventTitle" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                            data-lang-key="modalTitleLabel">Tiêu đề</label>
+                        <input type="text" id="eventTitle"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                            required>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="eventDate"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                data-lang-key="modalDateLabel">Ngày</label>
+                            <input type="date" id="eventDate"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                                required>
+                        </div>
+                        <div id="timeInputGroup" class="md:col-span-1 grid grid-cols-2 gap-2">
+                            <div>
+                                <label for="eventTime"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                    data-lang-key="modalTimeStartLabel">Giờ Bắt
+                                    đầu</label>
+                                <input type="time" id="eventTime"
+                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            </div>
+                            <div>
+                                <label for="eventEndTime"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                    data-lang-key="modalTimeEndLabel">Giờ Kết
+                                    thúc</label>
+
+                                <input type="time" id="eventEndTime"
+                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-x-6 gap-y-4 mb-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="eventAllDay"
+                                class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300"
+                                data-lang-key="modalAllDayLabel">Cả ngày</span>
+                        </label>
+                        <!-- (MỚI) Checkbox Đã hoàn thành -->
+                        <label class="flex items-center">
+                            <input type="checkbox" id="eventCompleted"
+                                class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300"
+                                data-lang-key="modalCompletedLabel">Đã hoàn thành</span>
+                        </label>
+                    </div>
+                    <div class="mb-4">
+                        <label for="eventCategory"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                            data-lang-key="modalCategoryLabel">Phân
+                            loại</label>
+                        <select id="eventCategory"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 lang-select"></select>
+                    </div>
+                    <!-- (MỚI) Thêm trường Lớp và Giáo viên -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="eventClass"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                data-lang-key="modalClassLabel">Lớp (Tùy chọn)</label>
+                            <input type="text" id="eventClass"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                        </div>
+                        <div>
+                            <label for="eventTeacher"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                data-lang-key="modalTeacherLabel">Giáo viên (Tùy chọn)</label>
+                            <input type="text" id="eventTeacher"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                        </div>
+                    </div>
+                    <!-- Kết thúc trường mới -->
+                    <div class="mb-4">
+                        <label for="eventLocation"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                            data-lang-key="modalLocationLabel">Địa điểm (Tùy
+                            chọn)</label>
+                        <input type="text" id="eventLocation"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                    </div>
+                    <div class="mb-4">
+                        <label for="eventDescription"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                            data-lang-key="modalDescriptionLabel">Mô tả (Tùy
+                            chọn)</label>
+                        <textarea id="eventDescription" rows="3"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"></textarea>
+                    </div>
+                    <div id="timeError" class="text-red-600 dark:text-red-400 text-sm mb-4 hidden"
+                        data-lang-key="modalTimeError">Lỗi: Giờ kết thúc phải sau giờ bắt đầu.
+                    </div>
+                    <div class="flex justify-between items-center mt-6">
+                        <button id="deleteButton" type="button"
+                            class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 font-medium"
+                            data-lang-key="modalDeleteButton">Xóa</button>
+                        <div>
+                            <button id="closeModalButton" type="button"
+                                class="mr-2 px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-100 dark:hover:bg-gray-500"
+                                data-lang-key="modalCloseButton">Đóng</button>
+                            <button id="saveButton" type="submit"
+                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+                                data-lang-key="modalSaveButton">Sửa</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div id="confirmModal"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <!-- (MỚI) Thêm style dark cho modal -->
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-sm mx-4">
+                <h2 id="confirmTitle" class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100"
+                    data-lang-key="confirmTitle">Xác nhận</h2>
+                <p id="confirmMessage" class="text-gray-700 dark:text-gray-300 mb-6" data-lang-key="confirmMessage">Bạn
+                    có chắc chắn?</p>
+                <div class="flex justify-end space-x-3">
+                    <button id="confirmCancel" type="button"
+                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-100 dark:hover:bg-gray-500"
+                        data-lang-key="confirmCancel">Hủy</button>
+                    <button id="confirmOK" type="button"
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                        data-lang-key="confirmOK">OK</button>
+                </div>
+            </div>
+        </div>
+        <div id="categoryModal"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <!-- (MỚI) Thêm style dark cho modal -->
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md mx-4">
+                <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100" data-lang-key="catModalTitle">
+                    Quản lý Phân loại</h2>
+                <form id="addCategoryForm" class="flex flex-col sm:flex-row sm:items-end gap-2 mb-4">
+                    <div class="flex-grow w-full">
+                        <label for="newCategoryName"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                            data-lang-key="catModalAddFormLabel">Tên Phân
+                            loại</label>
+                        <input type="text" id="newCategoryName"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                            required>
+                    </div>
+                    <div class="w-full sm:w-auto">
+                        <label for="newCategoryColor"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                            data-lang-key="catModalColorLabel">Màu</label>
+                        <input type="color" id="newCategoryColor"
+                            class="w-full sm:w-12 h-10 px-1 py-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
+                            value="#3b82f6">
+                    </div>
+                    <button type="submit"
+                        class="w-full sm:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 h-10"
+                        data-lang-key="catModalAddButton">Thêm</button>
+                </form>
+                <form id="editCategoryForm" class="hidden flex flex-col gap-2 mb-4">
+                    <input type="hidden" id="editCategoryId">
+                    <div class="flex-grow w-full">
+                        <label for="editCategoryName"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                            data-lang-key="catModalEditFormLabel">Sửa Tên Phân
+                            loại</label>
+                        <input type="text" id="editCategoryName"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                            required>
+                    </div>
+                    <div class="w-full">
+                        <label for="editCategoryColor"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                            data-lang-key="catModalColorLabel">Màu</Llabel>
+                            <input type="color" id="editCategoryColor"
+                                class="w-full h-10 px-1 py-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700">
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-2 mt-2">
+                        <button type="submit"
+                            class="w-full sm:flex-1 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 h-10"
+                            data-lang-key="catModalSaveButton">Sửa</button>
+                        <button type="button" id="cancelEditButton"
+                            class="w-full sm:flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-100 dark:hover:bg-gray-500 h-10"
+                            data-lang-key="catModalCancelButton">Hủy</button>
+                    </div>
+                </form>
+                <hr class="my-4 dark:border-gray-600">
+                <h3 class="text-lg font-medium text-gray-800 dark:text-gray-100 mb-2"
+                    data-lang-key="catModalExistingLabel">Các Phân loại Hiện có</h3>
+                <div id="categoryList" class="space-y-2 max-h-60 overflow-y-auto text-gray-900 dark:text-gray-100">
+                    D</div>
+                <div class="flex justify-end mt-6">
+                    <button id="closeCategoryModalButton" type="button"
+                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-100 dark:hover:bg-gray-500"
+                        data-lang-key="modalCloseButton">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div> <!-- End #appContent -->
+
+    <!-- (MỚI) Footer -->
+    <footer id="mainFooter" class="w-full text-center p-4 bg-white dark:bg-gray-800 shadow-inner mt-8">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+            © 2024 - Ứng dụng Quản lý Thời khóa biểu.
+        </p>
+    </footer>
+
+</body>
+
+</html>
