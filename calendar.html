@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lịch Làm Việc</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
+
+    <!-- Tải Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tải FullCalendar -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/locales/vi.global.min.js'></script>
+
+    <!-- Tải SheetJS -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        /* --- TÙY CHỈNH FULLCALENDAR --- */
+        :root {
+            --fc-border-color: #e2e8f0;
+            --fc-today-bg-color: #fffbeb;
+            --fc-page-bg-color: #ffffff;
+            --fc-neutral-bg-color: #f1f5f9;
+            --fc-list-event-hover-bg-color: #f1f5f9;
+        }
+
+        /* 1. Tùy chỉnh Header Lịch */
+        .fc .fc-toolbar-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .fc .fc-button {
+            border-radius: 0.5rem;
+            font-weight: 600;
+            padding: 0.5rem 1.25rem;
+            text-transform: capitalize;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        .fc .fc-button:hover {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+
+        /* 2. Tùy chỉnh Lưới Lịch (Ô Vuông) */
+        .fc-theme-standard td,
+        .fc-theme-standard th {
+            border-color: #e2e8f0;
+        }
+
+        .fc-col-header-cell {
+            background-color: #f8fafc;
+            padding: 12px 0;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .fc-col-header-cell-cushion {
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+
+        .fc-daygrid-day-top {
+            justify-content: center;
+            padding-top: 8px;
+        }
+
+        .fc-daygrid-day-number {
+            color: #475569;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .fc-daygrid-day:hover {
+            background-color: #f8fafc;
+        }
+
+        .fc-day-today .fc-daygrid-day-number {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        /* 3. Tùy chỉnh Sự kiện */
+        .custom-event {
+            display: flex;
+            align-items: center;
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            width: 100%;
+            overflow: hidden;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            line-height: 1.2;
+            cursor: pointer;
+            transition: transform 0.1s, filter 0.1s;
+        }
+
+        .custom-event:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+            z-index: 10;
+        }
+
+        .event-time {
+            opacity: 0.9;
+            margin-right: 6px;
+            white-space: nowrap;
+            font-size: 0.7rem;
+        }
+
+        .event-icon {
+            margin-right: 6px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .event-icon i {
+            line-height: 1;
+        }
+
+        .event-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* --- CẤU HÌNH THANH CUỘN --- */
+        .fc-scroller {
+            overflow-y: auto !important;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Inputs Form */
+        .form-input {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            background-color: #f8fafc;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+    </style>
+</head>
+
+<body class="flex flex-col h-screen text-slate-800">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 z-30 shadow-sm flex-none">
+        <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Left: Logo & Back Button -->
+                <div class="flex items-center gap-3">
+                    <button id="menuOpenButton" class="md:hidden text-gray-600 p-2 rounded hover:bg-gray-100">
+                        <i class="bi bi-list text-2xl"></i>
+                    </button>
+
+                    <!-- NÚT VỀ DASHBOARD -->
+                    <a href="index.html"
+                        class="flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-600 p-2 rounded-lg transition"
+                        title="Quay lại Dashboard">
+                        <i class="bi bi-arrow-left text-xl"></i>
+                    </a>
+
+                    <div class="bg-blue-600 p-2 rounded-lg text-white shadow-md hidden sm:block">
+                        <i class="bi bi-calendar-check-fill text-xl"></i>
+                    </div>
+                    <h1 class="text-xl font-bold text-slate-800 tracking-tight hidden sm:block">Lịch Làm Việc</h1>
+                </div>
+
+                <!-- Right: Actions -->
+                <div class="flex items-center gap-3">
+                    <!-- Search -->
+                    <div class="relative hidden lg:block">
+                        <input type="text" id="searchInput" placeholder="Tìm kiếm..."
+                            class="pl-10 pr-4 py-2 bg-slate-100 border-none rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-64 transition">
+                        <i class="bi bi-search absolute left-3.5 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                    </div>
+
+                    <!-- Filter Desktop -->
+                    <div class="hidden md:block relative">
+                        <select id="categoryFilterDesktop"
+                            class="appearance-none pl-9 pr-8 py-2 bg-slate-100 border-none rounded-full text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                            <option value="all">Tất cả phân loại</option>
+                        </select>
+                        <i
+                            class="bi bi-funnel-fill absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
+                        <i
+                            class="bi bi-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-slate-500"></i>
+                    </div>
+
+                    <!-- Add Button -->
+                    <button onclick="openModal()"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md transition flex items-center gap-2 transform active:scale-95">
+                        <i class="bi bi-plus-lg text-lg"></i> <span class="hidden sm:inline">Thêm mới</span>
+                    </button>
+
+                    <!-- Export -->
+                    <button onclick="exportExcel()"
+                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md transition flex items-center gap-2 transform active:scale-95">
+                        <i class="bi bi-file-earmark-excel-fill"></i> <span class="hidden sm:inline">Xuất Excel</span>
+                    </button>
+
+                    <div class="h-8 w-px bg-slate-200 mx-2 hidden sm:block"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <!-- Đã cho phép cuộn (overflow-y-auto) vì lịch ô vuông sẽ cao -->
+    <main class="flex-1 p-4 bg-slate-50 overflow-y-auto flex flex-col">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex-1 p-4 relative">
+            <div id="calendar"></div>
+        </div>
+    </main>
+
+    <!-- Modal Form -->
+    <div id="taskModal" class="fixed inset-0 z-50 hidden transition-opacity duration-300">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
+
+        <div
+            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden scale-100 transition-transform duration-300">
+            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-white">
+                <h3 class="text-xl font-bold text-slate-800" id="modalTitle">Công việc mới</h3>
+                <button onclick="closeModal()"
+                    class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-5">
+                <form id="taskForm" onsubmit="saveTask(event)">
+                    <input type="hidden" id="taskId">
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Tên công việc <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" id="taskName" required placeholder="Nhập tiêu đề công việc..."
+                            class="form-input">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Danh mục</label>
+                            <select id="taskCategory" class="form-input cursor-pointer">
+                                <!-- JS will populate this -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Trạng thái</label>
+                            <select id="taskStatus" class="form-input cursor-pointer">
+                                <option value="Đang thực hiện">Đang thực hiện</option>
+                                <option value="Hoàn thành">Hoàn thành</option>
+                                <option value="Quá hạn">Quá hạn</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Ngày hạn <span
+                                    class="text-red-500">*</span></label>
+                            <input type="date" id="taskDeadline" required class="form-input">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Giờ (Tùy chọn)</label>
+                            <input type="time" id="taskTime" value="08:00" class="form-input">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Ghi chú</label>
+                        <textarea id="taskNote" rows="3" placeholder="Chi tiết, địa điểm, ghi chú..."
+                            class="form-input resize-none"></textarea>
+                    </div>
+
+                    <div class="pt-4 flex justify-between items-center mt-2">
+                        <button type="button" id="deleteBtn" onclick="deleteTask()"
+                            class="hidden text-red-600 hover:text-red-700 text-sm font-semibold px-4 py-2 rounded-lg hover:bg-red-50 transition flex items-center gap-2">
+                            <i class="bi bi-trash"></i> Xóa
+                        </button>
+                        <div class="flex gap-3 ml-auto">
+                            <button type="button" onclick="closeModal()"
+                                class="px-5 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 text-sm font-semibold transition">Hủy</button>
+                            <button type="submit"
+                                class="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-semibold shadow-lg shadow-blue-200 transition">Lưu
+                                lại</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Mobile -->
+    <div id="sidebarOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"></div>
+    <div id="sidebar"
+        class="fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <div class="p-4 border-b flex justify-between items-center bg-gray-50">
+            <h2 class="text-lg font-bold text-gray-800"><i class="bi bi-menu-button-wide mr-2"></i>Menu</h2>
+            <button id="menuCloseButton" class="text-gray-500 hover:text-red-500 transition">
+                <i class="bi bi-x-lg text-xl"></i>
+            </button>
+        </div>
+
+        <div class="p-4 flex flex-col gap-4 overflow-y-auto">
+            <!-- NÚT VỀ DASHBOARD MOBILE -->
+            <a href="index.html"
+                class="flex items-center gap-3 p-3 bg-slate-100 hover:bg-slate-200 rounded-lg transition text-slate-700 font-medium">
+                <i class="bi bi-house-door-fill text-lg"></i> Về Dashboard
+            </a>
+
+            <!-- User Info Mobile Sidebar -->
+            <div class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg mb-2">
+                <img src="https://ui-avatars.com/api/?name=Admin+User&background=0D8ABC&color=fff&size=128"
+                    class="rounded-full border border-blue-500 w-10 h-10 shadow-sm" alt="User">
+                <div>
+                    <p class="font-bold text-gray-800">Admin User</p>
+                    <p class="text-xs text-gray-500">online</p>
+                </div>
+            </div>
+
+            <div class="relative w-full">
+                <input type="text" id="searchInput" placeholder="Tìm kiếm..."
+                    class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <i class="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+
+            <div>
+                <label class="text-xs font-semibold text-gray-500 uppercase mb-1 block">Lọc theo</label>
+                <select id="categoryFilter"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 lang-select focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <option value="all">Tất cả</option>
+                </select>
+            </div>
+
+            <hr class="border-gray-200">
+
+            <button id="exportExcelButton"
+                class="w-full py-2 px-3 text-left text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition">
+                <i class="bi bi-file-earmark-excel mr-2 text-green-600"></i> Xuất Excel
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast"
+        class="fixed bottom-6 right-6 bg-slate-800 text-white px-5 py-3 rounded-xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-300 z-[60] flex items-center gap-3">
+        <div class="bg-green-500 rounded-full p-1">
+            <i class="bi bi-check text-white text-sm"></i>
+        </div>
+        <span id="toastMsg" class="font-medium text-sm">Thành công</span>
+    </div>
+
+    <script>
+        // --- CẤU HÌNH ---
+        const STORAGE_KEY = 'tasks';
+        // Định nghĩa Danh mục và Màu sắc tương ứng (để tô màu ô lịch)
+        const CATEGORIES = [
+            { id: 'Giảng dạy', name: 'Giảng dạy', color: '#3b82f6' }, // Xanh dương
+            { id: 'Họp', name: 'Họp', color: '#f59e0b' },           // Cam
+            { id: 'Coi thi', name: 'Coi thi', color: '#ef4444' },     // Đỏ
+            { id: 'Việc cá nhân', name: 'Việc cá nhân', color: '#64748b' } // Xám
+        ];
+
+        let calendar;
+        let tasks = [];
+
+        document.addEventListener('DOMContentLoaded', function () {
+            loadTasks();
+            populateCategorySelects();
+            initCalendar();
+            setupSearch();
+        });
+
+        // --- 1. DỮ LIỆU ---
+        function loadTasks() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                tasks = JSON.parse(stored);
+            } else {
+                tasks = generateSampleData();
+                saveTasks();
+            }
+        }
+
+        function saveTasks() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+            window.dispatchEvent(new Event('storage'));
+        }
+
+        function generateSampleData() {
+            const today = new Date();
+            const y = today.getFullYear();
+            const m = String(today.getMonth() + 1).padStart(2, '0');
+            return [
+                { id: 1, name: 'Họp Team Dự án', category: 'Họp', status: 'Đang thực hiện', deadline: `${y}-${m}-15`, time: '09:00', note: 'Chuẩn bị slide' },
+                { id: 2, name: 'Nộp báo cáo tuần', category: 'Giảng dạy', status: 'Hoàn thành', deadline: `${y}-${m}-12`, time: '17:00', note: '' },
+                { id: 3, name: 'Coi thi toán CK', category: 'Coi thi', status: 'Quá hạn', deadline: `${y}-${m}-10`, time: '07:30', note: 'Phòng A101' },
+            ];
+        }
+
+        function populateCategorySelects() {
+            const selects = [document.getElementById('taskCategory'), document.getElementById('categoryFilterDesktop')];
+
+            // Populate Form Select
+            const formSelect = document.getElementById('taskCategory');
+            formSelect.innerHTML = '';
+            CATEGORIES.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat.id;
+                opt.innerText = cat.name;
+                formSelect.appendChild(opt);
+            });
+
+            // Populate Filter Select
+            const filterSelect = document.getElementById('categoryFilterDesktop');
+            // Keep "All" option
+            CATEGORIES.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat.id;
+                opt.innerText = cat.name;
+                filterSelect.appendChild(opt);
+            });
+
+            filterSelect.addEventListener('change', () => {
+                calendar.refetchEvents();
+            });
+        }
+
+        // --- 2. LỊCH FULLCALENDAR ---
+        function initCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'vi',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,listMonth'
+                },
+                buttonText: { today: 'Hôm nay', month: 'Tháng', week: 'Tuần', list: 'DS' },
+
+                // QUAN TRỌNG: Cấu hình Ô Vuông & Hiển thị
+                aspectRatio: 1.1, // Tỷ lệ khung hình ~1.1 giúp ô lịch vuông vức hơn (Width/Height)
+                height: 'auto',   // Chiều cao tự động dãn theo nội dung
+                dayMaxEvents: false, // Hiển thị TẤT CẢ các sự kiện, không thu gọn
+
+                // Lấy dữ liệu sự kiện
+                events: function (info, successCallback) {
+                    const filterCat = document.getElementById('categoryFilterDesktop').value;
+                    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+                    let filteredTasks = tasks.filter(t => {
+                        const matchCat = filterCat === 'all' || t.category === filterCat;
+                        const matchSearch = t.name.toLowerCase().includes(searchTerm);
+                        return matchCat && matchSearch;
+                    });
+
+                    successCallback(filteredTasks.map(t => ({
+                        id: t.id,
+                        title: t.name,
+                        start: `${t.deadline}T${t.time || '00:00'}`,
+                        extendedProps: {
+                            category: t.category,
+                            status: t.status,
+                            timeStr: t.time ? t.time.split(':')[0] + ' giờ' : ''
+                        }
+                    })));
+                },
+
+                // --- CUSTOM RENDER (QUAN TRỌNG: TẠO GIAO DIỆN NHƯ HÌNH) ---
+                eventContent: function (arg) {
+                    const props = arg.event.extendedProps;
+                    const cat = CATEGORIES.find(c => c.id === props.category) || CATEGORIES[3];
+                    const bgColor = cat.color;
+
+                    // Xử lý icon trạng thái
+                    let iconHtml = '';
+                    if (props.status === 'Hoàn thành') {
+                        // Icon checkbox xanh lá như hình
+                        iconHtml = '<i class="bi bi-check-square-fill text-green-300 mr-1.5 text-sm"></i>';
+                    } else if (props.status === 'Quá hạn') {
+                        iconHtml = '<i class="bi bi-exclamation-triangle-fill text-yellow-300 mr-1.5 text-xs"></i>';
+                    } else {
+                        // Đang thực hiện (icon tròn hoặc trống)
+                        iconHtml = '<i class="bi bi-circle mr-1.5 text-[10px] opacity-70"></i>';
+                    }
+
+                    const timeHtml = props.timeStr ? `<span class="event-time">${props.timeStr}</span>` : '';
+
+                    return {
+                        html: `
+                            <div class="custom-event" style="background-color: ${bgColor}; border-left: 3px solid rgba(0,0,0,0.2);">
+                                ${timeHtml}
+                                <div class="event-icon">${iconHtml}</div>
+                                <div class="event-title">${arg.event.title}</div>
+                            </div>
+                        `
+                    };
+                },
+
+                // Sự kiện
+                dateClick: function (info) {
+                    openModal(null, info.dateStr);
+                },
+                eventClick: function (info) {
+                    const id = parseInt(info.event.id);
+                    const task = tasks.find(t => t.id === id);
+                    if (task) openModal(task);
+                },
+                eventDrop: function (info) { // Kéo thả để đổi ngày
+                    const id = parseInt(info.event.id);
+                    const taskIndex = tasks.findIndex(t => t.id === id);
+                    if (taskIndex > -1) {
+                        tasks[taskIndex].deadline = info.event.start.toISOString().split('T')[0];
+                        saveTasks();
+                        showToast('Đã dời ngày công việc');
+                    }
+                }
+            });
+            calendar.render();
+        }
+
+        // --- 3. MODAL & FORM ---
+        function openModal(task = null, dateStr = null) {
+            const modal = document.getElementById('taskModal');
+            const form = document.getElementById('taskForm');
+            const title = document.getElementById('modalTitle');
+            const deleteBtn = document.getElementById('deleteBtn');
+
+            form.reset();
+
+            if (task) {
+                title.innerText = 'Cập nhật công việc';
+                document.getElementById('taskId').value = task.id;
+                document.getElementById('taskName').value = task.name;
+                document.getElementById('taskCategory').value = task.category;
+                document.getElementById('taskStatus').value = task.status;
+                document.getElementById('taskDeadline').value = task.deadline;
+                document.getElementById('taskTime').value = task.time || '08:00';
+                document.getElementById('taskNote').value = task.note || '';
+                deleteBtn.classList.remove('hidden');
+            } else {
+                title.innerText = 'Thêm công việc mới';
+                document.getElementById('taskId').value = '';
+                document.getElementById('taskDeadline').value = dateStr || new Date().toISOString().split('T')[0];
+                document.getElementById('taskCategory').value = 'Giảng dạy';
+                document.getElementById('taskStatus').value = 'Đang thực hiện';
+                deleteBtn.classList.add('hidden');
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('taskModal').classList.add('hidden');
+        }
+
+        function saveTask(e) {
+            e.preventDefault();
+            const idVal = document.getElementById('taskId').value;
+            const newTask = {
+                id: idVal ? parseInt(idVal) : Date.now(),
+                name: document.getElementById('taskName').value,
+                category: document.getElementById('taskCategory').value,
+                status: document.getElementById('taskStatus').value,
+                deadline: document.getElementById('taskDeadline').value,
+                time: document.getElementById('taskTime').value,
+                note: document.getElementById('taskNote').value
+            };
+
+            if (idVal) {
+                const idx = tasks.findIndex(t => t.id === newTask.id);
+                if (idx !== -1) tasks[idx] = newTask;
+                showToast("Đã cập nhật thành công!");
+            } else {
+                tasks.push(newTask);
+                showToast("Đã thêm công việc mới!");
+            }
+
+            saveTasks();
+            calendar.refetchEvents();
+            closeModal();
+        }
+
+        function deleteTask() {
+            if (confirm('Bạn có chắc chắn muốn xóa?')) {
+                const id = parseInt(document.getElementById('taskId').value);
+                tasks = tasks.filter(t => t.id !== id);
+                saveTasks();
+                calendar.refetchEvents();
+                showToast("Đã xóa công việc!");
+                closeModal();
+            }
+        }
+
+        // --- 4. UTILS ---
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3000);
+        }
+
+        function exportExcel() {
+            const ws = XLSX.utils.json_to_sheet(tasks);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "CongViec");
+            XLSX.writeFile(wb, "LichLamViec.xlsx");
+        }
+
+        function setupSearch() {
+            document.getElementById('searchInput').addEventListener('input', () => {
+                calendar.refetchEvents();
+            });
+        }
+
+        // Mobile Sidebar Logic
+        const menuOpenBtn = document.getElementById('menuOpenButton');
+        const menuCloseBtn = document.getElementById('menuCloseButton');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        function openSidebar() {
+            sidebar.classList.remove('-translate-x-full');
+            sidebarOverlay.classList.remove('hidden');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.add('hidden');
+        }
+
+        menuOpenBtn.addEventListener('click', openSidebar);
+        menuCloseBtn.addEventListener('click', closeSidebar);
+        sidebarOverlay.addEventListener('click', closeSidebar);
+    </script>
+</body>
+
+</html>
