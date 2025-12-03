@@ -212,10 +212,29 @@
                 margin-right: 2px !important;
             }
 
+            /* --- ĐIỀU CHỈNH TIÊU ĐỀ CỘT & SỐ NGÀY NHỎ LẠI --- */
+
+            /* Tiêu đề cột (Thứ 2, 3...) */
+            .fc-col-header-cell-cushion {
+                font-size: 0.75rem !important;
+                /* Nhỏ lại (khoảng 12px) */
+                padding-top: 2px !important;
+                padding-bottom: 2px !important;
+            }
+
+            /* Số ngày (1, 2, 3...) */
             .fc-daygrid-day-number {
-                width: 24px;
-                height: 24px;
-                font-size: 0.85rem;
+                width: 20px !important;
+                height: 20px !important;
+                font-size: 0.8rem !important;
+                /* Nhỏ lại */
+                margin: 2px !important;
+            }
+
+            /* Tiêu đề dòng (Giờ) nếu xem ở chế độ TimeGrid (Ngày/Tuần) */
+            .fc-timegrid-slot-label-cushion,
+            .fc-timegrid-axis-cushion {
+                font-size: 0.7rem !important;
             }
 
             /* Ẩn bớt nút trên mobile nếu cần */
