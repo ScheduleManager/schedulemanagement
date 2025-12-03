@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lịch Làm Việc Pro</title>
+    <title>Lịch Làm Việc</title>
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
+
     <!-- Tải Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -14,7 +15,7 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/locales/vi.global.min.js'></script>
 
-    <!-- Tải SheetJS (Thư viện xuất Excel) -->
+    <!-- Tải SheetJS -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
     <!-- Bootstrap Icons -->
@@ -39,35 +40,19 @@
         }
 
         .fc .fc-toolbar-title {
-            font-size: 1.25rem;
-            /* Giảm font title trên mobile */
+            font-size: 1.5rem;
             font-weight: 700;
             color: #1e293b;
-        }
-
-        @media (min-width: 768px) {
-            .fc .fc-toolbar-title {
-                font-size: 1.5rem;
-            }
         }
 
         .fc .fc-button {
             border-radius: 0.5rem;
             font-weight: 600;
-            padding: 0.4rem 0.8rem;
-            /* Padding nhỏ hơn trên mobile */
-            font-size: 0.85rem;
+            padding: 0.5rem 1.25rem;
             text-transform: capitalize;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
             background-color: #3b82f6;
             border-color: #3b82f6;
-        }
-
-        @media (min-width: 768px) {
-            .fc .fc-button {
-                padding: 0.5rem 1.25rem;
-                font-size: 1rem;
-            }
         }
 
         .fc .fc-button:hover {
@@ -75,23 +60,9 @@
             border-color: #2563eb;
         }
 
-        /* Responsive Toolbar: Stack on mobile */
-        @media (max-width: 640px) {
-            .fc-header-toolbar {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .fc-toolbar-chunk {
-                display: flex;
-                justify-content: space-between;
-                width: 100%;
-            }
-        }
-
         .fc-col-header-cell {
             background-color: #f8fafc;
-            padding: 8px 0;
+            padding: 12px 0;
             border-bottom: 2px solid #e2e8f0;
         }
 
@@ -99,18 +70,17 @@
             color: #64748b;
             font-weight: 700;
             text-transform: uppercase;
-            font-size: 0.75rem;
-            /* Font nhỏ hơn trên mobile */
+            font-size: 0.85rem;
             text-decoration: none;
         }
 
         .fc-daygrid-day-number {
             color: #475569;
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: 600;
             text-decoration: none;
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -126,11 +96,11 @@
         .custom-event {
             display: flex;
             flex-direction: column;
+            /* Xếp dọc để hiện giờ và tên */
             align-items: flex-start;
             padding: 2px 4px;
             border-radius: 3px;
-            font-size: 0.7rem;
-            /* Font nhỏ hơn */
+            font-size: 0.75rem;
             font-weight: 600;
             width: 100%;
             height: 100%;
@@ -149,7 +119,7 @@
         }
 
         .event-time-badge {
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             opacity: 0.9;
             white-space: nowrap;
             margin-bottom: 1px;
@@ -163,8 +133,8 @@
         }
 
         .event-icon {
-            margin-right: 3px;
-            font-size: 0.75rem;
+            margin-right: 4px;
+            font-size: 0.8rem;
         }
 
         .event-title {
@@ -175,7 +145,7 @@
 
         .form-input {
             width: 100%;
-            padding: 0.5rem 0.75rem;
+            padding: 0.6rem 0.8rem;
             border: 1px solid #cbd5e1;
             border-radius: 0.5rem;
             font-size: 0.9rem;
@@ -206,38 +176,35 @@
 
     <!-- Header -->
     <header class="bg-white border-b border-slate-200 z-30 shadow-sm flex-none">
-        <div class="max-w-full mx-auto px-3 sm:px-6 lg:px-8">
+        <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <!-- Left: Logo & Back Button -->
-                <div class="flex items-center gap-2 sm:gap-3">
-                    <!-- Nút Menu cho Mobile -->
-                    <button id="menuOpenButton"
-                        class="lg:hidden text-gray-600 p-2 rounded hover:bg-gray-100 focus:outline-none">
+                <div class="flex items-center gap-3">
+                    <button id="menuOpenButton" class="md:hidden text-gray-600 p-2 rounded hover:bg-gray-100">
                         <i class="bi bi-list text-2xl"></i>
                     </button>
 
                     <a href="index.html"
                         class="flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-600 p-2 rounded-lg transition"
                         title="Quay lại Dashboard">
-                        <i class="bi bi-arrow-left text-lg sm:text-xl"></i>
+                        <i class="bi bi-arrow-left text-xl"></i>
                     </a>
 
                     <div class="bg-blue-600 p-2 rounded-lg text-white shadow-md hidden sm:block">
                         <i class="bi bi-calendar-check-fill text-xl"></i>
                     </div>
-                    <h1 class="text-lg sm:text-xl font-bold text-slate-800 tracking-tight truncate">Lịch Làm Việc</h1>
+                    <h1 class="text-xl font-bold text-slate-800 tracking-tight hidden sm:block">Lịch Làm Việc</h1>
                 </div>
 
                 <!-- Right: Actions -->
-                <div class="flex items-center gap-2 sm:gap-3">
-                    <!-- Search & Filter ẩn trên mobile, đưa vào sidebar -->
+                <div class="flex items-center gap-3">
                     <div class="relative hidden lg:block">
                         <input type="text" id="searchInput" placeholder="Tìm kiếm..."
                             class="pl-10 pr-4 py-2 bg-slate-100 border-none rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-64 transition">
                         <i class="bi bi-search absolute left-3.5 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
                     </div>
 
-                    <div class="hidden xl:block relative">
+                    <div class="hidden md:block relative">
                         <select id="categoryFilterDesktop"
                             class="appearance-none pl-9 pr-8 py-2 bg-slate-100 border-none rounded-full text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
                             <option value="all">Tất cả phân loại</option>
@@ -248,28 +215,24 @@
                             class="bi bi-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-slate-500"></i>
                     </div>
 
-                    <!-- Nút Thêm mới: Chỉ hiện icon trên mobile -->
                     <button onclick="openModal()"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-full text-sm font-medium shadow-md transition flex items-center gap-2 transform active:scale-95">
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md transition flex items-center gap-2 transform active:scale-95">
                         <i class="bi bi-plus-lg text-lg"></i> <span class="hidden sm:inline">Thêm mới</span>
                     </button>
 
-                    <!-- Nút Xuất Excel: Ẩn trên mobile -->
                     <button onclick="exportExcel()"
-                        class="hidden sm:flex bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md transition items-center gap-2 transform active:scale-95">
+                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md transition flex items-center gap-2 transform active:scale-95">
                         <i class="bi bi-file-earmark-excel-fill"></i> <span class="hidden sm:inline">Xuất Excel</span>
                     </button>
 
-                    <!-- Auth UI: Tối giản trên mobile -->
-                    <div id="authContainer" class="ml-1 sm:ml-2">
+                    <div id="authContainer" class="ml-2">
                         <button id="btnLogin"
-                            class="hidden text-xs sm:text-sm bg-white border border-blue-500 text-blue-500 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full hover:bg-blue-50 transition">Đăng
+                            class="hidden text-sm bg-white border border-blue-500 text-blue-500 px-3 py-1.5 rounded-full hover:bg-blue-50 transition">Đăng
                             nhập</button>
                         <div id="userProfile" class="hidden flex items-center gap-2">
                             <img id="userAvatar" src="" class="w-8 h-8 rounded-full border border-slate-300"
                                 alt="Avatar">
-                            <button id="btnLogout"
-                                class="hidden sm:block text-xs text-red-500 hover:underline">Thoát</button>
+                            <button id="btnLogout" class="text-xs text-red-500 hover:underline">Thoát</button>
                         </div>
                     </div>
                 </div>
@@ -278,72 +241,21 @@
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 p-2 sm:p-4 bg-slate-50 overflow-y-auto flex flex-col">
-        <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 flex-1 p-2 sm:p-4 relative">
-            <div id="calendar" class="h-full"></div>
+    <main class="flex-1 p-4 bg-slate-50 overflow-y-auto flex flex-col">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex-1 p-4 relative">
+            <div id="calendar"></div>
         </div>
     </main>
 
-    <!-- Sidebar Mobile -->
-    <div id="sidebarOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"></div>
-    <div id="sidebar"
-        class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
-        <div class="p-4 border-b flex justify-between items-center bg-gray-50">
-            <h2 class="text-lg font-bold text-gray-800"><i class="bi bi-menu-button-wide mr-2"></i>Menu</h2>
-            <button id="menuCloseButton" class="text-gray-500 hover:text-red-500 transition"><i
-                    class="bi bi-x-lg text-xl"></i></button>
-        </div>
-        <div class="p-4 flex flex-col gap-4 overflow-y-auto flex-1">
-            <!-- Mobile Search -->
-            <div class="relative">
-                <input type="text" id="searchInputMobile" placeholder="Tìm kiếm..."
-                    class="pl-9 pr-4 py-2 bg-slate-100 border-none rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
-                <i class="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
-            </div>
-
-            <!-- Mobile Filter -->
-            <div class="relative">
-                <select id="categoryFilterMobile"
-                    class="appearance-none pl-9 pr-8 py-2 bg-slate-100 border-none rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 w-full cursor-pointer">
-                    <option value="all">Tất cả phân loại</option>
-                </select>
-                <i class="bi bi-funnel-fill absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
-                <i
-                    class="bi bi-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-slate-500"></i>
-            </div>
-
-            <hr class="border-gray-200">
-
-            <a href="index.html"
-                class="flex items-center gap-3 p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition text-slate-700 font-medium">
-                <i class="bi bi-house-door-fill text-lg text-blue-600"></i> Về Dashboard
-            </a>
-
-            <button onclick="exportExcel()"
-                class="flex items-center gap-3 p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition text-slate-700 font-medium w-full text-left">
-                <i class="bi bi-file-earmark-excel-fill text-lg text-emerald-600"></i> Xuất Excel
-            </button>
-
-            <div id="mobileLogoutContainer" class="mt-auto pt-4 border-t border-gray-100">
-                <button id="btnLogoutMobile"
-                    class="flex items-center gap-3 p-3 w-full text-red-600 hover:bg-red-50 rounded-lg transition font-medium">
-                    <i class="bi bi-box-arrow-right text-lg"></i> Đăng xuất
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Form (Responsive) -->
+    <!-- Modal Form -->
     <div id="taskModal" class="fixed inset-0 z-50 hidden transition-opacity duration-300">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
 
-        <!-- Responsive Width & Padding -->
         <div
-            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[95%] sm:w-full max-w-2xl bg-white rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden scale-100 transition-transform duration-300 max-h-[90vh] flex flex-col">
+            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden scale-100 transition-transform duration-300 max-h-[95vh] flex flex-col">
             <!-- Header -->
-            <div
-                class="px-4 sm:px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-white flex-none">
-                <h3 class="text-base sm:text-lg font-bold text-slate-800" id="modalTitle">Công việc mới</h3>
+            <div class="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-white flex-none">
+                <h3 class="text-lg font-bold text-slate-800" id="modalTitle">Công việc mới</h3>
                 <button onclick="closeModal()"
                     class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition">
                     <i class="bi bi-x-lg"></i>
@@ -351,13 +263,13 @@
             </div>
 
             <!-- Body -->
-            <div class="p-4 sm:p-5 space-y-3 overflow-y-auto flex-1">
+            <div class="p-5 space-y-3 overflow-y-auto flex-1">
                 <form id="taskForm" onsubmit="saveTask(event)">
                     <input type="hidden" id="taskId">
 
-                    <!-- Responsive Grid: 1 cột trên mobile, 3 cột trên desktop -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                        <div class="sm:col-span-2">
+                    <!-- Row 1: Tên + Trạng thái -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="col-span-2">
                             <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Tên công việc <span
                                     class="text-red-500">*</span></label>
                             <input type="text" id="taskName" required placeholder="Nhập tên công việc..."
@@ -373,6 +285,7 @@
                         </div>
                     </div>
 
+                    <!-- Row 2: Danh mục -->
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Danh mục</label>
                         <select id="taskCategory" class="form-input cursor-pointer"
@@ -383,57 +296,52 @@
                             placeholder="Nhập tên danh mục mới">
                     </div>
 
-                    <!-- Responsive Grid cho Ngày/Giờ -->
-                    <div
-                        class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                    <!-- Row 3: Ngày bắt đầu + Thời lượng + Deadline -->
+                    <div class="grid grid-cols-3 gap-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Ngày bắt đầu</label>
                             <input type="date" id="taskStartDate" required class="form-input"
                                 onchange="calculateDeadline()">
                         </div>
-                        <div class="grid grid-cols-2 sm:block gap-3"> <!-- Chia đôi trên mobile cho gọn -->
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Thời lượng
-                                    (Ngày)</label>
-                                <input type="number" id="taskDuration" value="1" min="0" class="form-input"
-                                    oninput="calculateDeadline()">
-                            </div>
-                            <div class="sm:mt-3 sm:hidden"> <!-- Ẩn label trên mobile nếu muốn hoặc giữ nguyên -->
-                                <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Hạn cuối
-                                    (Auto)</label>
-                                <input type="date" id="taskDeadlineMobile" disabled
-                                    class="form-input bg-white text-slate-500 font-bold border-slate-200">
-                            </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Thời lượng
+                                (Ngày)</label>
+                            <input type="number" id="taskDuration" value="1" min="0" class="form-input"
+                                oninput="calculateDeadline()">
                         </div>
-                        <div class="hidden sm:block"> <!-- Chỉ hiện trên desktop, mobile dùng ô trên -->
+                        <div>
                             <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Hạn cuối (Auto)</label>
                             <input type="date" id="taskDeadline" disabled
                                 class="form-input bg-white text-slate-500 font-bold border-slate-200">
                         </div>
                     </div>
 
+                    <!-- Row 4: Chi tiết giờ (TÍNH NĂNG MỚI) -->
                     <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
                         <h4 class="text-xs font-bold text-blue-700 mb-2 flex items-center gap-2 uppercase">
-                            <i class="bi bi-clock"></i> Khung giờ làm việc
+                            <i class="bi bi-clock"></i> Chi tiết thời gian trong ngày
                         </h4>
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-                            <div class="flex items-center gap-2 w-full">
-                                <div class="flex-1">
-                                    <input type="time" id="taskStartTime" class="form-input text-sm"
-                                        onchange="calculateHours()">
-                                </div>
-                                <span class="text-slate-400 font-bold">-</span>
-                                <div class="flex-1">
-                                    <input type="time" id="taskEndTime" class="form-input text-sm"
-                                        onchange="calculateHours()">
-                                </div>
+                        <div class="flex items-center gap-4">
+                            <div class="flex-1">
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">Giờ bắt
+                                    đầu</label>
+                                <input type="time" id="taskStartTime" class="form-input text-sm"
+                                    onchange="calculateHours()">
                             </div>
+                            <span class="text-slate-400 font-bold mt-4">-</span>
+                            <div class="flex-1">
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">Giờ kết
+                                    thúc</label>
+                                <input type="time" id="taskEndTime" class="form-input text-sm"
+                                    onchange="calculateHours()">
+                            </div>
+                            <!-- HIỂN THỊ KẾT QUẢ TÍNH TOÁN -->
                             <div id="hourDurationText"
-                                class="text-xs text-blue-600 font-bold whitespace-nowrap w-full sm:w-auto text-left sm:text-right mt-1 sm:mt-0">
-                            </div>
+                                class="text-xs text-blue-600 font-bold whitespace-nowrap w-32 text-right mt-4"></div>
                         </div>
                     </div>
 
+                    <!-- Row 5: Ghi chú -->
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Ghi chú</label>
                         <textarea id="taskNote" rows="2" placeholder="Ghi chú thêm..."
@@ -443,29 +351,48 @@
             </div>
 
             <!-- Footer -->
-            <div
-                class="px-4 sm:px-5 py-3 border-t border-slate-100 bg-gray-50 flex justify-between items-center flex-none">
+            <div class="px-5 py-3 border-t border-slate-100 bg-gray-50 flex justify-between items-center flex-none">
                 <button type="button" id="deleteBtn" onclick="deleteTask()"
                     class="hidden text-red-600 hover:text-red-700 text-sm font-bold px-3 py-2 rounded hover:bg-red-50 transition flex items-center gap-2">
-                    <i class="bi bi-trash"></i> <span class="hidden sm:inline">Xóa</span>
+                    <i class="bi bi-trash"></i> Xóa
                 </button>
                 <div class="flex gap-3 ml-auto">
                     <button type="button" onclick="closeModal()"
-                        class="px-3 sm:px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 text-sm font-bold transition">Hủy</button>
+                        class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 text-sm font-bold transition">Hủy</button>
                     <button type="button"
                         onclick="document.getElementById('taskForm').dispatchEvent(new Event('submit'))"
-                        class="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-bold shadow-md transition">Lưu
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-bold shadow-md transition">Lưu
                         lại</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Sidebar Mobile -->
+    <div id="sidebarOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"></div>
+    <div id="sidebar"
+        class="fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <div class="p-4 border-b flex justify-between items-center bg-gray-50">
+            <h2 class="text-lg font-bold text-gray-800"><i class="bi bi-menu-button-wide mr-2"></i>Menu</h2>
+            <button id="menuCloseButton" class="text-gray-500 hover:text-red-500 transition"><i
+                    class="bi bi-x-lg text-xl"></i></button>
+        </div>
+        <div class="p-4 flex flex-col gap-4 overflow-y-auto">
+            <a href="index.html"
+                class="flex items-center gap-3 p-3 bg-slate-100 hover:bg-slate-200 rounded-lg transition text-slate-700 font-medium"><i
+                    class="bi bi-house-door-fill text-lg"></i> Về Dashboard</a>
+            <hr class="border-gray-200">
+            <button onclick="exportExcel()"
+                class="w-full py-2 px-3 text-left text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition"><i
+                    class="bi bi-file-earmark-excel mr-2 text-green-600"></i> Xuất Excel</button>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast"
-        class="fixed bottom-6 right-6 sm:right-6 left-6 sm:left-auto bg-slate-800 text-white px-4 sm:px-5 py-3 rounded-xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-300 z-[60] flex items-center gap-3 justify-center sm:justify-start">
-        <div class="bg-green-500 rounded-full p-1 flex-shrink-0"><i class="bi bi-check text-white text-sm"></i></div>
-        <span id="toastMsg" class="font-medium text-sm truncate">Thành công</span>
+        class="fixed bottom-6 right-6 bg-slate-800 text-white px-5 py-3 rounded-xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-300 z-[60] flex items-center gap-3">
+        <div class="bg-green-500 rounded-full p-1"><i class="bi bi-check text-white text-sm"></i></div>
+        <span id="toastMsg" class="font-medium text-sm">Thành công</span>
     </div>
 
     <!-- FIREBASE LOGIC -->
@@ -488,64 +415,67 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
+        let currentUser = null;
+        let unsubscribeSnapshot = null;
+
         const btnLogin = document.getElementById('btnLogin');
         const userProfile = document.getElementById('userProfile');
         const userAvatar = document.getElementById('userAvatar');
         const btnLogout = document.getElementById('btnLogout');
-        const btnLogoutMobile = document.getElementById('btnLogoutMobile'); // Mobile Logout
 
-        // Auth Functions
-        const handleLogin = () => signInWithPopup(auth, provider).catch(e => showToast(e.message, true));
-        const handleLogout = () => signOut(auth);
-
-        if (btnLogin) btnLogin.addEventListener('click', handleLogin);
-        if (btnLogout) btnLogout.addEventListener('click', handleLogout);
-        if (btnLogoutMobile) btnLogoutMobile.addEventListener('click', handleLogout);
+        if (btnLogin) btnLogin.addEventListener('click', () => signInWithPopup(auth, provider).catch(e => showToast(e.message, true)));
+        if (btnLogout) btnLogout.addEventListener('click', () => signOut(auth));
 
         onAuthStateChanged(auth, user => {
+            currentUser = user;
+
+            if (unsubscribeSnapshot) {
+                unsubscribeSnapshot();
+                unsubscribeSnapshot = null;
+                window.tasks = [];
+                if (window.calendar) window.calendar.refetchEvents();
+            }
+
             if (user) {
                 btnLogin.classList.add('hidden');
                 userProfile.classList.remove('hidden');
                 userAvatar.src = user.photoURL;
 
-                // Mobile Sidebar State
-                const mobileLogoutContainer = document.getElementById('mobileLogoutContainer');
-                if (mobileLogoutContainer) mobileLogoutContainer.classList.remove('hidden');
+                const q = query(collection(db, "users", user.uid, "tasks"), orderBy("deadline"));
+
+                unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
+                    window.tasks = snapshot.docs.map(doc => {
+                        const data = doc.data();
+                        return { id: doc.id, ...data };
+                    });
+
+                    // Sync categories
+                    const dynamicCats = new Set(['Giảng dạy', 'Họp', 'Coi thi', 'Việc cá nhân']);
+                    window.tasks.forEach(t => { if (t.category) dynamicCats.add(t.category); });
+                    if (window.updateFilterDropdown) window.updateFilterDropdown(dynamicCats);
+                    if (window.updateModalDropdown) window.updateModalDropdown(dynamicCats);
+
+                    if (window.calendar) window.calendar.refetchEvents();
+                });
             } else {
                 btnLogin.classList.remove('hidden');
                 userProfile.classList.add('hidden');
-
-                // Mobile Sidebar State
-                const mobileLogoutContainer = document.getElementById('mobileLogoutContainer');
-                if (mobileLogoutContainer) mobileLogoutContainer.classList.add('hidden');
             }
-        });
-
-        window.tasks = [];
-        const q = query(collection(db, "tasks"), orderBy("deadline"));
-
-        onSnapshot(q, (snapshot) => {
-            window.tasks = snapshot.docs.map(doc => {
-                const data = doc.data();
-                return { id: doc.id, ...data };
-            });
-            if (window.calendar) window.calendar.refetchEvents();
-
-            // Update dropdowns for both Desktop & Mobile
-            const dynamicCats = new Set(['Giảng dạy', 'Họp', 'Coi thi', 'Việc cá nhân']);
-            window.tasks.forEach(t => { if (t.category) dynamicCats.add(t.category); });
-
-            if (window.updateFilterDropdown) {
-                window.updateFilterDropdown(dynamicCats, 'categoryFilterDesktop');
-                window.updateFilterDropdown(dynamicCats, 'categoryFilterMobile');
-            }
-            if (window.updateModalDropdown) window.updateModalDropdown(dynamicCats);
         });
 
         window.dbActions = {
-            add: async (data) => addDoc(collection(db, "tasks"), { ...data, createdAt: serverTimestamp() }),
-            update: async (id, data) => updateDoc(doc(db, "tasks", id), data),
-            delete: async (id) => deleteDoc(doc(db, "tasks", id))
+            add: async (data) => {
+                if (!currentUser) return alert("Cần đăng nhập");
+                await addDoc(collection(db, "users", currentUser.uid, "tasks"), { ...data, createdAt: serverTimestamp() });
+            },
+            update: async (id, data) => {
+                if (!currentUser) return alert("Cần đăng nhập");
+                await updateDoc(doc(db, "users", currentUser.uid, "tasks", id), data);
+            },
+            delete: async (id) => {
+                if (!currentUser) return alert("Cần đăng nhập");
+                await deleteDoc(doc(db, "users", currentUser.uid, "tasks", id));
+            }
         };
     </script>
 
@@ -558,6 +488,19 @@
             { id: 'Việc cá nhân', name: 'Việc cá nhân', color: '#64748b' }
         ];
 
+        function getCategoryColor(catName) {
+            const baseColors = {
+                'Giảng dạy': '#0d6efd',
+                'Họp': '#fd7e14',
+                'Coi thi': '#dc3545',
+                'Việc cá nhân': '#64748b'
+            };
+            if (baseColors[catName]) return baseColors[catName];
+            let hash = 0;
+            for (let i = 0; i < catName.length; i++) hash = catName.charCodeAt(i) + ((hash << 5) - hash);
+            return `hsl(${Math.abs(hash % 360)}, ${60 + (Math.abs(hash) % 20)}%, ${40 + (Math.abs(hash) % 10)}%)`;
+        }
+
         window.calendar = null;
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -565,34 +508,33 @@
             initCalendar();
             setupSearch();
             setupSidebar();
-
-            // Sync Mobile/Desktop Filter
-            const mobileFilter = document.getElementById('categoryFilterMobile');
-            const desktopFilter = document.getElementById('categoryFilterDesktop');
-
-            mobileFilter.addEventListener('change', (e) => {
-                desktopFilter.value = e.target.value;
-                if (window.calendar) window.calendar.refetchEvents();
-            });
         });
 
         function populateCategorySelects() {
             const formSelect = document.getElementById('taskCategory');
-            // Initial population
+            const filterSelect = document.getElementById('categoryFilterDesktop');
+
             formSelect.innerHTML = '';
+
             CATEGORIES.forEach(cat => {
                 const opt = document.createElement('option');
                 opt.value = cat.id;
                 opt.innerText = cat.name;
                 formSelect.appendChild(opt);
+
+                const opt2 = document.createElement('option');
+                opt2.value = cat.id;
+                opt2.innerText = cat.name;
+                filterSelect.appendChild(opt2);
+            });
+
+            filterSelect.addEventListener('change', () => {
+                if (window.calendar) window.calendar.refetchEvents();
             });
         }
 
-        // Make this global to be called from module script
-        window.updateFilterDropdown = function (categories, elementId) {
-            const filterSelect = document.getElementById(elementId);
-            if (!filterSelect) return;
-
+        window.updateFilterDropdown = function (categories) {
+            const filterSelect = document.getElementById('categoryFilterDesktop');
             const currentVal = filterSelect.value;
             while (filterSelect.options.length > 1) filterSelect.remove(1);
             categories.forEach(cat => filterSelect.add(new Option(cat, cat)));
@@ -611,41 +553,27 @@
             if (Array.from(modalSelect.options).some(o => o.value === currentVal)) modalSelect.value = currentVal;
         }
 
-        function getCategoryColor(catName) {
-            // Helper color function...
-            const colors = ['#0d6efd', '#fd7e14', '#dc3545', '#64748b', '#6610f2', '#0dcaf0'];
-            let hash = 0;
-            for (let i = 0; i < catName.length; i++) hash = catName.charCodeAt(i) + ((hash << 5) - hash);
-            return `hsl(${Math.abs(hash % 360)}, 70%, 50%)`;
-        }
-
         function initCalendar() {
             const calendarEl = document.getElementById('calendar');
-            const isMobile = window.innerWidth < 768;
-
             window.calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: isMobile ? 'timeGridDay' : 'dayGridMonth', // Mobile ưu tiên xem Ngày
+                initialView: 'dayGridMonth',
                 locale: 'vi',
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: isMobile ? 'timeGridDay,listMonth' : 'dayGridMonth,timeGridWeek,timeGridDay'
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
                 },
-                buttonText: { today: 'Hôm nay', month: 'Tháng', week: 'Tuần', day: 'Ngày', list: 'DS' },
-                height: '100%', // Full height container
-                aspectRatio: isMobile ? 0.8 : 1.35,
-                dayMaxEvents: true, // Thu gọn nếu quá nhiều
+                buttonText: { today: 'Hôm nay', month: 'Tháng', week: 'Tuần', day: 'Ngày' },
+                aspectRatio: 1.1,
+                height: 'auto',
+                dayMaxEvents: false,
                 slotMinTime: '06:00:00',
                 slotMaxTime: '22:00:00',
                 allDaySlot: true,
-                views: {
-                    timeGridDay: { titleFormat: { month: 'short', day: 'numeric', weekday: 'short' } }
-                },
 
-                // Events logic same as before...
                 events: function (info, successCallback) {
                     const filterCat = document.getElementById('categoryFilterDesktop').value;
-                    const searchTerm = document.getElementById('searchInput').value.toLowerCase() || document.getElementById('searchInputMobile').value.toLowerCase();
+                    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
                     const allTasks = window.tasks || [];
 
                     let filtered = allTasks.filter(t => {
@@ -681,17 +609,32 @@
                     const props = arg.event.extendedProps;
                     const bgColor = getCategoryColor(props.category);
 
-                    // Optimized content for small cards
+                    let iconHtml = '';
+                    if (props.status === 'Hoàn thành') iconHtml = '<i class="bi bi-check-square-fill text-green-300 mr-1.5 text-sm"></i>';
+                    else if (props.status === 'Chưa thực hiện') iconHtml = '<i class="bi bi-circle mr-1.5 text-[10px] opacity-70"></i>';
+                    else iconHtml = '<i class="bi bi-hourglass-split text-yellow-200 mr-1.5 text-xs"></i>';
+
                     let timeDisplay = '';
                     if (!arg.event.allDay && props.startTime) {
-                        timeDisplay = `<div class="event-time-badge">${props.startTime}</div>`;
+                        timeDisplay = `<div class="event-time-badge">${props.startTime}${props.endTime ? ' - ' + props.endTime : ''}</div>`;
+                    }
+
+                    const today = new Date().setHours(0, 0, 0, 0);
+                    const deadline = new Date(props.deadline).setHours(0, 0, 0, 0);
+                    let warningBadge = '';
+                    if (props.status !== 'Hoàn thành' && deadline === today) {
+                        warningBadge = '<span class="ml-auto bg-red-500 text-white text-[10px] font-bold px-1.5 rounded animate-pulse"><i class="bi bi-alarm-fill"></i></span>';
                     }
 
                     return {
                         html: `
                             <div class="custom-event" style="background-color: ${bgColor}; border-left: 3px solid rgba(0,0,0,0.2);">
                                 ${timeDisplay}
-                                <div class="event-title font-bold truncate">${arg.event.title}</div>
+                                <div class="event-title-row">
+                                    <div class="event-icon">${iconHtml}</div>
+                                    <div class="event-title flex-1">${arg.event.title}</div>
+                                    ${warningBadge}
+                                </div>
                             </div>
                         `
                     };
@@ -703,20 +646,44 @@
                     const task = (window.tasks || []).find(t => t.id === id);
                     if (task) openModal(task);
                 },
+                eventDrop: function (info) {
+                    const id = info.event.id;
+                    const newDeadline = info.event.start.toISOString().split('T')[0];
+                    const task = (window.tasks || []).find(t => t.id === id);
 
-                // Auto resize handling
-                windowResize: function (view) {
-                    if (window.innerWidth < 768) {
-                        window.calendar.changeView('timeGridDay');
-                    } else {
-                        window.calendar.changeView('dayGridMonth');
+                    if (task && window.dbActions) {
+                        const duration = task.duration || 0;
+                        const d = new Date(newDeadline);
+                        d.setDate(d.getDate() - parseInt(duration));
+                        const newStartDate = d.toISOString().split('T')[0];
+
+                        let newStartTime = null;
+                        let newEndTime = null;
+                        if (!info.event.allDay && info.event.start) {
+                            newStartTime = info.event.start.toTimeString().substring(0, 5);
+                            if (info.event.end) {
+                                newEndTime = info.event.end.toTimeString().substring(0, 5);
+                            }
+                        }
+
+                        const updates = {
+                            createdDate: newStartDate,
+                            deadline: newDeadline
+                        };
+
+                        if (!info.event.allDay) {
+                            updates.startTime = newStartTime;
+                            updates.endTime = newEndTime;
+                        }
+
+                        window.dbActions.update(id, updates);
+                        showToast("Đã cập nhật thời gian");
                     }
                 }
             });
             window.calendar.render();
         }
 
-        // --- HELPER FUNCTIONS ---
         function addDays(dateStr, days) {
             if (!dateStr) return '';
             const result = new Date(dateStr);
@@ -734,15 +701,10 @@
         window.calculateDeadline = function () {
             const start = document.getElementById('taskStartDate').value;
             const dur = document.getElementById('taskDuration').value || 0;
-            if (start) {
-                const deadline = addDays(start, dur);
-                document.getElementById('taskDeadline').value = deadline;
-                // Update mobile readonly input too
-                const mobileDeadline = document.getElementById('taskDeadlineMobile');
-                if (mobileDeadline) mobileDeadline.value = deadline;
-            }
+            if (start) document.getElementById('taskDeadline').value = addDays(start, dur);
         }
 
+        // TÍNH GIỜ TỰ ĐỘNG
         window.calculateHours = function () {
             const start = document.getElementById('taskStartTime').value;
             const end = document.getElementById('taskEndTime').value;
@@ -753,14 +715,20 @@
                 const e = new Date("1970-01-01 " + end);
                 let diffMs = e - s;
                 if (diffMs < 0) {
-                    output.innerText = "Lỗi giờ";
+                    output.innerText = "Giờ kết thúc phải sau giờ bắt đầu";
                     output.classList.add('text-red-500');
                     return;
                 }
                 output.classList.remove('text-red-500');
                 const diffHrs = Math.floor((diffMs % 86400000) / 3600000);
                 const diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
-                output.innerText = `${diffHrs}h ${diffMins}p`;
+
+                let durationStr = "";
+                if (diffHrs > 0) durationStr += `${diffHrs} tiếng `;
+                if (diffMins > 0) durationStr += `${diffMins} phút`;
+                if (diffHrs === 0 && diffMins === 0) durationStr = "0 phút";
+
+                output.innerText = `Thời lượng: ${durationStr}`;
             } else {
                 output.innerText = "";
             }
@@ -787,13 +755,12 @@
             customInput.classList.add('hidden');
             document.getElementById('hourDurationText').innerText = "";
 
-            // Sync logic similar to previous...
             const dynamicCats = new Set(['Giảng dạy', 'Họp', 'Coi thi', 'Việc cá nhân']);
             if (window.tasks) window.tasks.forEach(t => { if (t.category) dynamicCats.add(t.category); });
             updateModalDropdown(dynamicCats);
 
             if (task) {
-                title.innerText = 'Cập nhật';
+                title.innerText = 'Cập nhật công việc';
                 document.getElementById('taskId').value = task.id;
                 document.getElementById('taskName').value = task.name;
 
@@ -810,9 +777,6 @@
                 document.getElementById('taskStartDate').value = task.createdDate || '';
                 document.getElementById('taskDuration').value = task.duration || 0;
                 document.getElementById('taskDeadline').value = task.deadline || '';
-                // Mobile sync
-                const mobileDL = document.getElementById('taskDeadlineMobile');
-                if (mobileDL) mobileDL.value = task.deadline || '';
 
                 document.getElementById('taskStartTime').value = task.startTime || '';
                 document.getElementById('taskEndTime').value = task.endTime || '';
@@ -821,11 +785,12 @@
                 document.getElementById('taskNote').value = task.note || '';
                 deleteBtn.classList.remove('hidden');
             } else {
-                title.innerText = 'Thêm mới';
+                title.innerText = 'Thêm công việc mới';
                 document.getElementById('taskId').value = '';
 
                 const defaultDuration = 1;
-                let startDate, deadlineDate, startTime = '';
+                let startDate, deadlineDate;
+                let startTime = '';
 
                 if (dateStr) {
                     if (dateStr.includes('T')) {
@@ -851,18 +816,15 @@
                 document.getElementById('taskStartDate').value = startDate;
                 document.getElementById('taskDuration').value = defaultDuration;
                 document.getElementById('taskDeadline').value = deadlineDate;
-                const mobileDL = document.getElementById('taskDeadlineMobile');
-                if (mobileDL) mobileDL.value = deadlineDate;
 
                 document.getElementById('taskStartTime').value = startTime;
-                // Set end time +1h logic
                 if (startTime) {
                     const [h, m] = startTime.split(':').map(Number);
                     const endH = (h + 1) % 24;
                     document.getElementById('taskEndTime').value = endH.toString().padStart(2, '0') + ":" + m.toString().padStart(2, '0');
                 }
-
                 calculateHours();
+
                 document.getElementById('taskCategory').value = 'Giảng dạy';
                 document.getElementById('taskStatus').value = 'Đang thực hiện';
                 deleteBtn.classList.add('hidden');
@@ -879,7 +841,6 @@
             e.preventDefault();
             const id = document.getElementById('taskId').value;
 
-            // Logic saving... (Same as before)
             const startDate = document.getElementById('taskStartDate').value;
             let duration = document.getElementById('taskDuration').value || 0;
             const status = document.getElementById('taskStatus').value;
@@ -896,6 +857,7 @@
             }
 
             const deadline = addDays(startDate, duration);
+
             let category = document.getElementById('taskCategory').value;
             if (category === '__other__') {
                 category = document.getElementById('customCategoryInput').value.trim();
@@ -919,10 +881,10 @@
                 if (window.dbActions) {
                     if (id) {
                         await window.dbActions.update(id, taskData);
-                        showToast("Cập nhật thành công!");
+                        showToast("Đã cập nhật thành công!");
                     } else {
                         await window.dbActions.add(taskData);
-                        showToast("Thêm mới thành công!");
+                        showToast("Đã thêm công việc mới!");
                     }
 
                     if (document.getElementById('taskCategory').value === '__other__') {
@@ -931,7 +893,7 @@
                     }
                     closeModal();
                 } else {
-                    alert("Lỗi kết nối DB");
+                    alert("Chưa kết nối DB");
                 }
             } catch (err) {
                 console.error(err);
@@ -941,10 +903,10 @@
 
         window.deleteTask = async function () {
             const id = document.getElementById('taskId').value;
-            if (id && confirm('Xóa công việc này?')) {
+            if (id && confirm('Bạn có chắc chắn muốn xóa?')) {
                 try {
                     await window.dbActions.delete(id);
-                    showToast("Đã xóa!");
+                    showToast("Đã xóa công việc!");
                     closeModal();
                 } catch (e) {
                     showToast("Lỗi xóa: " + e.message, true);
@@ -964,7 +926,8 @@
 
         window.exportExcel = function () {
             const allTasks = window.tasks || [];
-            if (allTasks.length === 0) return showToast("Không có dữ liệu", true);
+            if (allTasks.length === 0) return showToast("Không có dữ liệu để xuất", true);
+
             const ws = XLSX.utils.json_to_sheet(allTasks);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "CongViec");
@@ -972,13 +935,9 @@
         }
 
         function setupSearch() {
-            const searchDesktop = document.getElementById('searchInput');
-            const searchMobile = document.getElementById('searchInputMobile');
-
-            const handleSearch = () => { if (window.calendar) window.calendar.refetchEvents(); };
-
-            if (searchDesktop) searchDesktop.addEventListener('input', handleSearch);
-            if (searchMobile) searchMobile.addEventListener('input', handleSearch);
+            document.getElementById('searchInput').addEventListener('input', () => {
+                if (window.calendar) window.calendar.refetchEvents();
+            });
         }
 
         function setupSidebar() {
@@ -987,18 +946,16 @@
             const sidebar = document.getElementById('sidebar');
             const sidebarOverlay = document.getElementById('sidebarOverlay');
 
-            function openSidebar() {
+            if (menuOpenBtn) menuOpenBtn.addEventListener('click', () => {
                 sidebar.classList.remove('-translate-x-full');
                 sidebarOverlay.classList.remove('hidden');
-            }
-            function closeSidebar() {
+            });
+            const close = () => {
                 sidebar.classList.add('-translate-x-full');
                 sidebarOverlay.classList.add('hidden');
-            }
-
-            if (menuOpenBtn) menuOpenBtn.addEventListener('click', openSidebar);
-            if (menuCloseBtn) menuCloseBtn.addEventListener('click', closeSidebar);
-            if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
+            };
+            if (menuCloseBtn) menuCloseBtn.addEventListener('click', close);
+            if (sidebarOverlay) sidebarOverlay.addEventListener('click', close);
         }
     </script>
 </body>

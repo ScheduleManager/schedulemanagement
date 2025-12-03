@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản Lý Công Việc - Pro</title>
     <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+
     <!-- CSS Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -152,7 +153,6 @@
             color: #1f2937;
         }
 
-        /* Modal Customization matches screenshot */
         .modal-header.bg-primary {
             background-color: #0d6efd !important;
         }
@@ -175,7 +175,6 @@
                     <h1 class="h5 fw-bold mb-0 text-gray-800 d-none d-sm-block">Quản Lý Công Việc</h1>
                 </div>
 
-                <!-- Search -->
                 <div class="flex-grow-1 mx-3 d-none d-md-block" style="max-width: 400px;">
                     <div class="input-group">
                         <span class="input-group-text bg-gray-50 border-e-0"><i
@@ -238,163 +237,153 @@
     </header>
 
     <div class="container py-4">
+        <!-- Cảnh báo chưa đăng nhập -->
+        <div id="loginWarning" class="alert alert-warning d-none" role="alert">
+            <i class="bi bi-exclamation-circle-fill me-2"></i> Vui lòng <b>Đăng nhập bằng Google</b> để xem và quản lý
+            công việc cá nhân của bạn.
+        </div>
+
         <div id="errorAlert" class="alert alert-danger d-none" role="alert">
             <i class="bi bi-exclamation-triangle-fill me-2"></i> <span id="errorMsg"></span>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-            <div class="card card-stat bg-white p-3">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <p class="text-muted small mb-1 fw-bold text-uppercase">Tổng số</p>
-                        <h3 class="fw-bold text-dark mb-0" id="totalTasks">0</h3>
-                    </div>
-                    <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary"><i
-                            class="bi bi-layers-fill fs-5"></i></div>
-                </div>
-            </div>
-            <div class="card card-stat bg-white p-3">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <p class="text-muted small mb-1 fw-bold text-uppercase">Hoàn thành</p>
-                        <h3 class="fw-bold text-success mb-0" id="completedTasks">0</h3>
-                    </div>
-                    <div class="bg-success bg-opacity-10 p-2 rounded-3 text-success"><i
-                            class="bi bi-check-circle-fill fs-5"></i></div>
-                </div>
-            </div>
-            <div class="card card-stat bg-white p-3">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <p class="text-muted small mb-1 fw-bold text-uppercase">Đang thực hiện</p>
-                        <h3 class="fw-bold text-primary mb-0" id="inProgressTasks">0</h3>
-                    </div>
-                    <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary"><i
-                            class="bi bi-hourglass-split fs-5"></i></div>
-                </div>
-            </div>
-            <div class="card card-stat bg-white p-3">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <p class="text-muted small mb-1 fw-bold text-uppercase">Chưa thực hiện</p>
-                        <h3 class="fw-bold text-danger mb-0" id="overdueTasks">0</h3>
-                    </div>
-                    <div class="bg-danger bg-opacity-10 p-2 rounded-3 text-danger"><i
-                            class="bi bi-x-circle-fill fs-5"></i></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Charts Section (UPDATED LAYOUT FOR LEGEND) -->
-        <div class="row g-4 mb-5">
-            <!-- Phân bổ Danh mục -->
-            <div class="col-lg-4">
-                <div class="card chart-card p-4 h-100">
-                    <h5 class="card-title fw-bold mb-4 d-flex align-items-center gap-2">
-                        <i class="bi bi-pie-chart-fill text-primary"></i> Phân bổ Danh mục
-                    </h5>
-                    <!-- Chart Container -->
-                    <div class="flex-grow-1 d-flex align-items-center justify-content-center mb-3"
-                        style="min-height: 200px;">
-                        <div style="height: 200px; width: 200px;">
-                            <canvas id="categoryChart"></canvas>
+        <!-- Nội dung chính (Ẩn khi chưa login) -->
+        <div id="mainContent" class="d-none">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                <div class="card card-stat bg-white p-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="text-muted small mb-1 fw-bold text-uppercase">Tổng số</p>
+                            <h3 class="fw-bold text-dark mb-0" id="totalTasks">0</h3>
                         </div>
-                    </div>
-                    <!-- Custom Legend Container -->
-                    <div id="categoryLegend" class="mt-auto">
-                        <!-- Legend items will be injected here by JS -->
+                        <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary"><i
+                                class="bi bi-layers-fill fs-5"></i></div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Tình trạng Công việc -->
-            <div class="col-lg-4">
-                <div class="card chart-card p-4 h-100">
-                    <h5 class="card-title fw-bold mb-4 d-flex align-items-center gap-2">
-                        <i class="bi bi-activity text-success"></i> Tình trạng Công việc
-                    </h5>
-                    <!-- Chart Container -->
-                    <div class="flex-grow-1 d-flex align-items-center justify-content-center mb-3"
-                        style="min-height: 200px;">
-                        <div style="height: 200px; width: 200px;">
-                            <canvas id="completionChart"></canvas>
+                <div class="card card-stat bg-white p-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="text-muted small mb-1 fw-bold text-uppercase">Hoàn thành</p>
+                            <h3 class="fw-bold text-success mb-0" id="completedTasks">0</h3>
                         </div>
+                        <div class="bg-success bg-opacity-10 p-2 rounded-3 text-success"><i
+                                class="bi bi-check-circle-fill fs-5"></i></div>
                     </div>
-                    <!-- Custom Legend Container -->
-                    <div id="completionLegend" class="mt-auto">
-                        <!-- Legend items will be injected here by JS -->
+                </div>
+                <div class="card card-stat bg-white p-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="text-muted small mb-1 fw-bold text-uppercase">Đang thực hiện</p>
+                            <h3 class="fw-bold text-primary mb-0" id="inProgressTasks">0</h3>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary"><i
+                                class="bi bi-hourglass-split fs-5"></i></div>
+                    </div>
+                </div>
+                <div class="card card-stat bg-white p-3">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="text-muted small mb-1 fw-bold text-uppercase">Chưa thực hiện</p>
+                            <h3 class="fw-bold text-danger mb-0" id="overdueTasks">0</h3>
+                        </div>
+                        <div class="bg-danger bg-opacity-10 p-2 rounded-3 text-danger"><i
+                                class="bi bi-x-circle-fill fs-5"></i></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Khối lượng (Tuần) -->
-            <div class="col-lg-4">
-                <div class="card chart-card p-4 h-100">
-                    <h5 class="card-title fw-bold mb-4 d-flex align-items-center gap-2">
-                        <i class="bi bi-bar-chart-fill text-info"></i> Khối lượng (Tuần)
-                    </h5>
-                    <div class="flex-grow-1 position-relative" style="min-height: 250px;">
-                        <canvas id="workloadChart"></canvas>
+            <!-- Charts Section -->
+            <div class="row g-4 mb-5">
+                <div class="col-lg-4">
+                    <div class="card chart-card p-4 h-100">
+                        <h5 class="card-title fw-bold mb-4 d-flex align-items-center gap-2"><i
+                                class="bi bi-pie-chart-fill text-primary"></i> Phân bổ Danh mục</h5>
+                        <div class="flex-grow-1 d-flex align-items-center justify-content-center mb-3"
+                            style="min-height: 200px;">
+                            <div style="height: 200px; width: 200px;"><canvas id="categoryChart"></canvas></div>
+                        </div>
+                        <div id="categoryLegend" class="mt-auto"></div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card chart-card p-4 h-100">
+                        <h5 class="card-title fw-bold mb-4 d-flex align-items-center gap-2"><i
+                                class="bi bi-activity text-success"></i> Tình trạng Công việc</h5>
+                        <div class="flex-grow-1 d-flex align-items-center justify-content-center mb-3"
+                            style="min-height: 200px;">
+                            <div style="height: 200px; width: 200px;"><canvas id="completionChart"></canvas></div>
+                        </div>
+                        <div id="completionLegend" class="mt-auto"></div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card chart-card p-4 h-100">
+                        <h5 class="card-title fw-bold mb-4 d-flex align-items-center gap-2"><i
+                                class="bi bi-bar-chart-fill text-info"></i> Khối lượng (Tuần)</h5>
+                        <div class="flex-grow-1 position-relative" style="min-height: 250px;"><canvas
+                                id="workloadChart"></canvas></div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Filters & Table -->
-        <div class="card border-0 shadow-lg rounded-3 overflow-hidden mb-5">
-            <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
-                <h5 class="mb-0 fw-bold text-gray-800"><i class="bi bi-table text-primary me-2"></i>Danh sách công việc
-                </h5>
-                <div class="d-flex gap-2">
-                    <select id="filterStatus" class="form-select form-select-sm" style="width: auto;">
-                        <option value="all">Tất cả trạng thái</option>
-                        <option value="urgent" class="fw-bold text-danger">⚠️ Cần xử lý gấp (Ưu tiên Cao)</option>
-                        <option value="Hoàn thành">Hoàn thành</option>
-                        <option value="Đang thực hiện">Đang thực hiện</option>
-                        <option value="Chưa thực hiện">Chưa thực hiện</option>
-                    </select>
-                    <select id="filterCategory" class="form-select form-select-sm" style="width: auto;">
-                        <option value="all">Tất cả danh mục</option>
-                    </select>
+            <!-- Filters & Table -->
+            <div class="card border-0 shadow-lg rounded-3 overflow-hidden mb-5">
+                <div
+                    class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                    <h5 class="mb-0 fw-bold text-gray-800"><i class="bi bi-table text-primary me-2"></i>Danh sách công
+                        việc</h5>
+                    <div class="d-flex gap-2">
+                        <select id="filterStatus" class="form-select form-select-sm" style="width: auto;">
+                            <option value="all">Tất cả trạng thái</option>
+                            <option value="urgent" class="fw-bold text-danger">⚠️ Cần xử lý gấp (Ưu tiên Cao)</option>
+                            <option value="Hoàn thành">Hoàn thành</option>
+                            <option value="Đang thực hiện">Đang thực hiện</option>
+                            <option value="Chưa thực hiện">Chưa thực hiện</option>
+                        </select>
+                        <select id="filterCategory" class="form-select form-select-sm" style="width: auto;">
+                            <option value="all">Tất cả danh mục</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover table-custom align-middle mb-0">
-                    <thead>
-                        <tr>
-                            <th class="ps-4">Tên công việc</th>
-                            <th>Danh mục</th>
-                            <th>Ưu tiên</th>
-                            <th>Ngày bắt đầu</th>
-                            <th>Thời lượng</th>
-                            <th>Trạng thái</th>
-                            <th>Hạn cuối</th>
-                            <th>Còn lại</th>
-                            <th>Ghi chú</th>
-                            <th class="text-end pe-4">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="taskTableBody">
-                        <tr>
-                            <td colspan="10" class="text-center py-5 text-muted">
-                                <div class="spinner-border text-primary" role="status"></div>
-                                <div class="mt-2">Đang kết nối Database...</div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="card-footer bg-white py-3 d-flex justify-content-between align-items-center">
-                <div class="small text-muted" id="paginationInfo">...</div>
-                <nav>
-                    <ul class="pagination pagination-sm mb-0" id="paginationControls"></ul>
-                </nav>
+                <div class="table-responsive">
+                    <table class="table table-hover table-custom align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Tên công việc</th>
+                                <th>Danh mục</th>
+                                <th>Ưu tiên</th>
+                                <th>Ngày bắt đầu</th>
+                                <th>Thời lượng</th>
+                                <th>Trạng thái</th>
+                                <th>Hạn cuối</th>
+                                <th>Còn lại</th>
+                                <th>Ghi chú</th>
+                                <th class="text-end pe-4">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="taskTableBody">
+                            <tr>
+                                <td colspan="10" class="text-center py-5 text-muted">
+                                    <div class="spinner-border text-primary" role="status"></div>
+                                    <div class="mt-2">Đang tải dữ liệu...</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer bg-white py-3 d-flex justify-content-between align-items-center">
+                    <div class="small text-muted" id="paginationInfo">...</div>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0" id="paginationControls"></ul>
+                    </nav>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: ADD/EDIT TASK -->
+    <!-- MODAL & TOAST GIỮ NGUYÊN NHƯ CŨ -->
+    <!-- (Các modal Add/Edit, Detail, Delete, Toast code giữ nguyên, chỉ thay đổi logic bên dưới) -->
     <div class="modal fade" id="addTaskModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
@@ -463,7 +452,7 @@
         </div>
     </div>
 
-    <!-- MODAL: VIEW DETAILS -->
+    <!-- Detail Modal -->
     <div class="modal fade" id="taskDetailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
@@ -509,7 +498,6 @@
         </div>
     </div>
 
-    <!-- MODAL: CONFIRM DELETE -->
     <div class="modal fade" id="deleteModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -525,7 +513,6 @@
         </div>
     </div>
 
-    <!-- TOAST -->
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 2000;">
         <div id="liveToast" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive"
             aria-atomic="true">
@@ -557,69 +544,98 @@
             const db = getFirestore(app);
             const provider = new GoogleAuthProvider();
 
+            let currentUser = null;
+            let unsubscribeSnapshot = null;
+
             const btnLogin = document.getElementById('btnLogin');
             const userProfile = document.getElementById('userProfile');
+            const mainContent = document.getElementById('mainContent');
+            const loginWarning = document.getElementById('loginWarning');
 
             if (btnLogin) btnLogin.addEventListener('click', () => signInWithPopup(auth, provider).catch(e => showToast(e.message, 'danger')));
             if (document.getElementById('btnLogout')) document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
 
             onAuthStateChanged(auth, user => {
+                currentUser = user;
+
+                // Reset khi đổi user
+                if (unsubscribeSnapshot) {
+                    unsubscribeSnapshot();
+                    unsubscribeSnapshot = null;
+                    window.tasks = [];
+                    if (window.renderApp) window.renderApp();
+                }
+
                 if (user) {
+                    // Đã login -> Hiện content, ẩn warning
                     if (btnLogin) btnLogin.classList.add('d-none');
                     if (userProfile) userProfile.classList.remove('d-none');
                     if (document.getElementById('userAvatar')) document.getElementById('userAvatar').src = user.photoURL;
+                    if (mainContent) mainContent.classList.remove('d-none');
+                    if (loginWarning) loginWarning.classList.add('d-none');
+
+                    // QUAN TRỌNG: Lấy data theo UID riêng biệt
+                    const q = query(collection(db, "users", user.uid, "tasks"), orderBy("deadline"));
+
+                    unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
+                        const loadedTasks = snapshot.docs.map(doc => {
+                            const data = doc.data();
+                            const deadline = new Date(data.deadline);
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            deadline.setHours(0, 0, 0, 0);
+                            const diffTime = deadline - today;
+                            const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                            let priority = 'Trung bình';
+                            // Fix logic: Hoàn thành hoặc Chưa thực hiện -> Thấp
+                            if (data.status === 'Chưa thực hiện' || data.status === 'Hoàn thành') {
+                                priority = 'Thấp';
+                            } else {
+                                if (daysLeft <= 3) priority = 'Cao';
+                                else if (daysLeft >= 10) priority = 'Thấp';
+                            }
+
+                            return { id: doc.id, ...data, daysLeft: daysLeft, priority: priority };
+                        });
+
+                        window.tasks = loadedTasks;
+                        if (window.renderApp) window.renderApp();
+                    }, (error) => {
+                        console.error("Lỗi Firestore:", error);
+                    });
+
                 } else {
+                    // Chưa login -> Ẩn content, hiện warning
                     if (btnLogin) btnLogin.classList.remove('d-none');
                     if (userProfile) userProfile.classList.add('d-none');
+                    if (mainContent) mainContent.classList.add('d-none');
+                    if (loginWarning) loginWarning.classList.remove('d-none');
                 }
             });
 
-            window.tasks = [];
-            const q = query(collection(db, "tasks"), orderBy("deadline"));
-
-            onSnapshot(q, (snapshot) => {
-                const loadedTasks = snapshot.docs.map(doc => {
-                    const data = doc.data();
-                    const deadline = new Date(data.deadline);
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    deadline.setHours(0, 0, 0, 0);
-                    const diffTime = deadline - today;
-                    const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                    let priority = 'Trung bình';
-                    if (data.status === 'Chưa thực hiện' || data.status === 'Hoàn thành') {
-                        priority = 'Thấp';
-                    } else {
-                        if (daysLeft <= 3) priority = 'Cao';
-                        else if (daysLeft >= 10) priority = 'Thấp';
-                    }
-
-                    return { id: doc.id, ...data, daysLeft: daysLeft, priority: priority };
-                });
-
-                window.tasks = loadedTasks;
-                if (window.renderApp) window.renderApp();
-            }, (error) => {
-                console.error("Lỗi Firestore:", error);
-                document.getElementById('errorAlert').classList.remove('d-none');
-                let msg = "Lỗi kết nối Database: " + error.code;
-                if (error.code === 'permission-denied') msg = "⛔ Bị chặn quyền truy cập!";
-                document.getElementById('errorMsg').innerText = msg;
-            });
-
             window.dbActions = {
-                add: async (data) => addDoc(collection(db, "tasks"), { ...data, createdAt: serverTimestamp() }),
-                update: async (id, data) => updateDoc(doc(db, "tasks", id), data),
-                delete: async (id) => deleteDoc(doc(db, "tasks", id))
+                add: async (data) => {
+                    if (!currentUser) return alert("Vui lòng đăng nhập!");
+                    await addDoc(collection(db, "users", currentUser.uid, "tasks"), { ...data, createdAt: serverTimestamp() });
+                },
+                update: async (id, data) => {
+                    if (!currentUser) return alert("Vui lòng đăng nhập!");
+                    await updateDoc(doc(db, "users", currentUser.uid, "tasks", id), data);
+                },
+                delete: async (id) => {
+                    if (!currentUser) return alert("Vui lòng đăng nhập!");
+                    await deleteDoc(doc(db, "users", currentUser.uid, "tasks", id));
+                }
             };
         } catch (err) {
             console.error("Lỗi khởi tạo:", err);
         }
     </script>
 
-    <!-- UI LOGIC -->
+    <!-- MAIN APP LOGIC -->
     <script>
+        // ... (Logic UI giữ nguyên như cũ) ...
         let currentPage = 1;
         const rowsPerPage = 10;
         let filteredTasks = [];
@@ -719,7 +735,6 @@
                     tr.classList.add('table-secondary', 'opacity-75');
                 }
 
-                const editAttr = isCompleted ? '' : `onclick="editCell(this, 'name')"`;
                 const getEditAttr = (field) => isCompleted ? '' : `onclick="editCell(this, '${field}')"`;
                 const getCellClass = () => `editable-cell ${isCompleted ? 'locked' : ''}`;
 
@@ -948,23 +963,19 @@
             document.getElementById('completedTasks').innerText = completed;
             document.getElementById('inProgressTasks').innerText = inProgress;
             document.getElementById('overdueTasks').innerText = overdue;
-
             const catCounts = {};
             allTasks.forEach(t => catCounts[t.category] = (catCounts[t.category] || 0) + 1);
-
             if (charts.cat) {
                 charts.cat.data.labels = Object.keys(catCounts);
                 charts.cat.data.datasets[0].data = Object.values(catCounts);
                 charts.cat.data.datasets[0].backgroundColor = Object.keys(catCounts).map(c => getCategoryColor(c));
                 charts.cat.update();
 
-                // CUSTOM LEGEND FOR CATEGORY CHART
                 const legendDiv = document.getElementById('categoryLegend');
                 legendDiv.innerHTML = '';
                 Object.keys(catCounts).forEach(catName => {
                     const color = getCategoryColor(catName);
                     const count = catCounts[catName];
-
                     const item = document.createElement('div');
                     item.className = 'chart-legend-item';
                     item.innerHTML = `
@@ -977,12 +988,10 @@
                     legendDiv.appendChild(item);
                 });
             }
-
             if (charts.status) {
                 charts.status.data.datasets[0].data = [completed, inProgress, overdue];
                 charts.status.update();
 
-                // CUSTOM LEGEND FOR COMPLETION CHART
                 const legendDiv = document.getElementById('completionLegend');
                 legendDiv.innerHTML = '';
                 const statusData = [
@@ -990,7 +999,6 @@
                     { label: 'Đang thực hiện', color: '#0d6efd', count: inProgress },
                     { label: 'Chưa thực hiện', color: '#dc3545', count: overdue }
                 ];
-
                 statusData.forEach(item => {
                     const div = document.createElement('div');
                     div.className = 'chart-legend-item';
@@ -1004,7 +1012,6 @@
                     legendDiv.appendChild(div);
                 });
             }
-
             const dayCounts = { 'T2': 0, 'T3': 0, 'T4': 0, 'T5': 0, 'T6': 0, 'T7': 0, 'CN': 0 };
             allTasks.forEach(t => {
                 const day = new Date(t.deadline).getDay();
@@ -1064,11 +1071,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             Chart.defaults.font.family = "'Inter', sans-serif";
             const commonOpt = { plugins: { legend: { display: false } }, cutout: '75%', responsive: true, maintainAspectRatio: false };
-
             charts.cat = new Chart(document.getElementById('categoryChart'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], borderWidth: 0 }] }, options: commonOpt });
             charts.status = new Chart(document.getElementById('completionChart'), { type: 'doughnut', data: { labels: ['Xong', 'Đang làm', 'Chưa làm'], datasets: [{ data: [], backgroundColor: ['#198754', '#0d6efd', '#dc3545'], borderWidth: 0 }] }, options: commonOpt });
-
-            // Workload Chart - Horizontal Bar
             charts.work = new Chart(document.getElementById('workloadChart'), {
                 type: 'bar',
                 data: { labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'], datasets: [{ label: 'Việc', data: [], backgroundColor: '#0dcaf0', borderRadius: 4 }] },
