@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Quản Lý Công Việc</title>
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
@@ -21,7 +21,10 @@
         body {
             background-color: #f8f9fa;
             font-family: 'Inter', sans-serif;
-            padding-bottom: 80px;
+            /* Cập nhật: Sử dụng flexbox để đẩy footer xuống đáy */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .header-custom {
@@ -160,6 +163,40 @@
         .modal-title {
             font-size: 1.1rem;
         }
+
+        /* Mobile Responsive Tweaks */
+        @media (max-width: 576px) {
+            .header-custom .container {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            .navbar-brand-text {
+                font-size: 1rem;
+            }
+
+            .btn-responsive-text {
+                display: none;
+            }
+
+            .table-responsive {
+                font-size: 0.85rem;
+            }
+
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+
+            /* Better spacing on mobile cards */
+            .card-stat {
+                margin-bottom: 0.5rem;
+            }
+
+            /* Giảm margin bottom của các section lớn trên mobile */
+            .mb-5 {
+                margin-bottom: 1.5rem !important;
+            }
+        }
     </style>
 </head>
 
@@ -168,11 +205,11 @@
     <!-- HEADER -->
     <header class="header-custom bg-white sticky-top z-50">
         <div class="container py-3">
-            <nav class="d-flex justify-content-between align-items-center gap-4">
+            <nav class="d-flex justify-content-between align-items-center gap-2 md:gap-4">
                 <div class="d-flex align-items-center gap-2">
                     <div class="bg-primary bg-opacity-10 p-2 rounded-lg text-primary"><i
                             class="bi bi-kanban-fill fs-5"></i></div>
-                    <h1 class="h5 fw-bold mb-0 text-gray-800 d-none d-sm-block">Quản Lý Công Việc</h1>
+                    <h1 class="h5 fw-bold mb-0 text-gray-800 d-none d-sm-block navbar-brand-text">Quản Lý Công Việc</h1>
                 </div>
 
                 <div class="flex-grow-1 mx-3 d-none d-md-block" style="max-width: 400px;">
@@ -184,16 +221,16 @@
                     </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center gap-2 md:gap-3">
                     <a href="calendar.html"
-                        class="btn btn-outline-secondary d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-pill text-decoration-none"
+                        class="btn btn-outline-secondary d-flex align-items-center gap-2 px-2 px-md-3 py-2 shadow-sm rounded-pill text-decoration-none"
                         title="Xem lịch làm việc">
                         <i class="bi bi-calendar-check"></i>
                         <span class="d-none d-md-inline">Xem Lịch</span>
                     </a>
 
                     <button type="button"
-                        class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-pill"
+                        class="btn btn-primary d-flex align-items-center gap-2 px-2 px-md-3 py-2 shadow-sm rounded-pill"
                         onclick="openTaskModal()">
                         <i class="bi bi-plus-circle-fill"></i> <span class="d-none d-sm-inline">Thêm Việc</span>
                     </button>
@@ -207,7 +244,7 @@
                                 style="display: none;">0</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0"
-                            style="width: 340px; max-height: 400px; overflow-y: auto;">
+                            style="width: 300px; max-width: 90vw; max-height: 400px; overflow-y: auto;">
                             <li>
                                 <h6 class="dropdown-header fw-bold text-uppercase text-danger bg-light py-2">⚠️ Cần xử
                                     lý gấp (Ưu tiên Cao)</h6>
@@ -217,8 +254,10 @@
                     </div>
 
                     <div id="authSection">
-                        <button id="btnLogin" class="btn btn-outline-primary rounded-pill px-3"><i
-                                class="bi bi-google me-2"></i>Đăng nhập</button>
+                        <button id="btnLogin"
+                            class="btn btn-outline-primary rounded-pill px-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-google"></i> <span class="d-none d-sm-inline">Đăng nhập</span>
+                        </button>
                         <div id="userProfile" class="d-none dropdown">
                             <a href="#" class="d-flex align-items-center text-decoration-none"
                                 data-bs-toggle="dropdown">
@@ -236,7 +275,7 @@
         </div>
     </header>
 
-    <div class="container py-4">
+    <div class="container py-4 flex-grow-1">
         <!-- Cảnh báo chưa đăng nhập -->
         <div id="loginWarning" class="alert alert-warning d-none" role="alert">
             <i class="bi bi-exclamation-circle-fill me-2"></i> Vui lòng <b>Đăng nhập bằng Google</b> để xem và quản lý
@@ -333,15 +372,17 @@
                     class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
                     <h5 class="mb-0 fw-bold text-gray-800"><i class="bi bi-table text-primary me-2"></i>Danh sách công
                         việc</h5>
-                    <div class="d-flex gap-2">
-                        <select id="filterStatus" class="form-select form-select-sm" style="width: auto;">
+                    <div class="d-flex flex-wrap gap-2 w-full md:w-auto">
+                        <select id="filterStatus" class="form-select form-select-sm flex-grow-1 md:flex-grow-0"
+                            style="min-width: 140px;">
                             <option value="all">Tất cả trạng thái</option>
                             <option value="urgent" class="fw-bold text-danger">⚠️ Cần xử lý gấp (Ưu tiên Cao)</option>
                             <option value="Hoàn thành">Hoàn thành</option>
                             <option value="Đang thực hiện">Đang thực hiện</option>
                             <option value="Chưa thực hiện">Chưa thực hiện</option>
                         </select>
-                        <select id="filterCategory" class="form-select form-select-sm" style="width: auto;">
+                        <select id="filterCategory" class="form-select form-select-sm flex-grow-1 md:flex-grow-0"
+                            style="min-width: 140px;">
                             <option value="all">Tất cả danh mục</option>
                         </select>
                     </div>
@@ -372,7 +413,8 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="card-footer bg-white py-3 d-flex justify-content-between align-items-center">
+                <div
+                    class="card-footer bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <div class="small text-muted" id="paginationInfo">...</div>
                     <nav>
                         <ul class="pagination pagination-sm mb-0" id="paginationControls"></ul>
@@ -382,8 +424,19 @@
         </div>
     </div>
 
-    <!-- MODAL & TOAST GIỮ NGUYÊN NHƯ CŨ -->
-    <!-- (Các modal Add/Edit, Detail, Delete, Toast code giữ nguyên, chỉ thay đổi logic bên dưới) -->
+    <!-- FOOTER MỚI -->
+    <footer class="bg-white border-top py-4 mt-auto">
+        <div class="container text-center text-muted small">
+            <div class="mb-2">
+                <span class="fw-bold text-dark">Quản Lý Công Việc</span> &copy; 2025
+            </div>
+            <div>
+                Thiết kế & Phát triển với <i class="bi bi-heart-fill text-danger mx-1"></i> cho hiệu suất tối ưu.
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL & TOAST -->
     <div class="modal fade" id="addTaskModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
@@ -431,8 +484,11 @@
                             <div class="col-6 mb-3">
                                 <label class="form-label fw-bold text-secondary small text-uppercase">Thời lượng
                                     (Ngày)</label>
+                                <!-- YÊU CẦU: CHỈ NHẬP SỐ NGUYÊN -->
                                 <input type="number" class="form-control" id="taskDuration" placeholder="VD: 1"
-                                    value="1" min="0">
+                                    value="1" min="0" step="1"
+                                    onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                                    oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null">
                             </div>
                         </div>
 
@@ -544,6 +600,11 @@
             const db = getFirestore(app);
             const provider = new GoogleAuthProvider();
 
+            // YÊU CẦU: CHỌN TÀI KHOẢN GOOGLE KHI ĐĂNG NHẬP
+            provider.setCustomParameters({
+                prompt: 'select_account'
+            });
+
             let currentUser = null;
             let unsubscribeSnapshot = null;
 
@@ -635,6 +696,9 @@
 
     <!-- MAIN APP LOGIC -->
     <script>
+        // Đảm bảo window.tasks luôn tồn tại
+        window.tasks = window.tasks || [];
+
         // ... (Logic UI giữ nguyên như cũ) ...
         let currentPage = 1;
         const rowsPerPage = 10;
@@ -653,11 +717,29 @@
             return `hsl(${Math.abs(hash % 360)}, ${60 + (Math.abs(hash) % 20)}%, ${40 + (Math.abs(hash) % 10)}%)`;
         }
 
+        // HÀM QUAN TRỌNG ĐÃ SỬA: Lấy tất cả danh mục (bao gồm mặc định + danh mục từ tasks)
+        // Logic: Tạo Set để lọc trùng, sau đó sort để dễ nhìn
+        function getAllCategories() {
+            const cats = new Set(['Giảng dạy', 'Họp', 'Coi thi', 'Việc cá nhân']); // Mặc định
+
+            // Kiểm tra kỹ window.tasks trước khi loop
+            if (Array.isArray(window.tasks)) {
+                window.tasks.forEach(t => {
+                    // Chỉ lấy danh mục có giá trị, loại bỏ chuỗi rỗng
+                    if (t.category && t.category.trim() !== '') {
+                        cats.add(t.category);
+                    }
+                });
+            }
+
+            // Chuyển về mảng và sắp xếp Alpha B
+            return Array.from(cats).sort((a, b) => a.localeCompare(b));
+        }
+
         window.renderApp = function () {
-            const dynamicCats = new Set(['Giảng dạy', 'Họp', 'Coi thi', 'Việc cá nhân']);
-            if (window.tasks) window.tasks.forEach(t => { if (t.category) dynamicCats.add(t.category); });
-            updateFilterDropdown(dynamicCats);
-            updateModalDropdown(dynamicCats);
+            const allCats = getAllCategories();
+            updateFilterDropdown(allCats);
+            // Không update modal dropdown ở đây nữa để tránh conflict, chỉ update khi mở modal
             applyFilters();
             updateCharts();
             updateNotifications();
@@ -666,21 +748,39 @@
         function updateFilterDropdown(categories) {
             const filterSelect = document.getElementById('filterCategory');
             const currentVal = filterSelect.value;
+            // Giữ lại option đầu tiên (Tất cả danh mục)
             while (filterSelect.options.length > 1) filterSelect.remove(1);
+
             categories.forEach(cat => filterSelect.add(new Option(cat, cat)));
+
             if (Array.from(filterSelect.options).some(o => o.value === currentVal)) filterSelect.value = currentVal;
         }
 
         function updateModalDropdown(categories) {
             const modalSelect = document.getElementById('taskCategory');
-            if (modalSelect.value === '__other__') return;
+
+            // Nếu đang chọn "Nhập mới", ta không reset vội để tránh mất trải nghiệm
+            // NHƯNG nếu form vừa reset xong thì value sẽ là default, ta cần reload list
+            // Để an toàn, ta luôn clear và rebuild, sau đó set lại value cũ nếu có
+
             const currentVal = modalSelect.value;
-            modalSelect.innerHTML = '';
+            modalSelect.innerHTML = ''; // Xóa sạch cũ
+
+            // Thêm các danh mục đã tìm được (đã sort)
             categories.forEach(cat => modalSelect.add(new Option(cat, cat)));
+
+            // Thêm option nhập mới ở cuối cùng
             const otherOpt = new Option('+ Nhập danh mục mới...', '__other__');
             otherOpt.className = "fw-bold text-primary";
             modalSelect.add(otherOpt);
-            if (Array.from(modalSelect.options).some(o => o.value === currentVal)) modalSelect.value = currentVal;
+
+            // Cố gắng khôi phục giá trị đang chọn nếu nó vẫn còn trong list
+            // Nếu không (ví dụ mới reset form), nó sẽ tự về option đầu tiên
+            if (currentVal && currentVal !== '__other__' && categories.includes(currentVal)) {
+                modalSelect.value = currentVal;
+            } else if (currentVal === '__other__') {
+                modalSelect.value = '__other__';
+            }
         }
 
         function addDays(dateStr, days) {
@@ -770,13 +870,20 @@
                 Object.keys(BASE_COLORS.status).forEach(opt => input.add(new Option(opt, opt, false, opt === oldVal)));
             } else if (field === 'category') {
                 input = document.createElement('select'); input.className = 'form-select form-select-sm shadow-sm';
-                const cats = new Set(['Giảng dạy', 'Họp', 'Coi thi', 'Việc cá nhân']);
-                if (window.tasks) window.tasks.forEach(t => cats.add(t.category));
+                // Fix: Lấy đủ danh mục khi edit cell
+                const cats = getAllCategories();
                 cats.forEach(opt => input.add(new Option(opt, opt, false, opt === oldVal)));
             } else if (field === 'createdDate') {
                 input = document.createElement('input'); input.type = 'date'; input.className = 'form-control form-control-sm'; input.value = oldVal;
             } else if (field === 'duration') {
-                input = document.createElement('input'); input.type = 'number'; input.className = 'form-control form-control-sm'; input.value = oldVal || 0; input.style.width = '70px';
+                input = document.createElement('input');
+                input.type = 'number';
+                input.className = 'form-control form-control-sm';
+                input.value = oldVal || 0;
+                input.style.width = '70px';
+                // YÊU CẦU: CHẶN SỐ LẺ KHI SỬA NHANH
+                input.onkeypress = (e) => e.charCode >= 48 && e.charCode <= 57;
+                input.oninput = function () { this.value = Math.floor(this.value); };
             } else {
                 input = document.createElement('input'); input.type = 'text'; input.className = 'form-control form-control-sm'; input.value = oldVal || '';
             }
@@ -787,15 +894,19 @@
                 const newVal = input.value;
                 if (newVal !== oldVal) {
                     try {
-                        const updates = { [field]: newVal };
+                        let processedVal = newVal;
+                        // YÊU CẦU: Ép kiểu số nguyên cho duration
+                        if (field === 'duration') processedVal = parseInt(newVal) || 0;
 
-                        if (field === 'status' && newVal === 'Hoàn thành') {
+                        const updates = { [field]: processedVal };
+
+                        if (field === 'status' && processedVal === 'Hoàn thành') {
                             updates.duration = 0;
                             updates.priority = 'Thấp';
                             updates.deadline = task.createdDate;
                         } else {
-                            if (field === 'duration') updates.deadline = addDays(task.createdDate, newVal);
-                            if (field === 'createdDate') updates.deadline = addDays(newVal, task.duration || 0);
+                            if (field === 'duration') updates.deadline = addDays(task.createdDate, processedVal);
+                            if (field === 'createdDate') updates.deadline = addDays(processedVal, task.duration || 0);
                         }
 
                         await window.dbActions.update(taskId, updates);
@@ -829,23 +940,32 @@
         window.openTaskModal = function (taskId = null) {
             document.getElementById('addTaskForm').reset();
             document.getElementById('customCategoryInput').classList.add('d-none');
-            const cats = new Set(['Giảng dạy', 'Họp', 'Coi thi', 'Việc cá nhân']);
-            if (window.tasks) window.tasks.forEach(t => cats.add(t.category));
+
+            // --- FIX DROPDOWN ---
+            // 1. Lấy tất cả danh mục hiện có từ DB (window.tasks)
+            const cats = getAllCategories();
+            // 2. Cập nhật ngay lập tức vào Dropdown trong modal
             updateModalDropdown(cats);
 
             if (taskId) {
+                // EDIT MODE
                 const task = window.tasks.find(t => t.id === taskId);
                 if (task) {
                     document.getElementById('editTaskId').value = taskId;
                     document.getElementById('taskName').value = task.name;
                     const select = document.getElementById('taskCategory');
+
+                    // Kiểm tra xem danh mục của task này có trong list không (vừa update xong)
                     if ([...select.options].some(o => o.value === task.category)) {
                         select.value = task.category;
                     } else {
+                        // Trường hợp cực hiếm: task có danh mục nhưng vì lý do nào đó getAllCategories bỏ qua
+                        // Hoặc dữ liệu cũ bị lỗi, ta force hiện ô nhập
                         select.value = '__other__';
                         document.getElementById('customCategoryInput').value = task.category;
                         document.getElementById('customCategoryInput').classList.remove('d-none');
                     }
+
                     document.getElementById('taskStatus').value = task.status;
                     document.getElementById('taskStartDate').value = task.createdDate;
                     document.getElementById('taskDuration').value = task.duration;
@@ -854,9 +974,17 @@
                     saveBtn.innerText = "Lưu Thay Đổi";
                 }
             } else {
+                // ADD MODE
                 document.getElementById('editTaskId').value = '';
                 document.getElementById('taskStartDate').value = new Date().toISOString().split('T')[0];
-                document.getElementById('taskCategory').value = 'Giảng dạy';
+
+                // Mặc định chọn cái đầu tiên (thường là 'Coi thi' do sort Alpha, hoặc 'Giảng dạy' nếu ta muốn)
+                // Ở đây ta để mặc định là option đầu tiên trong danh sách cats
+                const select = document.getElementById('taskCategory');
+                if (select.options.length > 0) {
+                    select.selectedIndex = 0;
+                }
+
                 modalTitle.innerText = "Thêm Công Việc Mới";
                 saveBtn.innerText = "Thêm Công Việc";
             }
@@ -886,7 +1014,9 @@
         window.handleTaskSubmit = async () => {
             const taskId = document.getElementById('editTaskId').value;
             const startDate = document.getElementById('taskStartDate').value;
-            let duration = document.getElementById('taskDuration').value || 0;
+
+            // YÊU CẦU: LẤY SỐ NGUYÊN
+            let duration = parseInt(document.getElementById('taskDuration').value) || 0;
 
             let status = document.getElementById('taskStatus').value;
             let priority = 'Trung bình';
@@ -928,7 +1058,8 @@
                     }
 
                     if (document.getElementById('taskCategory').value === '__other__') {
-                        document.getElementById('taskCategory').value = 'Giảng dạy';
+                        // Reset lại dropdown sau khi thêm thành công để UX tốt hơn
+                        document.getElementById('taskCategory').value = getAllCategories()[0] || 'Giảng dạy';
                         document.getElementById('customCategoryInput').classList.add('d-none');
                     }
                     const modal = bootstrap.Modal.getInstance(addTaskModalEl);

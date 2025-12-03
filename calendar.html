@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Lịch Làm Việc</title>
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
@@ -53,6 +53,7 @@
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
             background-color: #3b82f6;
             border-color: #3b82f6;
+            transition: all 0.2s;
         }
 
         .fc .fc-button:hover {
@@ -66,37 +67,41 @@
             border-bottom: 2px solid #e2e8f0;
         }
 
+        /* FIX: Đảm bảo tiêu đề cột luôn hiển thị và không bị gạch chân */
         .fc-col-header-cell-cushion {
-            color: #64748b;
+            color: #64748b !important;
             font-weight: 700;
             text-transform: uppercase;
             font-size: 0.85rem;
-            text-decoration: none;
+            text-decoration: none !important;
+            display: inline-block;
         }
 
+        /* FIX: Đảm bảo số ngày luôn hiển thị rõ */
         .fc-daygrid-day-number {
-            color: #475569;
+            color: #475569 !important;
             font-size: 1rem;
             font-weight: 600;
-            text-decoration: none;
+            text-decoration: none !important;
             width: 28px;
             height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
+            margin: 4px;
+            opacity: 1 !important;
         }
 
         .fc-day-today .fc-daygrid-day-number {
             background-color: #3b82f6;
-            color: white;
+            color: white !important;
         }
 
         /* Custom Event Style */
         .custom-event {
             display: flex;
             flex-direction: column;
-            /* Xếp dọc để hiện giờ và tên */
             align-items: flex-start;
             padding: 2px 4px;
             border-radius: 3px;
@@ -161,13 +166,63 @@
         }
 
         .form-input:disabled {
-            background-color: #e2e8f0;
-            color: #64748b;
+            background-color: #f1f5f9;
+            color: #94a3b8;
             cursor: not-allowed;
+            border-color: #e2e8f0;
         }
 
         .hidden {
             display: none;
+        }
+
+        /* RESPONSIVE TWEAKS FOR MOBILE */
+        @media (max-width: 640px) {
+            .fc .fc-toolbar {
+                flex-direction: column;
+                gap: 12px;
+                margin-bottom: 0.5rem !important;
+            }
+
+            .fc .fc-toolbar-title {
+                font-size: 1.25rem;
+            }
+
+            .fc .fc-button {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+
+            /* Tinh chỉnh ô công việc NHỎ HƠN trên Mobile */
+            .custom-event {
+                padding: 1px 2px !important;
+                font-size: 0.65rem !important;
+                /* Font nhỏ hơn */
+                border-left-width: 2px !important;
+                line-height: 1.1 !important;
+            }
+
+            .event-time-badge {
+                font-size: 0.55rem !important;
+                margin-bottom: 0 !important;
+            }
+
+            .event-icon {
+                font-size: 0.6rem !important;
+                margin-right: 2px !important;
+            }
+
+            .fc-daygrid-day-number {
+                width: 24px;
+                height: 24px;
+                font-size: 0.85rem;
+            }
+
+            /* Ẩn bớt nút trên mobile nếu cần */
+            .fc-header-toolbar .fc-toolbar-chunk:nth-child(3) {
+                display: flex;
+                gap: 4px;
+            }
         }
     </style>
 </head>
@@ -241,18 +296,30 @@
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 p-4 bg-slate-50 overflow-y-auto flex flex-col">
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex-1 p-4 relative">
+    <main class="flex-1 p-2 sm:p-4 bg-slate-50 overflow-y-auto flex flex-col">
+        <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 flex-1 p-2 sm:p-4 relative">
             <div id="calendar"></div>
         </div>
     </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 flex-none">
+        <div class="container mx-auto px-4 text-center text-slate-500 text-sm">
+            <div class="mb-1">
+                <span class="font-bold text-slate-800">Quản Lý Công Việc</span> &copy; 2025
+            </div>
+            <div>
+                Thiết kế & Phát triển với <i class="bi bi-heart-fill text-red-500 mx-1"></i> cho hiệu suất tối ưu.
+            </div>
+        </div>
+    </footer>
 
     <!-- Modal Form -->
     <div id="taskModal" class="fixed inset-0 z-50 hidden transition-opacity duration-300">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
 
         <div
-            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden scale-100 transition-transform duration-300 max-h-[95vh] flex flex-col">
+            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[95%] sm:w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden scale-100 transition-transform duration-300 max-h-[95vh] flex flex-col">
             <!-- Header -->
             <div class="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-white flex-none">
                 <h3 class="text-lg font-bold text-slate-800" id="modalTitle">Công việc mới</h3>
@@ -263,13 +330,13 @@
             </div>
 
             <!-- Body -->
-            <div class="p-5 space-y-3 overflow-y-auto flex-1">
+            <div class="p-4 sm:p-5 space-y-3 overflow-y-auto flex-1">
                 <form id="taskForm" onsubmit="saveTask(event)">
                     <input type="hidden" id="taskId">
 
                     <!-- Row 1: Tên + Trạng thái -->
-                    <div class="grid grid-cols-3 gap-4">
-                        <div class="col-span-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                        <div class="sm:col-span-2">
                             <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Tên công việc <span
                                     class="text-red-500">*</span></label>
                             <input type="text" id="taskName" required placeholder="Nhập tên công việc..."
@@ -297,19 +364,21 @@
                     </div>
 
                     <!-- Row 3: Ngày bắt đầu + Thời lượng + Deadline -->
-                    <div class="grid grid-cols-3 gap-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        <div>
+                    <div class="grid grid-cols-3 gap-2 sm:gap-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <div class="col-span-3 sm:col-span-1">
                             <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Ngày bắt đầu</label>
                             <input type="date" id="taskStartDate" required class="form-input"
                                 onchange="calculateDeadline()">
                         </div>
-                        <div>
+                        <div class="col-span-1.5 sm:col-span-1">
                             <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Thời lượng
                                 (Ngày)</label>
-                            <input type="number" id="taskDuration" value="1" min="0" class="form-input"
-                                oninput="calculateDeadline()">
+                            <!-- YÊU CẦU: CHỈ NHẬP SỐ NGUYÊN (KHÔNG SỐ LẺ, KHÔNG DẤU CHẤM) -->
+                            <input type="number" id="taskDuration" value="1" min="0" step="1" class="form-input"
+                                onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, ''); calculateDeadline()">
                         </div>
-                        <div>
+                        <div class="col-span-1.5 sm:col-span-1">
                             <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Hạn cuối (Auto)</label>
                             <input type="date" id="taskDeadline" disabled
                                 class="form-input bg-white text-slate-500 font-bold border-slate-200">
@@ -321,15 +390,15 @@
                         <h4 class="text-xs font-bold text-blue-700 mb-2 flex items-center gap-2 uppercase">
                             <i class="bi bi-clock"></i> Chi tiết thời gian trong ngày
                         </h4>
-                        <div class="flex items-center gap-4">
-                            <div class="flex-1">
+                        <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4">
+                            <div class="flex-1 min-w-[100px]">
                                 <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">Giờ bắt
                                     đầu</label>
                                 <input type="time" id="taskStartTime" class="form-input text-sm"
                                     onchange="calculateHours()">
                             </div>
-                            <span class="text-slate-400 font-bold mt-4">-</span>
-                            <div class="flex-1">
+                            <span class="text-slate-400 font-bold mt-4 hidden sm:inline">-</span>
+                            <div class="flex-1 min-w-[100px]">
                                 <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">Giờ kết
                                     thúc</label>
                                 <input type="time" id="taskEndTime" class="form-input text-sm"
@@ -337,7 +406,8 @@
                             </div>
                             <!-- HIỂN THỊ KẾT QUẢ TÍNH TOÁN -->
                             <div id="hourDurationText"
-                                class="text-xs text-blue-600 font-bold whitespace-nowrap w-32 text-right mt-4"></div>
+                                class="text-xs text-blue-600 font-bold w-full sm:w-auto text-left sm:text-right mt-2 sm:mt-4">
+                            </div>
                         </div>
                     </div>
 
@@ -354,12 +424,13 @@
             <div class="px-5 py-3 border-t border-slate-100 bg-gray-50 flex justify-between items-center flex-none">
                 <button type="button" id="deleteBtn" onclick="deleteTask()"
                     class="hidden text-red-600 hover:text-red-700 text-sm font-bold px-3 py-2 rounded hover:bg-red-50 transition flex items-center gap-2">
-                    <i class="bi bi-trash"></i> Xóa
+                    <i class="bi bi-trash"></i> <span class="hidden sm:inline">Xóa</span>
                 </button>
                 <div class="flex gap-3 ml-auto">
                     <button type="button" onclick="closeModal()"
                         class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 text-sm font-bold transition">Hủy</button>
-                    <button type="button"
+                    <!-- Thêm ID cho nút Lưu để dễ dàng ẩn hiện -->
+                    <button type="button" id="saveBtn"
                         onclick="document.getElementById('taskForm').dispatchEvent(new Event('submit'))"
                         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-bold shadow-md transition">Lưu
                         lại</button>
@@ -749,7 +820,9 @@
             const form = document.getElementById('taskForm');
             const title = document.getElementById('modalTitle');
             const deleteBtn = document.getElementById('deleteBtn');
+            const saveBtn = document.getElementById('saveBtn'); // Nút Lưu
             const customInput = document.getElementById('customCategoryInput');
+            const formElements = form.querySelectorAll('input, select, textarea');
 
             form.reset();
             customInput.classList.add('hidden');
@@ -760,7 +833,10 @@
             updateModalDropdown(dynamicCats);
 
             if (task) {
-                title.innerText = 'Cập nhật công việc';
+                // KIỂM TRA TRẠNG THÁI "HOÀN THÀNH"
+                const isCompleted = task.status === 'Hoàn thành';
+
+                title.innerText = isCompleted ? 'Chi tiết công việc (Đã hoàn thành)' : 'Cập nhật công việc';
                 document.getElementById('taskId').value = task.id;
                 document.getElementById('taskName').value = task.name;
 
@@ -770,7 +846,7 @@
                 } else {
                     catSelect.value = '__other__';
                     customInput.value = task.category;
-                    customInput.classList.remove('hidden');
+                    if (!isCompleted) customInput.classList.remove('hidden');
                 }
 
                 document.getElementById('taskStatus').value = task.status;
@@ -783,10 +859,31 @@
                 calculateHours();
 
                 document.getElementById('taskNote').value = task.note || '';
-                deleteBtn.classList.remove('hidden');
+
+                // LOGIC VÔ HIỆU HÓA FORM NẾU HOÀN THÀNH
+                if (isCompleted) {
+                    formElements.forEach(el => el.disabled = true);
+                    saveBtn.classList.add('hidden'); // Ẩn nút Lưu
+                    deleteBtn.classList.remove('hidden'); // Hiện nút Xóa
+                } else {
+                    formElements.forEach(el => {
+                        // Trừ ô Deadline (luôn auto) thì enable lại
+                        if (el.id !== 'taskDeadline') el.disabled = false;
+                    });
+                    saveBtn.classList.remove('hidden');
+                    deleteBtn.classList.remove('hidden');
+                }
+
             } else {
+                // MODE: THÊM MỚI (Luôn cho phép nhập)
                 title.innerText = 'Thêm công việc mới';
                 document.getElementById('taskId').value = '';
+
+                // Reset enable all
+                formElements.forEach(el => {
+                    if (el.id !== 'taskDeadline') el.disabled = false;
+                });
+                saveBtn.classList.remove('hidden');
 
                 const defaultDuration = 1;
                 let startDate, deadlineDate;
@@ -842,7 +939,8 @@
             const id = document.getElementById('taskId').value;
 
             const startDate = document.getElementById('taskStartDate').value;
-            let duration = document.getElementById('taskDuration').value || 0;
+            // ÉP KIỂU SỐ NGUYÊN (INT)
+            let duration = parseInt(document.getElementById('taskDuration').value) || 0;
             const status = document.getElementById('taskStatus').value;
 
             let priority = 'Trung bình';
