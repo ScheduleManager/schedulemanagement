@@ -4,119 +4,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Quản Lý Công Việc Pro</title>
+    <title>Quản Lý Công Việc - Pro</title>
     <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
 
-    <!-- 1. Bootstrap CSS -->
+    <!-- CSS Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- 2. Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-    <!-- 3. Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- 4. Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
 
-    <!-- 5. Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import {
-            getAuth,
-            signInWithPopup,
-            GoogleAuthProvider,
-            onAuthStateChanged,
-            signOut
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-        // --- CẤU HÌNH FIREBASE (GIỮ NGUYÊN) ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyDILs6zPfC0UdPL7crGbAot-w2vt5eCGgk",
-            authDomain: "flutter-ai-playground-c65f3.firebaseapp.com",
-            projectId: "flutter-ai-playground-c65f3",
-            storageBucket: "flutter-ai-playground-c65f3.appspot.com",
-            messagingSenderId: "932092331324",
-            appId: "1:932092331324:web:dcbb33b44b5d55a43cca39"
-        };
-
-        // Khởi tạo Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-
-        // --- DOM ELEMENTS ---
-        const btnLogin = document.getElementById('btnLogin');
-        const userSection = document.getElementById('userSection');
-        const userAvatar = document.getElementById('userAvatar');
-        const btnLogout = document.getElementById('btnLogout');
-        const toastEl = document.getElementById('liveToast');
-        const toastBody = document.getElementById('toastMessage');
-
-        const showToast = (message) => {
-            if (toastBody) toastBody.textContent = message;
-            const toast = new bootstrap.Toast(document.getElementById('liveToast'));
-            toast.show();
-        };
-
-        // Auth Logic
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                if (btnLogin) btnLogin.classList.add('d-none');
-                if (userSection) {
-                    userSection.classList.remove('d-none');
-                    userSection.classList.add('d-flex');
-                }
-                if (user.photoURL && userAvatar) userAvatar.src = user.photoURL;
-                if (userAvatar) userAvatar.title = user.displayName || user.email;
-            } else {
-                if (btnLogin) btnLogin.classList.remove('d-none');
-                if (userSection) {
-                    userSection.classList.add('d-none');
-                    userSection.classList.remove('d-flex');
-                }
-                if (userAvatar) userAvatar.src = "https://placehold.co/40x40/007bff/ffffff?text=G";
-            }
-        });
-
-        if (btnLogin) {
-            btnLogin.addEventListener('click', async () => {
-                try {
-                    await signInWithPopup(auth, provider);
-                    showToast(`Đăng nhập thành công!`);
-                } catch (error) {
-                    console.error("Lỗi đăng nhập:", error);
-                    showToast(`Lỗi đăng nhập: ${error.message}`);
-                }
-            });
-        }
-
-        if (btnLogout) {
-            btnLogout.addEventListener('click', async (e) => {
-                e.preventDefault();
-                try {
-                    await signOut(auth);
-                    showToast('Đã đăng xuất thành công.');
-                } catch (error) {
-                    console.error("Lỗi đăng xuất:", error);
-                }
-            });
-        }
-
-        // Export toast globally for other scripts
-        window.showToastGlobal = showToast;
-    </script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <style>
         body {
             background-color: #f8f9fa;
-            font-family: 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            padding-bottom: 60px;
+            font-family: 'Inter', sans-serif;
+            padding-bottom: 80px;
         }
 
         .header-custom {
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
         }
 
         .card-stat {
@@ -136,6 +45,8 @@
             border-radius: 12px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             height: 100%;
+            display: flex;
+            flex-direction: column;
         }
 
         .table-custom th {
@@ -144,19 +55,23 @@
             text-transform: uppercase;
             font-size: 0.8rem;
             color: #64748b;
+            white-space: nowrap;
         }
 
         .editable-cell {
-            cursor: pointer;
             position: relative;
             transition: background-color 0.2s;
         }
 
-        .editable-cell:hover {
+        .editable-cell:not(.locked) {
+            cursor: pointer;
+        }
+
+        .editable-cell:not(.locked):hover {
             background-color: #eef2ff !important;
         }
 
-        .editable-cell:hover::after {
+        .editable-cell:not(.locked):hover::after {
             content: '\f4cb';
             font-family: 'bootstrap-icons';
             position: absolute;
@@ -166,28 +81,23 @@
             opacity: 0.5;
         }
 
+        .editable-cell.locked {
+            cursor: not-allowed;
+            color: #999;
+            background-color: #f8f9fa;
+        }
+
         .page-link {
             border: none;
             color: #64748b;
             margin: 0 2px;
             border-radius: 8px !important;
-            transition: all 0.2s;
-        }
-
-        .page-link:hover {
-            background-color: #e2e8f0;
-            color: #0f172a;
+            cursor: pointer;
         }
 
         .page-item.active .page-link {
             background-color: #0d6efd;
             color: white;
-            box-shadow: 0 4px 6px -1px rgba(13, 110, 253, 0.4);
-        }
-
-        .page-item.disabled .page-link {
-            background-color: transparent;
-            color: #cbd5e1;
         }
 
         .footer-fixed {
@@ -196,251 +106,260 @@
             left: 0;
             width: 100%;
             background-color: white;
-            box-shadow: 0 -1px 3px 0 rgba(0, 0, 0, 0.1), 0 -1px 2px 0 rgba(0, 0, 0, 0.06);
-            z-index: 10;
+            box-shadow: 0 -1px 3px 0 rgba(0, 0, 0, 0.1);
+            z-index: 100;
         }
 
         .notification-item {
             border-bottom: 1px solid #f1f5f9;
-            transition: background 0.2s;
             cursor: pointer;
+            transition: background 0.2s;
         }
 
         .notification-item:hover {
-            background-color: #f8f9fa;
+            background-color: #eef2ff;
         }
 
-        .notification-item:last-child {
+        /* Custom Legend Style for Charts */
+        .chart-legend-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #4b5563;
+            padding: 6px 0;
+            border-bottom: 1px dashed #f3f4f6;
+        }
+
+        .chart-legend-item:last-child {
             border-bottom: none;
+        }
+
+        .legend-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .legend-value {
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        /* Modal Customization matches screenshot */
+        .modal-header.bg-primary {
+            background-color: #0d6efd !important;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- PHẦN HEADER -->
+    <!-- HEADER -->
     <header class="header-custom bg-white sticky-top z-50">
         <div class="container py-3">
             <nav class="d-flex justify-content-between align-items-center gap-4">
-
-                <!-- Logo & Tên App -->
-                <div class="flex-shrink-0 d-flex align-items-center gap-2">
-                    <div class="bg-primary bg-opacity-10 p-2 rounded-lg text-primary">
-                        <i class="bi bi-kanban-fill fs-5"></i>
-                    </div>
-                    <h1 class="h5 fw-bold mb-0 text-gray-800 d-none d-sm-block">Quản Lý Công Việc Pro</h1>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="bg-primary bg-opacity-10 p-2 rounded-lg text-primary"><i
+                            class="bi bi-kanban-fill fs-5"></i></div>
+                    <h1 class="h5 fw-bold mb-0 text-gray-800 d-none d-sm-block">Quản Lý Công Việc</h1>
                 </div>
 
-                <!-- Thanh tìm kiếm -->
+                <!-- Search -->
                 <div class="flex-grow-1 mx-3 d-none d-md-block" style="max-width: 400px;">
                     <div class="input-group">
                         <span class="input-group-text bg-gray-50 border-e-0"><i
                                 class="bi bi-search text-muted"></i></span>
-                        <input type="text" class="form-control border-s-0 shadow-none"
-                            placeholder="Tìm kiếm công việc, dự án..." aria-label="Search">
+                        <input type="text" id="searchInput" class="form-control border-s-0 shadow-none"
+                            placeholder="Tìm kiếm công việc...">
                     </div>
                 </div>
 
-                <!-- Khu vực Người dùng & Thông báo & Action -->
-                <div class="flex-shrink-0 d-flex align-items-center gap-3">
-
+                <div class="d-flex align-items-center gap-3">
                     <a href="calendar.html"
-                        class="btn btn-outline-secondary d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-pill"
+                        class="btn btn-outline-secondary d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-pill text-decoration-none"
                         title="Xem lịch làm việc">
                         <i class="bi bi-calendar-check"></i>
                         <span class="d-none d-md-inline">Xem Lịch</span>
                     </a>
 
-                    <!-- NÚT THÊM DANH MỤC -->
-                    <button onclick="openAddCategoryModal()"
-                        class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-pill d-none d-sm-flex">
-                        <i class="bi bi-plus-lg"></i>
-                        <span>Thêm Danh Mục</span>
+                    <button type="button"
+                        class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-pill"
+                        onclick="openTaskModal()">
+                        <i class="bi bi-plus-circle-fill"></i> <span class="d-none d-sm-inline">Thêm Việc</span>
                     </button>
 
-                    <!-- THÔNG BÁO (Đã cập nhật logic hiển thị) -->
                     <div class="dropdown">
-                        <button
-                            class="btn btn-light rounded-circle p-2 position-relative hover:bg-gray-100 transition-colors"
-                            type="button" data-bs-toggle="dropdown" aria-expanded="false"
-                            title="Thông báo công việc cần xử lý">
+                        <button class="btn btn-light rounded-circle p-2 position-relative" type="button"
+                            data-bs-toggle="dropdown">
                             <i class="bi bi-bell-fill fs-5 text-gray-600"></i>
                             <span id="notifyBadge"
                                 class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                style="font-size: 0.6rem; display: none;">
-                                0
-                            </span>
+                                style="display: none;">0</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0"
-                            style="width: 350px; max-height: 400px; overflow-y: auto;">
+                            style="width: 340px; max-height: 400px; overflow-y: auto;">
                             <li>
-                                <h6 class="dropdown-header fw-bold text-uppercase text-danger bg-light py-2">
-                                    <i class="bi bi-alarm me-1"></i> Công việc cần xử lý gấp
-                                </h6>
+                                <h6 class="dropdown-header fw-bold text-uppercase text-danger bg-light py-2">⚠️ Cần xử
+                                    lý gấp (Ưu tiên Cao)</h6>
                             </li>
-                            <div id="notificationList">
-                                <!-- JS sẽ render list dựa trên logic mới (Dưới 3 ngày) -->
-                            </div>
+                            <div id="notificationList"></div>
                         </ul>
                     </div>
 
-                    <!-- LOGIN SECTION -->
-                    <button id="btnLogin"
-                        class="btn btn-outline-primary d-flex align-items-center gap-2 rounded-pill px-3">
-                        <i class="bi bi-google"></i> <span class="d-none d-sm-inline">Đăng nhập Google</span>
-                    </button>
-
-                    <div id="userSection" class="d-none align-items-center gap-2">
-                        <div class="dropdown">
-                            <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle"
+                    <div id="authSection">
+                        <button id="btnLogin" class="btn btn-outline-primary rounded-pill px-3"><i
+                                class="bi bi-google me-2"></i>Đăng nhập</button>
+                        <div id="userProfile" class="d-none dropdown">
+                            <a href="#" class="d-flex align-items-center text-decoration-none"
                                 data-bs-toggle="dropdown">
-                                <img id="userAvatar" src="https://placehold.co/40x40/007bff/ffffff?text=G"
-                                    class="rounded-circle border border-2 border-primary" alt="User Avatar"
+                                <img id="userAvatar" src="" class="rounded-circle border border-2 border-primary"
                                     style="width: 40px; height: 40px;">
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Hồ sơ</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm mt-2">
                                 <li><a id="btnLogout" class="dropdown-item text-danger" href="#"><i
                                             class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
                             </ul>
                         </div>
                     </div>
-
                 </div>
             </nav>
         </div>
     </header>
 
     <div class="container py-4">
+        <div id="errorAlert" class="alert alert-danger d-none" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> <span id="errorMsg"></span>
+        </div>
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-            <!-- Tổng công việc -->
             <div class="card card-stat bg-white p-3">
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between">
                     <div>
-                        <p class="text-muted small mb-1 fw-bold text-uppercase" style="font-size: 0.75rem;">Tổng công
-                            việc</p>
+                        <p class="text-muted small mb-1 fw-bold text-uppercase">Tổng số</p>
                         <h3 class="fw-bold text-dark mb-0" id="totalTasks">0</h3>
                     </div>
-                    <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary">
-                        <i class="bi bi-layers-fill fs-5"></i>
-                    </div>
+                    <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary"><i
+                            class="bi bi-layers-fill fs-5"></i></div>
                 </div>
             </div>
-
-            <!-- Hoàn thành -->
             <div class="card card-stat bg-white p-3">
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between">
                     <div>
-                        <p class="text-muted small mb-1 fw-bold text-uppercase" style="font-size: 0.75rem;">Hoàn thành
-                        </p>
+                        <p class="text-muted small mb-1 fw-bold text-uppercase">Hoàn thành</p>
                         <h3 class="fw-bold text-success mb-0" id="completedTasks">0</h3>
                     </div>
-                    <div class="bg-success bg-opacity-10 p-2 rounded-3 text-success">
-                        <i class="bi bi-check-circle-fill fs-5"></i>
-                    </div>
+                    <div class="bg-success bg-opacity-10 p-2 rounded-3 text-success"><i
+                            class="bi bi-check-circle-fill fs-5"></i></div>
                 </div>
             </div>
-
-            <!-- Đang thực hiện -->
             <div class="card card-stat bg-white p-3">
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between">
                     <div>
-                        <p class="text-muted small mb-1 fw-bold text-uppercase" style="font-size: 0.75rem;">Đang thực
-                            hiện</p>
+                        <p class="text-muted small mb-1 fw-bold text-uppercase">Đang thực hiện</p>
                         <h3 class="fw-bold text-primary mb-0" id="inProgressTasks">0</h3>
                     </div>
-                    <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary">
-                        <i class="bi bi-hourglass-split fs-5"></i>
-                    </div>
+                    <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary"><i
+                            class="bi bi-hourglass-split fs-5"></i></div>
                 </div>
             </div>
-
-            <!-- Chưa thực hiện (Thay thế Quá hạn) -->
             <div class="card card-stat bg-white p-3">
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between">
                     <div>
-                        <p class="text-muted small mb-1 fw-bold text-uppercase" style="font-size: 0.75rem;">Chưa thực
-                            hiện</p>
+                        <p class="text-muted small mb-1 fw-bold text-uppercase">Chưa thực hiện</p>
                         <h3 class="fw-bold text-danger mb-0" id="overdueTasks">0</h3>
                     </div>
-                    <div class="bg-danger bg-opacity-10 p-2 rounded-3 text-danger">
-                        <i class="bi bi-x-circle-fill fs-5"></i>
-                    </div>
+                    <div class="bg-danger bg-opacity-10 p-2 rounded-3 text-danger"><i
+                            class="bi bi-x-circle-fill fs-5"></i></div>
                 </div>
             </div>
         </div>
 
-        <!-- Charts Section -->
+        <!-- Charts Section (UPDATED LAYOUT FOR LEGEND) -->
         <div class="row g-4 mb-5">
+            <!-- Phân bổ Danh mục -->
             <div class="col-lg-4">
                 <div class="card chart-card p-4 h-100">
                     <h5 class="card-title fw-bold mb-4 d-flex align-items-center gap-2">
                         <i class="bi bi-pie-chart-fill text-primary"></i> Phân bổ Danh mục
                     </h5>
-                    <div class="position-relative" style="height: 250px;">
-                        <canvas id="categoryChart"></canvas>
+                    <!-- Chart Container -->
+                    <div class="flex-grow-1 d-flex align-items-center justify-content-center mb-3"
+                        style="min-height: 200px;">
+                        <div style="height: 200px; width: 200px;">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
                     </div>
-                    <div class="mt-3 small" id="categoryLegend"></div>
+                    <!-- Custom Legend Container -->
+                    <div id="categoryLegend" class="mt-auto">
+                        <!-- Legend items will be injected here by JS -->
+                    </div>
                 </div>
             </div>
 
+            <!-- Tình trạng Công việc -->
             <div class="col-lg-4">
                 <div class="card chart-card p-4 h-100">
                     <h5 class="card-title fw-bold mb-4 d-flex align-items-center gap-2">
                         <i class="bi bi-activity text-success"></i> Tình trạng Công việc
                     </h5>
-                    <div class="position-relative" style="height: 250px;">
-                        <canvas id="completionChart"></canvas>
+                    <!-- Chart Container -->
+                    <div class="flex-grow-1 d-flex align-items-center justify-content-center mb-3"
+                        style="min-height: 200px;">
+                        <div style="height: 200px; width: 200px;">
+                            <canvas id="completionChart"></canvas>
+                        </div>
                     </div>
-                    <div class="mt-3 small" id="completionLegend"></div>
+                    <!-- Custom Legend Container -->
+                    <div id="completionLegend" class="mt-auto">
+                        <!-- Legend items will be injected here by JS -->
+                    </div>
                 </div>
             </div>
 
+            <!-- Khối lượng (Tuần) -->
             <div class="col-lg-4">
                 <div class="card chart-card p-4 h-100">
                     <h5 class="card-title fw-bold mb-4 d-flex align-items-center gap-2">
                         <i class="bi bi-bar-chart-fill text-info"></i> Khối lượng (Tuần)
                     </h5>
-                    <div class="position-relative" style="height: 300px;">
+                    <div class="flex-grow-1 position-relative" style="min-height: 250px;">
                         <canvas id="workloadChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Table Section -->
-        <div id="taskTableSection" class="card border-0 shadow-lg rounded-3 overflow-hidden">
-            <div
-                class="card-header bg-white py-3 border-bottom d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
-                <h5 class="mb-0 fw-bold text-gray-800 d-flex align-items-center gap-2">
-                    <i class="bi bi-table text-primary"></i> Bảng Thống Kê Chi Tiết
+        <!-- Filters & Table -->
+        <div class="card border-0 shadow-lg rounded-3 overflow-hidden mb-5">
+            <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <h5 class="mb-0 fw-bold text-gray-800"><i class="bi bi-table text-primary me-2"></i>Danh sách công việc
                 </h5>
                 <div class="d-flex gap-2">
-                    <select id="filterStatus" class="form-select form-select-sm shadow-none border-secondary-subtle"
-                        style="width: auto;">
+                    <select id="filterStatus" class="form-select form-select-sm" style="width: auto;">
                         <option value="all">Tất cả trạng thái</option>
-                        <option value="urgent" class="fw-bold text-danger">⚠️ Cần xử lý gấp (< 3 ngày)</option>
+                        <option value="urgent" class="fw-bold text-danger">⚠️ Cần xử lý gấp (Ưu tiên Cao)</option>
                         <option value="Hoàn thành">Hoàn thành</option>
                         <option value="Đang thực hiện">Đang thực hiện</option>
-                        <!-- Đổi từ Quá hạn sang Chưa thực hiện -->
                         <option value="Chưa thực hiện">Chưa thực hiện</option>
                     </select>
-                    <select id="filterCategory" class="form-select form-select-sm shadow-none border-secondary-subtle"
-                        style="width: auto;">
+                    <select id="filterCategory" class="form-select form-select-sm" style="width: auto;">
                         <option value="all">Tất cả danh mục</option>
-                        <option value="Giảng dạy">Giảng dạy</option>
-                        <option value="Họp">Họp</option>
-                        <option value="Coi thi">Coi thi</option>
-                        <option value="Việc cá nhân">Việc cá nhân</option>
                     </select>
                 </div>
             </div>
-
             <div class="table-responsive">
                 <table class="table table-hover table-custom align-middle mb-0">
                     <thead>
@@ -448,7 +367,7 @@
                             <th class="ps-4">Tên công việc</th>
                             <th>Danh mục</th>
                             <th>Ưu tiên</th>
-                            <th>Ngày tạo</th>
+                            <th>Ngày bắt đầu</th>
                             <th>Thời lượng</th>
                             <th>Trạng thái</th>
                             <th>Hạn cuối</th>
@@ -457,791 +376,718 @@
                             <th class="text-end pe-4">Thao tác</th>
                         </tr>
                     </thead>
-                    <tbody id="taskTableBody" class="bg-white">
-                        <!-- Data inserted via JS -->
+                    <tbody id="taskTableBody">
+                        <tr>
+                            <td colspan="10" class="text-center py-5 text-muted">
+                                <div class="spinner-border text-primary" role="status"></div>
+                                <div class="mt-2">Đang kết nối Database...</div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
-
-            <div class="card-footer bg-white py-3 border-top">
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
-                    <div class="text-muted small" id="paginationInfo">
-                        Hiển thị 1 đến 10 của 60 công việc
-                    </div>
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination pagination-sm mb-0" id="paginationControls">
-                            <!-- JS sẽ render nút phân trang ở đây -->
-                        </ul>
-                    </nav>
-                </div>
+            <div class="card-footer bg-white py-3 d-flex justify-content-between align-items-center">
+                <div class="small text-muted" id="paginationInfo">...</div>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0" id="paginationControls"></ul>
+                </nav>
             </div>
         </div>
     </div>
 
-    <!-- PHẦN FOOTER -->
-    <footer class="footer-fixed py-3">
-        <div class="container text-center">
-            <div class="text-muted small">
-                &copy; 2025 Quản Lý Công Việc Pro. Mọi quyền được bảo lưu.
-            </div>
-        </div>
-    </footer>
-
-    <!-- MODAL THÊM DANH MỤC MỚI -->
-    <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-hidden="true">
+    <!-- MODAL: ADD/EDIT TASK -->
+    <div class="modal fade" id="addTaskModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
                 <div class="modal-header bg-primary text-white border-0">
-                    <h5 class="modal-title fw-bold"><i class="bi bi-folder-plus me-2"></i>Thêm Danh Mục Mới</h5>
+                    <h5 class="modal-title fw-bold" id="modalTitle">Thêm Công Việc Mới</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <form id="addCategoryForm">
+                    <form id="addTaskForm">
+                        <input type="hidden" id="editTaskId">
+
                         <div class="mb-3">
-                            <label for="newCategoryName" class="form-label fw-bold">Tên danh mục</label>
-                            <input type="text" class="form-control" id="newCategoryName" required
-                                placeholder="Ví dụ: Marketing, Design...">
+                            <label class="form-label fw-bold text-secondary small text-uppercase">Tên công việc</label>
+                            <input type="text" class="form-control" id="taskName" required
+                                placeholder="Nhập tên công việc...">
                         </div>
-                        <div class="mb-3">
-                            <label for="newCategoryColor" class="form-label fw-bold">Màu sắc</label>
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="color" class="form-control form-control-color" id="newCategoryColor"
-                                    value="#0d6efd" title="Chọn màu danh mục">
-                                <span class="text-muted small">Chọn màu để phân loại dễ dàng hơn</span>
+
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold text-secondary small text-uppercase">Danh mục</label>
+                                <select class="form-select" id="taskCategory" onchange="toggleCustomCategory(this)">
+                                    <option value="__other__" class="fw-bold text-primary">+ Nhập danh mục mới...
+                                    </option>
+                                </select>
+                                <input type="text" class="form-control mt-2 d-none" id="customCategoryInput"
+                                    placeholder="Nhập tên danh mục mới">
                             </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold text-secondary small text-uppercase">Trạng thái</label>
+                                <select class="form-select" id="taskStatus">
+                                    <option value="Đang thực hiện">Đang thực hiện</option>
+                                    <option value="Chưa thực hiện">Chưa thực hiện</option>
+                                    <option value="Hoàn thành">Hoàn thành</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold text-secondary small text-uppercase">Ngày bắt
+                                    đầu</label>
+                                <input type="date" class="form-control" id="taskStartDate" required>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold text-secondary small text-uppercase">Thời lượng
+                                    (Ngày)</label>
+                                <input type="number" class="form-control" id="taskDuration" placeholder="VD: 1"
+                                    value="1" min="0">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary small text-uppercase">Ghi chú</label>
+                            <textarea class="form-control" id="taskNote" rows="3"
+                                placeholder="Nhập ghi chú..."></textarea>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-primary" onclick="handleSaveCategory()">
-                        <i class="bi bi-save me-1"></i> Lưu Danh Mục
-                    </button>
+                <div class="modal-footer border-0 pt-0 pb-4">
+                    <button type="button" class="btn btn-secondary px-4 fw-bold" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary px-4 fw-bold" onclick="handleTaskSubmit()"
+                        id="saveTaskBtn">Lưu công việc</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL CHI TIẾT CÔNG VIỆC -->
+    <!-- MODAL: VIEW DETAILS -->
     <div class="modal fade" id="taskDetailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-white border-bottom">
-                    <h5 class="modal-title fw-bold text-primary"><i class="bi bi-info-circle-fill me-2"></i>Chi Tiết
-                        Công Việc</h5>
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-primary fs-5 d-flex align-items-center gap-2">
+                        <i class="bi bi-info-circle-fill"></i> Chi Tiết Công Việc
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4">
-                    <h4 class="fw-bold mb-3 text-dark" id="detailTaskName">Tên công việc</h4>
-
-                    <div class="d-flex gap-2 mb-4 flex-wrap">
-                        <span class="badge" id="detailCategory">Danh mục</span>
-                        <span class="badge" id="detailPriority">Ưu tiên</span>
-                        <span class="badge" id="detailStatus">Trạng thái</span>
+                <div class="modal-body pt-3 pb-4 px-4">
+                    <h4 class="fw-bold text-dark mb-3" id="viewTaskName" style="font-size: 1.25rem;">Tên công việc</h4>
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <span id="viewTaskCategory" class="badge rounded-pill" style="font-size: 0.85rem;">Danh
+                            mục</span>
+                        <span id="viewTaskPriority" class="badge rounded-pill text-dark border"
+                            style="font-size: 0.85rem; background-color: #ffc107;">Ưu tiên</span>
+                        <span id="viewTaskStatus" class="badge rounded-pill text-white"
+                            style="font-size: 0.85rem;">Trạng thái</span>
                     </div>
-
-                    <div class="row g-3 mb-3">
+                    <div class="row g-3 mb-4">
                         <div class="col-6">
-                            <label class="fw-bold text-muted small text-uppercase mb-1">Ngày tạo</label>
-                            <p class="mb-0 text-dark" id="detailCreated">...</p>
+                            <label class="fw-bold text-secondary small text-uppercase mb-1"
+                                style="font-size: 0.75rem;">Ngày bắt đầu</label>
+                            <div class="fw-bold text-dark fs-6" id="viewTaskStartDate">...</div>
                         </div>
                         <div class="col-6">
-                            <label class="fw-bold text-muted small text-uppercase mb-1">Hạn chót</label>
-                            <p class="mb-0 text-danger fw-bold" id="detailDeadline">...</p>
+                            <label class="fw-bold text-secondary small text-uppercase mb-1"
+                                style="font-size: 0.75rem;">Hạn chót</label>
+                            <div class="fw-bold text-danger fs-6" id="viewTaskDeadline">...</div>
                         </div>
                     </div>
-
-                    <div class="mb-3">
-                        <label class="fw-bold text-muted small text-uppercase mb-1">Ghi chú</label>
-                        <div class="bg-light p-3 rounded text-secondary fst-italic border" id="detailNote">
-                            Không có ghi chú nào.
-                        </div>
+                    <div class="mb-2">
+                        <label class="fw-bold text-secondary small text-uppercase mb-1" style="font-size: 0.75rem;">Ghi
+                            chú</label>
+                        <div class="bg-light p-3 rounded text-secondary fst-italic border" id="viewTaskNote"
+                            style="min-height: 60px;">Không có ghi chú.</div>
                     </div>
                 </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary px-4 fw-bold" data-bs-dismiss="modal">Đóng</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap Modal xác nhận xóa -->
-    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <!-- MODAL: CONFIRM DELETE -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-danger text-white border-0">
-                    <h5 class="modal-title fw-bold">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>Xác nhận xóa
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
+            <div class="modal-content">
                 <div class="modal-body p-4 text-center">
-                    <p class="mb-0 fs-5 text-gray-700">Bạn có chắc chắn muốn xóa công việc này không?</p>
-                    <p class="small text-muted mt-2">Hành động này không thể hoàn tác.</p>
-                </div>
-                <div class="modal-footer border-0 justify-content-center pb-4">
-                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Hủy bỏ</button>
-                    <button type="button" class="btn btn-danger px-4" id="confirmDeleteBtn">Xóa ngay</button>
+                    <h5 class="fw-bold mb-2">Xác nhận xóa?</h5>
+                    <p class="text-muted">Hành động này sẽ xóa dữ liệu khỏi Database vĩnh viễn.</p>
+                    <div class="d-flex justify-content-center gap-2 mt-4">
+                        <button class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+                        <button class="btn btn-danger" id="confirmDeleteBtn">Xóa ngay</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1060;">
-        <div id="liveToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive"
+    <!-- TOAST -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 2000;">
+        <div id="liveToast" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive"
             aria-atomic="true">
             <div class="d-flex">
-                <div class="toast-body d-flex align-items-center gap-2">
-                    <i class="bi bi-check-circle-fill"></i> <span id="toastMessage">Thông báo</span>
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
+                <div class="toast-body" id="toastMsg">Hello</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- FIREBASE LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    <script>
-        // --- DỮ LIỆU & CẤU HÌNH ---
-        function generateFakeTasks(count) {
-            const categories = ['Giảng dạy', 'Họp', 'Coi thi', 'Việc cá nhân'];
-            const priorities = ['Cao', 'Trung bình', 'Thấp'];
-            // ĐÃ THAY ĐỔI: 'Quá hạn' -> 'Chưa thực hiện'
-            const statuses = ['Hoàn thành', 'Đang thực hiện', 'Chưa thực hiện'];
-            const notes = ['Cần hoàn thành gấp', 'Chuẩn bị tài liệu kỹ', 'Gửi báo cáo sau khi xong', 'Phối hợp với tổ chuyên môn', 'Đăng ký online'];
-            const tasks = [];
+        const firebaseConfig = {
+            apiKey: "AIzaSyDILs6zPfC0UdPL7crGbAot-w2vt5eCGgk",
+            authDomain: "flutter-ai-playground-c65f3.firebaseapp.com",
+            projectId: "flutter-ai-playground-c65f3",
+            storageBucket: "flutter-ai-playground-c65f3.appspot.com",
+            messagingSenderId: "932092331324",
+            appId: "1:932092331324:web:dcbb33b44b5d55a43cca39"
+        };
 
-            const today = new Date();
+        try {
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
+            const provider = new GoogleAuthProvider();
 
-            for (let i = 1; i <= count; i++) {
-                const randomCat = categories[Math.floor(Math.random() * categories.length)];
-                const randomPri = priorities[Math.floor(Math.random() * priorities.length)];
+            const btnLogin = document.getElementById('btnLogin');
+            const userProfile = document.getElementById('userProfile');
 
-                let randomStatus;
-                const statusRand = Math.random();
-                if (statusRand < 0.6) randomStatus = 'Đang thực hiện';
-                else if (statusRand < 0.9) randomStatus = 'Hoàn thành';
-                else randomStatus = 'Chưa thực hiện'; // Đổi logic tạo data
+            if (btnLogin) btnLogin.addEventListener('click', () => signInWithPopup(auth, provider).catch(e => showToast(e.message, 'danger')));
+            if (document.getElementById('btnLogout')) document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
 
-                const dayOffset = Math.floor(Math.random() * 21) - 5;
-                const deadlineDate = new Date(today);
-                deadlineDate.setDate(today.getDate() + dayOffset);
-                const deadlineStr = deadlineDate.toISOString().split('T')[0];
+            onAuthStateChanged(auth, user => {
+                if (user) {
+                    if (btnLogin) btnLogin.classList.add('d-none');
+                    if (userProfile) userProfile.classList.remove('d-none');
+                    if (document.getElementById('userAvatar')) document.getElementById('userAvatar').src = user.photoURL;
+                } else {
+                    if (btnLogin) btnLogin.classList.remove('d-none');
+                    if (userProfile) userProfile.classList.add('d-none');
+                }
+            });
 
-                let daysLeft = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
-                // Nếu hoàn thành thì không quan trọng ngày còn lại cho tính toán status, nhưng vẫn lưu để hiển thị
-                if (randomStatus === 'Hoàn thành') daysLeft = (Math.floor(Math.random() * 5) + 1) * -1;
+            window.tasks = [];
+            const q = query(collection(db, "tasks"), orderBy("deadline"));
 
-                const createdDate = new Date(deadlineDate);
-                createdDate.setDate(deadlineDate.getDate() - (Math.floor(Math.random() * 5) + 5));
-                const createdStr = createdDate.toISOString().split('T')[0];
+            onSnapshot(q, (snapshot) => {
+                const loadedTasks = snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    const deadline = new Date(data.deadline);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    deadline.setHours(0, 0, 0, 0);
+                    const diffTime = deadline - today;
+                    const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-                tasks.push({
-                    id: i,
-                    name: `Công việc số ${i} - ${randomCat}`,
-                    category: randomCat,
-                    priority: randomPri,
-                    createdDate: createdStr,
-                    duration: Math.floor(Math.random() * 10) + 1,
-                    status: randomStatus,
-                    deadline: deadlineStr,
-                    daysLeft: daysLeft,
-                    note: notes[Math.floor(Math.random() * notes.length)]
+                    let priority = 'Trung bình';
+                    if (data.status === 'Chưa thực hiện' || data.status === 'Hoàn thành') {
+                        priority = 'Thấp';
+                    } else {
+                        if (daysLeft <= 3) priority = 'Cao';
+                        else if (daysLeft >= 10) priority = 'Thấp';
+                    }
+
+                    return { id: doc.id, ...data, daysLeft: daysLeft, priority: priority };
                 });
-            }
-            return tasks;
+
+                window.tasks = loadedTasks;
+                if (window.renderApp) window.renderApp();
+            }, (error) => {
+                console.error("Lỗi Firestore:", error);
+                document.getElementById('errorAlert').classList.remove('d-none');
+                let msg = "Lỗi kết nối Database: " + error.code;
+                if (error.code === 'permission-denied') msg = "⛔ Bị chặn quyền truy cập!";
+                document.getElementById('errorMsg').innerText = msg;
+            });
+
+            window.dbActions = {
+                add: async (data) => addDoc(collection(db, "tasks"), { ...data, createdAt: serverTimestamp() }),
+                update: async (id, data) => updateDoc(doc(db, "tasks", id), data),
+                delete: async (id) => deleteDoc(doc(db, "tasks", id))
+            };
+        } catch (err) {
+            console.error("Lỗi khởi tạo:", err);
         }
+    </script>
 
-        const tasks = generateFakeTasks(60);
-
-        const categoryColors = {
-            'Giảng dạy': '#0d6efd',
-            'Họp': '#fd7e14',
-            'Coi thi': '#dc3545',
-            'Việc cá nhân': '#6c757d'
-        };
-
-        const statusColors = {
-            'Hoàn thành': 'success',
-            'Đang thực hiện': 'primary',
-            'Chưa thực hiện': 'danger' // Cập nhật key màu
-        };
-
-        const priorityColors = {
-            'Cao': 'danger',
-            'Trung bình': 'warning',
-            'Thấp': 'success'
-        };
-
+    <!-- UI LOGIC -->
+    <script>
         let currentPage = 1;
         const rowsPerPage = 10;
-        let currentFilteredTasks = [...tasks];
+        let filteredTasks = [];
 
-        let chartCategoryInstance = null;
-        let chartCompletionInstance = null;
-        let chartWorkloadInstance = null;
-        let taskToDeleteId = null;
-        const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-        const addCategoryModal = new bootstrap.Modal(document.getElementById('addCategoryModal'));
-        const taskDetailModal = new bootstrap.Modal(document.getElementById('taskDetailModal'));
+        const BASE_COLORS = {
+            cat: { 'Giảng dạy': '#0d6efd', 'Họp': '#fd7e14', 'Coi thi': '#dc3545', 'Việc cá nhân': '#6c757d' },
+            status: { 'Hoàn thành': 'success', 'Đang thực hiện': 'primary', 'Chưa thực hiện': 'danger' },
+            priority: { 'Cao': 'danger', 'Trung bình': 'warning', 'Thấp': 'success' }
+        };
 
-        // Hàm mở modal Thêm Danh Mục (Gắn vào nút Thêm Danh Mục)
-        window.openAddCategoryModal = function () {
-            // Reset form
-            document.getElementById('newCategoryName').value = '';
-            document.getElementById('newCategoryColor').value = '#0d6efd';
-            addCategoryModal.show();
+        function getCategoryColor(catName) {
+            if (BASE_COLORS.cat[catName]) return BASE_COLORS.cat[catName];
+            let hash = 0;
+            for (let i = 0; i < catName.length; i++) hash = catName.charCodeAt(i) + ((hash << 5) - hash);
+            return `hsl(${Math.abs(hash % 360)}, ${60 + (Math.abs(hash) % 20)}%, ${40 + (Math.abs(hash) % 10)}%)`;
         }
 
-        // Hàm xử lý Lưu Danh Mục (Giả lập)
-        window.handleSaveCategory = function () {
-            const name = document.getElementById('newCategoryName').value;
-            const color = document.getElementById('newCategoryColor').value;
-
-            if (name.trim() === '') {
-                alert('Vui lòng nhập tên danh mục');
-                return;
-            }
-            // Logic giả lập lưu data
-            console.log("Thêm danh mục:", name, color);
-            categoryColors[name] = color;
-
-            // Thêm vào các thẻ select
-            const filterCat = document.getElementById('filterCategory');
-            const option = new Option(name, name);
-            filterCat.add(option);
-
-            window.showToastGlobal(`Đã thêm danh mục "${name}" thành công!`);
-            addCategoryModal.hide();
-        }
-
-        // Hàm hiển thị Chi tiết công việc (Từ Notification)
-        window.showTaskDetails = function (taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (!task) return;
-
-            document.getElementById('detailTaskName').textContent = task.name;
-
-            const catBadge = document.getElementById('detailCategory');
-            catBadge.textContent = task.category;
-            catBadge.style.backgroundColor = categoryColors[task.category] || '#6c757d';
-            catBadge.className = 'badge';
-
-            const priBadge = document.getElementById('detailPriority');
-            priBadge.textContent = `Ưu tiên: ${task.priority}`;
-            priBadge.className = `badge text-bg-${priorityColors[task.priority]}`;
-
-            const statBadge = document.getElementById('detailStatus');
-            statBadge.textContent = task.status;
-            statBadge.className = `badge text-bg-${statusColors[task.status]}`;
-
-            document.getElementById('detailCreated').textContent = task.createdDate;
-            document.getElementById('detailDeadline').textContent = task.deadline;
-            document.getElementById('detailNote').textContent = task.note || "Không có ghi chú.";
-
-            taskDetailModal.show();
-        }
-
-        // Hàm xử lý "Xem tất cả" (Lọc danh sách ở bảng)
-        window.viewAllNotifications = function () {
-            // 1. Cuộn xuống bảng
-            document.getElementById('taskTableSection').scrollIntoView({ behavior: 'smooth' });
-
-            // 2. Chọn bộ lọc "Cần xử lý gấp"
-            document.getElementById('filterStatus').value = 'urgent';
-            document.getElementById('filterCategory').value = 'all';
-
-            // 3. Áp dụng lọc và render lại bảng
+        window.renderApp = function () {
+            const dynamicCats = new Set(['Giảng dạy', 'Họp', 'Coi thi', 'Việc cá nhân']);
+            if (window.tasks) window.tasks.forEach(t => { if (t.category) dynamicCats.add(t.category); });
+            updateFilterDropdown(dynamicCats);
+            updateModalDropdown(dynamicCats);
             applyFilters();
-
-            // 4. Thông báo cho người dùng
-            window.showToastGlobal('Đang hiển thị danh sách công việc cần xử lý gấp (Hạn dưới 3 ngày).');
+            updateCharts();
+            updateNotifications();
         }
 
-        // --- CẬP NHẬT THÔNG BÁO (LOGIC MỚI: DEADLINE < 3 NGÀY) ---
-        function updateNotifications() {
-            // LOGIC MỚI: Lọc các công việc chưa hoàn thành VÀ có deadline <= 3 ngày (bao gồm cả quá hạn)
-            const urgentTasks = tasks.filter(t =>
-                t.status !== 'Hoàn thành' && t.daysLeft <= 3
-            );
-
-            // Sắp xếp theo ngày còn lại tăng dần (việc gấp nhất lên đầu)
-            urgentTasks.sort((a, b) => a.daysLeft - b.daysLeft);
-
-            const badge = document.getElementById('notifyBadge');
-            const list = document.getElementById('notificationList');
-
-            if (urgentTasks.length > 0) {
-                badge.textContent = urgentTasks.length;
-                badge.style.display = 'block';
-            } else {
-                badge.style.display = 'none';
-            }
-
-            list.innerHTML = '';
-            if (urgentTasks.length === 0) {
-                list.innerHTML = '<li><span class="dropdown-item text-muted text-center py-3">Không có công việc gấp (< 3 ngày)</span></li>';
-            } else {
-                urgentTasks.slice(0, 5).forEach(t => {
-                    // Logic hiển thị icon và text số ngày
-                    let daysText = '';
-                    let daysClass = '';
-                    let icon = '';
-                    let iconColor = '';
-
-                    if (t.daysLeft < 0) {
-                        daysText = `Quá hạn ${Math.abs(t.daysLeft)} ngày`;
-                        daysClass = 'text-danger fw-bold';
-                        icon = 'bi-exclamation-octagon-fill';
-                        iconColor = 'text-danger';
-                    } else if (t.daysLeft === 0) {
-                        daysText = 'Hạn chót hôm nay';
-                        daysClass = 'text-danger fw-bold';
-                        icon = 'bi-alarm-fill';
-                        iconColor = 'text-danger';
-                    } else {
-                        daysText = `Còn ${t.daysLeft} ngày`;
-                        daysClass = 'text-warning fw-bold';
-                        icon = 'bi-clock-history';
-                        iconColor = 'text-warning';
-                    }
-
-                    const item = document.createElement('li');
-                    item.innerHTML = `
-                        <a class="dropdown-item notification-item py-2" href="#" onclick="showTaskDetails(${t.id}); return false;">
-                            <div class="d-flex align-items-start gap-2">
-                                <i class="bi ${icon} ${iconColor} mt-1 fs-5"></i>
-                                <div>
-                                    <div class="fw-bold text-dark mb-1">Việc cần làm: ${t.name}</div>
-                                    <div class="d-flex justify-content-between align-items-center" style="width: 220px;">
-                                        <span class="badge bg-light text-dark border border-secondary" style="font-size: 0.65rem;">${t.status}</span>
-                                        <small class="${daysClass}" style="font-size: 0.75rem;">${daysText}</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    `;
-                    list.appendChild(item);
-                });
-
-                if (urgentTasks.length > 5) {
-                    list.innerHTML += `<li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-center small text-primary fw-bold" href="#" onclick="viewAllNotifications(); return false;">Xem tất cả (${urgentTasks.length})</a></li>`;
-                } else if (urgentTasks.length > 0) {
-                    list.innerHTML += `<li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-center small text-primary fw-bold" href="#" onclick="viewAllNotifications(); return false;">Xem tất cả</a></li>`;
-                }
-            }
+        function updateFilterDropdown(categories) {
+            const filterSelect = document.getElementById('filterCategory');
+            const currentVal = filterSelect.value;
+            while (filterSelect.options.length > 1) filterSelect.remove(1);
+            categories.forEach(cat => filterSelect.add(new Option(cat, cat)));
+            if (Array.from(filterSelect.options).some(o => o.value === currentVal)) filterSelect.value = currentVal;
         }
 
-        // --- LOGIC PHÂN TRANG & RENDER ---
-        function renderPagination(filteredData) {
-            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-            const paginationContainer = document.getElementById('paginationControls');
-            const infoContainer = document.getElementById('paginationInfo');
-
-            const start = (currentPage - 1) * rowsPerPage + 1;
-            let end = currentPage * rowsPerPage;
-            if (end > filteredData.length) end = filteredData.length;
-            if (filteredData.length === 0) {
-                infoContainer.innerText = "Không tìm thấy dữ liệu";
-            } else {
-                infoContainer.innerText = `Hiển thị ${start} đến ${end} của ${filteredData.length} công việc`;
-            }
-
-            let html = '';
-            html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                        <a class="page-link" href="#" onclick="changePage(${currentPage - 1}); return false;">
-                            <i class="bi bi-chevron-left"></i>
-                        </a>
-                     </li>`;
-
-            for (let i = 1; i <= totalPages; i++) {
-                if (totalPages > 7) {
-                    if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-                        html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
-                                    <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>
-                                  </li>`;
-                    } else if (i === currentPage - 2 || i === currentPage + 2) {
-                        html += `<li class="page-item disabled d-none d-sm-block"><span class="page-link">...</span></li>`;
-                    }
-                } else {
-                    html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
-                                <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>
-                             </li>`;
-                }
-            }
-
-            html += `<li class="page-item ${currentPage === totalPages || totalPages === 0 ? 'disabled' : ''}">
-                        <a class="page-link" href="#" onclick="changePage(${currentPage + 1}); return false;">
-                            <i class="bi bi-chevron-right"></i>
-                        </a>
-                     </li>`;
-
-            paginationContainer.innerHTML = html;
+        function updateModalDropdown(categories) {
+            const modalSelect = document.getElementById('taskCategory');
+            if (modalSelect.value === '__other__') return;
+            const currentVal = modalSelect.value;
+            modalSelect.innerHTML = '';
+            categories.forEach(cat => modalSelect.add(new Option(cat, cat)));
+            const otherOpt = new Option('+ Nhập danh mục mới...', '__other__');
+            otherOpt.className = "fw-bold text-primary";
+            modalSelect.add(otherOpt);
+            if (Array.from(modalSelect.options).some(o => o.value === currentVal)) modalSelect.value = currentVal;
         }
 
-        function changePage(page) {
-            const totalPages = Math.ceil(currentFilteredTasks.length / rowsPerPage);
-            if (page < 1 || page > totalPages) return;
-
-            currentPage = page;
-            renderTableRows(currentFilteredTasks);
-            renderPagination(currentFilteredTasks);
+        function addDays(dateStr, days) {
+            const result = new Date(dateStr);
+            result.setDate(result.getDate() + parseInt(days));
+            return result.toISOString().split('T')[0];
         }
-
-        function renderTableRows(allData) {
-            const tbody = document.getElementById('taskTableBody');
-            tbody.innerHTML = '';
-
-            const startIndex = (currentPage - 1) * rowsPerPage;
-            const endIndex = startIndex + rowsPerPage;
-            const pageData = allData.slice(startIndex, endIndex);
-
-            if (pageData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="text-center py-4 text-muted">Không tìm thấy công việc nào phù hợp với bộ lọc.</td></tr>`;
-                return;
-            }
-
-            pageData.forEach(task => {
-                const row = document.createElement('tr');
-                row.dataset.taskId = task.id;
-
-                let daysLeftBadge = '';
-                if (task.status === 'Hoàn thành') {
-                    daysLeftBadge = `<span class="badge rounded-pill text-bg-success">Đã xong</span>`;
-                } else if (task.daysLeft < 0) {
-                    daysLeftBadge = `<span class="badge rounded-pill text-bg-danger">Quá ${Math.abs(task.daysLeft)} ngày</span>`;
-                } else if (task.daysLeft === 0) {
-                    daysLeftBadge = `<span class="badge rounded-pill text-bg-warning">Hôm nay</span>`;
-                } else {
-                    daysLeftBadge = `<span class="fw-bold text-success">${task.daysLeft} ngày</span>`;
-                }
-
-                row.innerHTML = `
-                    <td class="ps-4 fw-bold text-dark editable-cell" data-field="name">${task.name}</td>
-                    <td class="editable-cell" data-field="category">
-                        <span class="badge" style="background-color: ${categoryColors[task.category] || '#6c757d'}">${task.category}</span>
-                    </td>
-                    <td class="editable-cell" data-field="priority">
-                        <span class="badge text-bg-${priorityColors[task.priority] || 'secondary'} bg-opacity-75">${task.priority}</span>
-                    </td>
-                    <td class="text-muted editable-cell" data-field="createdDate">${task.createdDate}</td>
-                    <td class="text-center editable-cell" data-field="duration">${task.duration}</td>
-                    <td class="editable-cell" data-field="status">
-                        <span class="badge rounded-pill text-bg-${statusColors[task.status]}">${task.status}</span>
-                    </td>
-                    <td class="text-muted editable-cell" data-field="deadline">${task.deadline}</td>
-                    <td>${daysLeftBadge}</td>
-                    <td class="text-muted small fst-italic editable-cell" data-field="note" style="max-width: 150px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${task.note}</td>
-                    <td class="text-end pe-4">
-                        <button class="btn btn-outline-danger btn-sm rounded-circle" onclick="prepareDelete(${task.id})" title="Xóa">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-
-            document.querySelectorAll('.editable-cell').forEach(cell => {
-                cell.addEventListener('click', function (e) {
-                    if (!this.classList.contains('editing') && !e.target.closest('button')) {
-                        startEdit(this);
-                    }
-                });
-            });
-        }
-
-        // --- LOGIC CHỈNH SỬA ---
-        function startEdit(cell) {
-            const row = cell.closest('tr');
-            const taskId = parseInt(row.dataset.taskId);
-            const task = tasks.find(t => t.id === taskId);
-            const field = cell.dataset.field;
-            const currentValue = task[field];
-
-            cell.classList.add('editing');
-            const originalContent = cell.innerHTML;
-
-            let input;
-            if (field === 'category') {
-                input = document.createElement('select');
-                input.className = 'form-select form-select-sm';
-                ['Giảng dạy', 'Họp', 'Coi thi', 'Việc cá nhân'].forEach(val => {
-                    input.add(new Option(val, val, false, val === currentValue));
-                });
-                for (let cat in categoryColors) {
-                    if (!['Giảng dạy', 'Họp', 'Coi thi', 'Việc cá nhân'].includes(cat)) {
-                        input.add(new Option(cat, cat, false, cat === currentValue));
-                    }
-                }
-            } else if (field === 'priority') {
-                input = document.createElement('select');
-                input.className = 'form-select form-select-sm';
-                ['Cao', 'Trung bình', 'Thấp'].forEach(val => input.add(new Option(val, val, false, val === currentValue)));
-            } else if (field === 'status') {
-                input = document.createElement('select');
-                input.className = 'form-select form-select-sm';
-                // ĐÃ THAY ĐỔI: Option status
-                ['Hoàn thành', 'Đang thực hiện', 'Chưa thực hiện'].forEach(val => input.add(new Option(val, val, false, val === currentValue)));
-            } else if (field === 'createdDate' || field === 'deadline') {
-                input = document.createElement('input');
-                input.type = 'date';
-                input.className = 'form-control form-control-sm';
-                input.value = currentValue;
-            } else if (field === 'duration') {
-                input = document.createElement('input');
-                input.type = 'number';
-                input.className = 'form-control form-control-sm';
-                input.value = currentValue;
-                input.min = 1;
-            } else {
-                input = document.createElement('input');
-                input.type = 'text';
-                input.className = 'form-control form-control-sm';
-                input.value = currentValue;
-            }
-
-            const actionGroup = document.createElement('div');
-            actionGroup.className = 'input-group input-group-sm mt-1 shadow-sm';
-
-            const btnSave = document.createElement('button');
-            btnSave.className = 'btn btn-success';
-            btnSave.innerHTML = '<i class="bi bi-check"></i>';
-
-            const btnCancel = document.createElement('button');
-            btnCancel.className = 'btn btn-secondary';
-            btnCancel.innerHTML = '<i class="bi bi-x"></i>';
-
-            actionGroup.appendChild(btnSave);
-            actionGroup.appendChild(btnCancel);
-
-            cell.innerHTML = '';
-            cell.appendChild(input);
-            cell.appendChild(actionGroup);
-            input.focus();
-
-            const finishEdit = (val) => {
-                if (val !== null) saveEdit(taskId, field, val);
-                else cell.innerHTML = originalContent;
-                cell.classList.remove('editing');
-            };
-
-            btnSave.onclick = (e) => { e.stopPropagation(); finishEdit(input.value); };
-            btnCancel.onclick = (e) => { e.stopPropagation(); finishEdit(null); };
-            input.onclick = (e) => e.stopPropagation();
-
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') finishEdit(input.value);
-                if (e.key === 'Escape') finishEdit(null);
-            });
-        }
-
-        function saveEdit(taskId, field, newValue) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                if (field === 'duration') task[field] = parseInt(newValue);
-                else task[field] = newValue;
-
-                if (field === 'deadline') {
-                    const diff = new Date(newValue) - new Date();
-                    task.daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
-                }
-
-                applyFilters();
-                updateDashboardChartsAndStats();
-                window.showToastGlobal('Đã lưu thay đổi thành công!');
-            }
-        }
-
-        // --- LOGIC XÓA ---
-        function prepareDelete(taskId) {
-            taskToDeleteId = taskId;
-            deleteModal.show();
-        }
-
-        document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
-            if (taskToDeleteId !== null) {
-                const index = tasks.findIndex(t => t.id === taskToDeleteId);
-                if (index > -1) {
-                    tasks.splice(index, 1);
-                    applyFilters();
-                    updateDashboardChartsAndStats();
-                    window.showToastGlobal('Đã xóa công việc thành công!');
-                }
-                taskToDeleteId = null;
-                deleteModal.hide();
-            }
-        });
 
         function applyFilters() {
-            const statusFilter = document.getElementById('filterStatus').value;
-            const categoryFilter = document.getElementById('filterCategory').value;
-
-            currentFilteredTasks = tasks.filter(task => {
-                // LOGIC LỌC ĐẶC BIỆT CHO "CẦN XỬ LÝ GẤP"
-                if (statusFilter === 'urgent') {
-                    // Cần xử lý gấp: Chưa hoàn thành VÀ daysLeft <= 3
-                    const isUrgent = (task.status !== 'Hoàn thành' && task.daysLeft <= 3);
-                    return isUrgent && (categoryFilter === 'all' || task.category === categoryFilter);
-                }
-
-                return (statusFilter === 'all' || task.status === statusFilter) &&
-                    (categoryFilter === 'all' || task.category === categoryFilter);
+            const stFilter = document.getElementById('filterStatus').value;
+            const catFilter = document.getElementById('filterCategory').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const allTasks = window.tasks || [];
+            filteredTasks = allTasks.filter(t => {
+                const matchStatus = stFilter === 'all' || (stFilter === 'urgent' ? (t.priority === 'Cao' && t.status !== 'Hoàn thành') : t.status === stFilter);
+                const matchCat = catFilter === 'all' || t.category === catFilter;
+                const matchSearch = t.name.toLowerCase().includes(search);
+                return matchStatus && matchCat && matchSearch;
             });
-
-            const totalPages = Math.ceil(currentFilteredTasks.length / rowsPerPage);
-            if (currentPage > totalPages && totalPages > 0) {
-                currentPage = totalPages;
-            } else if (totalPages === 0) {
-                currentPage = 1;
-            } else if (currentFilteredTasks.length > 0) {
-                currentPage = 1;
-            }
-
-            renderPagination(currentFilteredTasks);
-            renderTableRows(currentFilteredTasks);
+            const maxPage = Math.ceil(filteredTasks.length / rowsPerPage) || 1;
+            if (currentPage > maxPage) currentPage = maxPage;
+            renderTable();
+            renderPagination();
         }
 
-        function updateDashboardChartsAndStats() {
-            const total = tasks.length;
-            const completed = tasks.filter(t => t.status === 'Hoàn thành').length;
-            const inProgress = tasks.filter(t => t.status === 'Đang thực hiện').length;
-            // ĐÃ THAY ĐỔI: Logic tính toán theo status mới
-            const overdue = tasks.filter(t => t.status === 'Chưa thực hiện').length;
+        function renderTable() {
+            const tbody = document.getElementById('taskTableBody');
+            tbody.innerHTML = '';
+            const start = (currentPage - 1) * rowsPerPage;
+            const pageData = filteredTasks.slice(start, start + rowsPerPage);
+            if (!window.tasks || window.tasks.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="text-center py-5 text-muted">Dữ liệu trống. Hãy bấm "Thêm Việc" để bắt đầu.</td></tr>`;
+                return;
+            }
+            if (pageData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="text-center py-5 text-muted">Không tìm thấy kết quả phù hợp</td></tr>`;
+                return;
+            }
+            pageData.forEach(t => {
+                let daysBadge = '';
+                const isCompleted = t.status === 'Hoàn thành';
 
+                if (t.status === 'Chưa thực hiện') daysBadge = '';
+                else if (isCompleted) daysBadge = `<span class="badge rounded-pill text-bg-success">Đã xong</span>`;
+                else if (t.daysLeft < 0) daysBadge = `<span class="badge rounded-pill text-bg-danger">Quá ${Math.abs(t.daysLeft)} ngày</span>`;
+                else if (t.daysLeft === 0) daysBadge = `<span class="badge rounded-pill text-bg-warning text-dark">Hạn chót hôm nay</span>`;
+                else daysBadge = `<span class="fw-bold text-success">Còn ${t.daysLeft} ngày</span>`;
+
+                const tr = document.createElement('tr');
+                tr.dataset.id = t.id;
+                if (isCompleted) {
+                    tr.classList.add('table-secondary', 'opacity-75');
+                }
+
+                const editAttr = isCompleted ? '' : `onclick="editCell(this, 'name')"`;
+                const getEditAttr = (field) => isCompleted ? '' : `onclick="editCell(this, '${field}')"`;
+                const getCellClass = () => `editable-cell ${isCompleted ? 'locked' : ''}`;
+
+                tr.innerHTML = `
+                    <td class="fw-bold ${getCellClass()} ps-4" ${getEditAttr('name')}>${t.name}</td>
+                    <td class="${getCellClass()}" ${getEditAttr('category')}><span class="badge" style="background:${getCategoryColor(t.category)}">${t.category}</span></td>
+                    <td><span class="badge text-bg-${BASE_COLORS.priority[t.priority] || 'secondary'}">${t.priority}</span></td>
+                    <td class="text-muted small ${getCellClass()}" ${getEditAttr('createdDate')}>${t.createdDate || '-'}</td>
+                    <td class="text-center ${getCellClass()}" ${getEditAttr('duration')}>${t.duration} ngày</td>
+                    <td class="${getCellClass()}" ${getEditAttr('status')}><span class="badge text-bg-${BASE_COLORS.status[t.status] || 'secondary'}">${t.status}</span></td>
+                    <td class="text-muted fw-bold">${t.deadline}</td>
+                    <td>${daysBadge}</td>
+                    <td class="text-muted small fst-italic ${getCellClass()}" ${getEditAttr('note')}>${t.note || ''}</td>
+                    <td class="text-end pe-4">
+                        <button class="btn btn-outline-danger btn-sm rounded-circle" onclick="confirmDelete('${t.id}')"><i class="bi bi-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.editCell = function (cell, field) {
+            if (cell.classList.contains('locked') || cell.querySelector('input, select')) return;
+            const row = cell.closest('tr');
+            const taskId = row.dataset.id;
+            const task = (window.tasks || []).find(t => t.id === taskId);
+            if (!task) return;
+            const oldVal = task[field];
+            const oldHtml = cell.innerHTML;
+            let input;
+            if (field === 'status') {
+                input = document.createElement('select'); input.className = 'form-select form-select-sm shadow-sm';
+                Object.keys(BASE_COLORS.status).forEach(opt => input.add(new Option(opt, opt, false, opt === oldVal)));
+            } else if (field === 'category') {
+                input = document.createElement('select'); input.className = 'form-select form-select-sm shadow-sm';
+                const cats = new Set(['Giảng dạy', 'Họp', 'Coi thi', 'Việc cá nhân']);
+                if (window.tasks) window.tasks.forEach(t => cats.add(t.category));
+                cats.forEach(opt => input.add(new Option(opt, opt, false, opt === oldVal)));
+            } else if (field === 'createdDate') {
+                input = document.createElement('input'); input.type = 'date'; input.className = 'form-control form-control-sm'; input.value = oldVal;
+            } else if (field === 'duration') {
+                input = document.createElement('input'); input.type = 'number'; input.className = 'form-control form-control-sm'; input.value = oldVal || 0; input.style.width = '70px';
+            } else {
+                input = document.createElement('input'); input.type = 'text'; input.className = 'form-control form-control-sm'; input.value = oldVal || '';
+            }
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            input.focus();
+            const save = async () => {
+                const newVal = input.value;
+                if (newVal !== oldVal) {
+                    try {
+                        const updates = { [field]: newVal };
+
+                        if (field === 'status' && newVal === 'Hoàn thành') {
+                            updates.duration = 0;
+                            updates.priority = 'Thấp';
+                            updates.deadline = task.createdDate;
+                        } else {
+                            if (field === 'duration') updates.deadline = addDays(task.createdDate, newVal);
+                            if (field === 'createdDate') updates.deadline = addDays(newVal, task.duration || 0);
+                        }
+
+                        await window.dbActions.update(taskId, updates);
+                        showToast('Đã cập nhật thành công!', 'success');
+                    } catch (e) {
+                        showToast('Lỗi cập nhật: ' + e.message, 'danger');
+                        cell.innerHTML = oldHtml;
+                    }
+                } else {
+                    cell.innerHTML = oldHtml;
+                }
+            };
+            input.onblur = save;
+            input.onkeydown = (e) => { if (e.key === 'Enter') { input.blur(); } };
+        };
+
+        const addTaskModalEl = document.getElementById('addTaskModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const saveBtn = document.getElementById('saveTaskBtn');
+
+        window.toggleCustomCategory = function (select) {
+            const input = document.getElementById('customCategoryInput');
+            if (select.value === '__other__') {
+                input.classList.remove('d-none');
+                input.focus();
+            } else {
+                input.classList.add('d-none');
+            }
+        }
+
+        window.openTaskModal = function (taskId = null) {
+            document.getElementById('addTaskForm').reset();
+            document.getElementById('customCategoryInput').classList.add('d-none');
+            const cats = new Set(['Giảng dạy', 'Họp', 'Coi thi', 'Việc cá nhân']);
+            if (window.tasks) window.tasks.forEach(t => cats.add(t.category));
+            updateModalDropdown(cats);
+
+            if (taskId) {
+                const task = window.tasks.find(t => t.id === taskId);
+                if (task) {
+                    document.getElementById('editTaskId').value = taskId;
+                    document.getElementById('taskName').value = task.name;
+                    const select = document.getElementById('taskCategory');
+                    if ([...select.options].some(o => o.value === task.category)) {
+                        select.value = task.category;
+                    } else {
+                        select.value = '__other__';
+                        document.getElementById('customCategoryInput').value = task.category;
+                        document.getElementById('customCategoryInput').classList.remove('d-none');
+                    }
+                    document.getElementById('taskStatus').value = task.status;
+                    document.getElementById('taskStartDate').value = task.createdDate;
+                    document.getElementById('taskDuration').value = task.duration;
+                    document.getElementById('taskNote').value = task.note;
+                    modalTitle.innerText = "Cập Nhật Công Việc";
+                    saveBtn.innerText = "Lưu Thay Đổi";
+                }
+            } else {
+                document.getElementById('editTaskId').value = '';
+                document.getElementById('taskStartDate').value = new Date().toISOString().split('T')[0];
+                document.getElementById('taskCategory').value = 'Giảng dạy';
+                modalTitle.innerText = "Thêm Công Việc Mới";
+                saveBtn.innerText = "Thêm Công Việc";
+            }
+            bootstrap.Modal.getOrCreateInstance(addTaskModalEl).show();
+        }
+
+        const detailModalEl = document.getElementById('taskDetailModal');
+        window.openTaskDetail = function (taskId) {
+            const task = (window.tasks || []).find(t => t.id === taskId);
+            if (!task) return;
+            document.getElementById('viewTaskName').innerText = task.name;
+            const catBadge = document.getElementById('viewTaskCategory');
+            catBadge.innerText = task.category;
+            catBadge.style.backgroundColor = getCategoryColor(task.category);
+            const priBadge = document.getElementById('viewTaskPriority');
+            priBadge.innerText = `Ưu tiên: ${task.priority}`;
+            priBadge.className = `badge rounded-pill text-bg-${BASE_COLORS.priority[task.priority] || 'secondary'}`;
+            const statusBadge = document.getElementById('viewTaskStatus');
+            statusBadge.innerText = task.status;
+            statusBadge.className = `badge rounded-pill text-bg-${BASE_COLORS.status[task.status] || 'secondary'}`;
+            document.getElementById('viewTaskStartDate').innerText = task.createdDate;
+            document.getElementById('viewTaskDeadline').innerText = task.deadline;
+            document.getElementById('viewTaskNote').innerText = task.note || "Không có ghi chú.";
+            bootstrap.Modal.getOrCreateInstance(detailModalEl).show();
+        }
+
+        window.handleTaskSubmit = async () => {
+            const taskId = document.getElementById('editTaskId').value;
+            const startDate = document.getElementById('taskStartDate').value;
+            let duration = document.getElementById('taskDuration').value || 0;
+
+            let status = document.getElementById('taskStatus').value;
+            let priority = 'Trung bình';
+
+            if (status === 'Hoàn thành') {
+                duration = 0;
+                priority = 'Thấp';
+            }
+
+            const deadline = addDays(startDate, duration);
+
+            let category = document.getElementById('taskCategory').value;
+            if (category === '__other__') {
+                category = document.getElementById('customCategoryInput').value.trim();
+                if (!category) return alert("Vui lòng nhập tên danh mục mới");
+            }
+
+            const taskData = {
+                name: document.getElementById('taskName').value,
+                category: category,
+                priority: priority,
+                status: status,
+                duration: duration,
+                createdDate: startDate,
+                deadline: deadline,
+                note: document.getElementById('taskNote').value
+            };
+
+            if (!taskData.name) return alert("Vui lòng nhập tên công việc");
+
+            try {
+                if (window.dbActions) {
+                    if (taskId) {
+                        await window.dbActions.update(taskId, taskData);
+                        showToast('Đã cập nhật công việc!', 'success');
+                    } else {
+                        await window.dbActions.add(taskData);
+                        showToast('Đã thêm công việc mới!', 'success');
+                    }
+
+                    if (document.getElementById('taskCategory').value === '__other__') {
+                        document.getElementById('taskCategory').value = 'Giảng dạy';
+                        document.getElementById('customCategoryInput').classList.add('d-none');
+                    }
+                    const modal = bootstrap.Modal.getInstance(addTaskModalEl);
+                    if (modal) modal.hide();
+                } else {
+                    alert("Chưa kết nối được Database.");
+                }
+            } catch (e) {
+                showToast('Lỗi: ' + e.message, 'danger');
+            }
+        };
+
+        let deleteId = null;
+        const delModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        window.confirmDelete = (id) => { deleteId = id; delModal.show(); };
+        document.getElementById('confirmDeleteBtn').onclick = async () => {
+            if (deleteId) {
+                await window.dbActions.delete(deleteId);
+                delModal.hide();
+                showToast('Đã xóa công việc', 'success');
+            }
+        };
+
+        function updateCharts() {
+            const allTasks = window.tasks || [];
+            if (allTasks.length === 0 && typeof tasks === 'undefined') return;
+            const total = allTasks.length;
+            const completed = allTasks.filter(t => t.status === 'Hoàn thành').length;
+            const inProgress = allTasks.filter(t => t.status === 'Đang thực hiện').length;
+            const overdue = allTasks.filter(t => t.status === 'Chưa thực hiện').length;
             document.getElementById('totalTasks').innerText = total;
             document.getElementById('completedTasks').innerText = completed;
             document.getElementById('inProgressTasks').innerText = inProgress;
             document.getElementById('overdueTasks').innerText = overdue;
 
-            // Cập nhật thông báo
-            updateNotifications();
-
             const catCounts = {};
-            Object.keys(categoryColors).forEach(k => catCounts[k] = 0);
-            tasks.forEach(t => { if (catCounts[t.category] !== undefined) catCounts[t.category]++; });
+            allTasks.forEach(t => catCounts[t.category] = (catCounts[t.category] || 0) + 1);
 
-            if (chartCategoryInstance) {
-                chartCategoryInstance.data.labels = Object.keys(catCounts);
-                chartCategoryInstance.data.datasets[0].data = Object.values(catCounts);
-                chartCategoryInstance.data.datasets[0].backgroundColor = Object.values(categoryColors);
-                chartCategoryInstance.update();
+            if (charts.cat) {
+                charts.cat.data.labels = Object.keys(catCounts);
+                charts.cat.data.datasets[0].data = Object.values(catCounts);
+                charts.cat.data.datasets[0].backgroundColor = Object.keys(catCounts).map(c => getCategoryColor(c));
+                charts.cat.update();
 
+                // CUSTOM LEGEND FOR CATEGORY CHART
                 const legendDiv = document.getElementById('categoryLegend');
-                legendDiv.innerHTML = Object.keys(catCounts).map(k =>
-                    `<div class="d-flex justify-content-between mb-1">
-                        <span><i class="bi bi-circle-fill me-2" style="color: ${categoryColors[k]}"></i>${k}</span>
-                        <span class="fw-bold">${catCounts[k]}</span>
-                    </div>`
-                ).join('');
+                legendDiv.innerHTML = '';
+                Object.keys(catCounts).forEach(catName => {
+                    const color = getCategoryColor(catName);
+                    const count = catCounts[catName];
+
+                    const item = document.createElement('div');
+                    item.className = 'chart-legend-item';
+                    item.innerHTML = `
+                        <div class="legend-label">
+                            <span class="legend-dot" style="background-color: ${color};"></span>
+                            <span class="fw-medium text-dark">${catName}</span>
+                        </div>
+                        <span class="legend-value">${count}</span>
+                    `;
+                    legendDiv.appendChild(item);
+                });
             }
 
-            if (chartCompletionInstance) {
-                chartCompletionInstance.data.datasets[0].data = [completed, inProgress, overdue];
-                chartCompletionInstance.update();
+            if (charts.status) {
+                charts.status.data.datasets[0].data = [completed, inProgress, overdue];
+                charts.status.update();
 
+                // CUSTOM LEGEND FOR COMPLETION CHART
                 const legendDiv = document.getElementById('completionLegend');
-                // ĐÃ THAY ĐỔI: Label biểu đồ
-                const labels = ['Hoàn thành', 'Đang thực hiện', 'Chưa thực hiện'];
-                const colors = ['#198754', '#0d6efd', '#dc3545'];
-                const values = [completed, inProgress, overdue];
+                legendDiv.innerHTML = '';
+                const statusData = [
+                    { label: 'Hoàn thành', color: '#198754', count: completed },
+                    { label: 'Đang thực hiện', color: '#0d6efd', count: inProgress },
+                    { label: 'Chưa thực hiện', color: '#dc3545', count: overdue }
+                ];
 
-                legendDiv.innerHTML = labels.map((l, i) =>
-                    `<div class="d-flex justify-content-between mb-1">
-                        <span><i class="bi bi-circle-fill me-2" style="color: ${colors[i]}"></i>${l}</span>
-                        <span class="fw-bold">${values[i]}</span>
-                    </div>`
-                ).join('');
+                statusData.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'chart-legend-item';
+                    div.innerHTML = `
+                        <div class="legend-label">
+                            <span class="legend-dot" style="background-color: ${item.color};"></span>
+                            <span class="fw-medium text-dark">${item.label}</span>
+                        </div>
+                        <span class="legend-value">${item.count}</span>
+                     `;
+                    legendDiv.appendChild(div);
+                });
             }
 
-            const daysMap = { 1: 'T2', 2: 'T3', 3: 'T4', 4: 'T5', 5: 'T6', 6: 'T7', 0: 'CN' };
             const dayCounts = { 'T2': 0, 'T3': 0, 'T4': 0, 'T5': 0, 'T6': 0, 'T7': 0, 'CN': 0 };
-            tasks.forEach(t => {
-                if (t.deadline) {
-                    const d = new Date(t.deadline);
-                    if (!isNaN(d) && t.status !== 'Hoàn thành') {
-                        const label = daysMap[d.getDay()];
-                        if (label) dayCounts[label]++;
-                    }
-                }
+            allTasks.forEach(t => {
+                const day = new Date(t.deadline).getDay();
+                const map = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+                if (t.status !== 'Hoàn thành') dayCounts[map[day]]++;
             });
-            if (chartWorkloadInstance) {
-                chartWorkloadInstance.data.datasets[0].data = Object.values(dayCounts);
-                chartWorkloadInstance.update();
+            if (charts.work) {
+                charts.work.data.datasets[0].data = Object.values(dayCounts);
+                charts.work.update();
             }
         }
 
-        function initCharts() {
-            Chart.defaults.font.family = "'Inter', 'Segoe UI', 'Helvetica', 'Arial', sans-serif";
+        function updateNotifications() {
+            const urgent = (window.tasks || []).filter(t => t.priority === 'Cao' && t.status !== 'Hoàn thành').sort((a, b) => a.daysLeft - b.daysLeft);
+            const badge = document.getElementById('notifyBadge');
+            const list = document.getElementById('notificationList');
+            badge.innerText = urgent.length;
+            badge.style.display = urgent.length ? 'block' : 'none';
+            list.innerHTML = '';
+            if (urgent.length === 0) {
+                list.innerHTML = '<li class="text-center p-3 text-muted">Không có việc gấp</li>';
+            } else {
+                urgent.forEach(t => {
+                    const colorClass = t.daysLeft < 0 ? 'text-danger' : 'text-warning';
+                    const timeText = t.daysLeft < 0 ? `Quá ${Math.abs(t.daysLeft)} ngày` : (t.daysLeft == 0 ? 'Hôm nay' : `Còn ${t.daysLeft} ngày`);
+                    list.innerHTML += `
+                        <div class="dropdown-item notification-item py-2 cursor-pointer" onclick="openTaskDetail('${t.id}')">
+                            <div class="fw-bold text-dark text-truncate">${t.name}</div>
+                            <div class="d-flex justify-content-between small">
+                                <span class="badge bg-secondary bg-opacity-25 text-dark">${t.status}</span>
+                                <span class="${colorClass} fw-bold">${timeText}</span>
+                            </div>
+                        </div>`;
+                });
+            }
+        }
 
-            const catCtx = document.getElementById('categoryChart').getContext('2d');
-            chartCategoryInstance = new Chart(catCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(categoryColors),
-                    datasets: [{
-                        data: [],
-                        backgroundColor: Object.values(categoryColors),
-                        borderWidth: 2,
-                        borderColor: '#fff'
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '70%' }
-            });
+        function showToast(msg, type = 'primary') {
+            const el = document.getElementById('liveToast');
+            document.getElementById('toastMsg').innerText = msg;
+            el.className = `toast align-items-center text-bg-${type} border-0`;
+            new bootstrap.Toast(el).show();
+        }
 
-            const compCtx = document.getElementById('completionChart').getContext('2d');
-            chartCompletionInstance = new Chart(compCtx, {
-                type: 'doughnut',
-                data: {
-                    // ĐÃ THAY ĐỔI: Label biểu đồ
-                    labels: ['Hoàn thành', 'Đang thực hiện', 'Chưa thực hiện'],
-                    datasets: [{
-                        data: [],
-                        backgroundColor: ['#198754', '#0d6efd', '#dc3545'],
-                        borderWidth: 2,
-                        borderColor: '#fff'
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '70%' }
-            });
+        function renderPagination() {
+            const pages = Math.ceil(filteredTasks.length / rowsPerPage) || 1;
+            const ul = document.getElementById('paginationControls');
+            let html = '';
+            for (let i = 1; i <= pages; i++) {
+                html += `<li class="page-item ${i === currentPage ? 'active' : ''}"><button class="page-link" onclick="currentPage=${i}; renderTable()">${i}</button></li>`;
+            }
+            ul.innerHTML = html;
+            document.getElementById('paginationInfo').innerText = `Trang ${currentPage}/${pages} (${filteredTasks.length} việc)`;
+        }
 
-            const workCtx = document.getElementById('workloadChart').getContext('2d');
-            chartWorkloadInstance = new Chart(workCtx, {
+        let charts = {};
+        document.addEventListener('DOMContentLoaded', () => {
+            Chart.defaults.font.family = "'Inter', sans-serif";
+            const commonOpt = { plugins: { legend: { display: false } }, cutout: '75%', responsive: true, maintainAspectRatio: false };
+
+            charts.cat = new Chart(document.getElementById('categoryChart'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], borderWidth: 0 }] }, options: commonOpt });
+            charts.status = new Chart(document.getElementById('completionChart'), { type: 'doughnut', data: { labels: ['Xong', 'Đang làm', 'Chưa làm'], datasets: [{ data: [], backgroundColor: ['#198754', '#0d6efd', '#dc3545'], borderWidth: 0 }] }, options: commonOpt });
+
+            // Workload Chart - Horizontal Bar
+            charts.work = new Chart(document.getElementById('workloadChart'), {
                 type: 'bar',
-                data: {
-                    labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
-                    datasets: [{
-                        label: 'Số công việc',
-                        data: [],
-                        backgroundColor: '#0dcaf0',
-                        borderRadius: 4
-                    }]
-                },
+                data: { labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'], datasets: [{ label: 'Việc', data: [], backgroundColor: '#0dcaf0', borderRadius: 4 }] },
                 options: {
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { beginAtZero: true, grid: { color: '#e9ecef' } },
+                        x: { grid: { color: '#f0f0f0' } },
                         y: { grid: { display: false } }
                     }
                 }
             });
-        }
 
-        // --- INIT ---
-        document.getElementById('filterStatus').addEventListener('change', applyFilters);
-        document.getElementById('filterCategory').addEventListener('change', applyFilters);
-
-        document.addEventListener('DOMContentLoaded', function () {
-            initCharts();
-            updateDashboardChartsAndStats();
-            applyFilters();
+            document.getElementById('searchInput').addEventListener('input', applyFilters);
+            document.getElementById('filterStatus').addEventListener('change', applyFilters);
+            document.getElementById('filterCategory').addEventListener('change', applyFilters);
         });
     </script>
 </body>
