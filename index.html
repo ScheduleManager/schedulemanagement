@@ -7,68 +7,55 @@
     <title>Quản Lý Công Việc</title>
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: { extend: { colors: { slate: { 850: '#1e293b', 900: '#0f172a' } } } }
-        }
-    </script>
+    <script>tailwind.config = { darkMode: 'class', theme: { extend: { colors: { slate: { 850: '#1e293b', 900: '#0f172a' } } } } }</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script type="text/javascript">
-            (function () {
-                // 👇 THAY PUBLIC KEY THẬT CỦA BẠN VÀO ĐÂY
-                emailjs.init("ixYsvgb9x6sv8PxzG");
-            })();
-    </script>
-
+    <script type="text/javascript"> (function () { emailjs.init("ixYsvgb9x6sv8PxzG"); })(); </script>
     <link rel="stylesheet" href="css/style.css">
+    <meta name="view-transition" content="same-origin" />
+
 </head>
 
 <body>
-    <header class="header-custom bg-white sticky-top z-50">
-        <div class="container py-3">
+    <header class="header-custom sticky-top z-50">
+        <div class="container py-2">
             <nav class="d-flex justify-content-between align-items-center gap-2 md:gap-4">
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2" style="min-width: 200px;">
                     <div class="bg-primary bg-opacity-10 p-2 rounded-lg text-primary"><i
                             class="bi bi-kanban-fill fs-5"></i></div>
                     <h1 class="h5 fw-bold mb-0 text-gray-800 d-none d-sm-block navbar-brand-text">Quản Lý Công Việc</h1>
                 </div>
+
                 <div class="flex-grow-1 mx-3 d-none d-md-block" style="max-width: 400px;">
-                    <div class="search-wrapper position-relative">
-                        <div class="input-group">
-                            <span class="input-group-text bg-gray-50 border-e-0"><i
-                                    class="bi bi-search text-muted"></i></span>
-                            <input type="text" id="searchInput" class="form-control border-s-0 shadow-none"
-                                placeholder="Tìm kiếm công việc..." autocomplete="off">
-                        </div>
+                    <div class="search-wrapper position-relative w-100">
+                        <i class="bi bi-search search-icon-absolute"></i>
+                        <input type="text" id="searchInput" class="form-control shadow-none"
+                            placeholder="Tìm kiếm công việc..." autocomplete="off">
                         <div id="searchSuggestions"></div>
                     </div>
                 </div>
-                <div class="d-flex align-items-center gap-2 md:gap-3">
+
+                <div class="d-flex align-items-center gap-2 md:gap-3 justify-content-end" style="min-width: 200px;">
                     <a href="calendar.html"
-                        class="btn btn-outline-secondary d-flex align-items-center gap-2 px-2 px-md-3 py-2 shadow-sm rounded-pill text-decoration-none"
-                        title="Xem lịch làm việc">
+                        class="btn btn-outline-secondary d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-pill text-decoration-none"
+                        style="height: 40px;">
                         <i class="bi bi-calendar-check"></i><span class="d-none d-md-inline">Xem Lịch</span>
                     </a>
                     <button type="button"
-                        class="btn btn-primary d-flex align-items-center gap-2 px-2 px-md-3 py-2 shadow-sm rounded-pill"
-                        onclick="openTaskModal()">
+                        class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-pill"
+                        onclick="openTaskModal()" style="height: 40px;">
                         <i class="bi bi-plus-circle-fill"></i> <span class="d-none d-sm-inline">Thêm Việc</span>
                     </button>
-                    <button id="themeToggle"
-                        class="btn btn-light btn-circle-custom border-0 shadow-sm text-warning me-2"
+                    <button id="themeToggle" class="btn btn-light btn-circle-custom border shadow-sm text-warning me-2"
                         title="Đổi giao diện"><i class="bi bi-moon-stars-fill"></i></button>
                     <div class="dropdown">
-                        <button class="btn btn-light btn-circle-custom position-relative" type="button"
+                        <button class="btn btn-light btn-circle-custom position-relative border shadow-sm" type="button"
                             data-bs-toggle="dropdown">
-                            <i class="bi bi-bell-fill text-gray-600"></i>
+                            <i class="bi bi-bell-fill text-secondary"></i>
                             <span id="notifyBadge"
                                 class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                                 style="display: none;">0</span>
@@ -77,7 +64,7 @@
                             style="width: 300px; max-width: 90vw; max-height: 400px; overflow-y: auto;">
                             <li>
                                 <h6 class="dropdown-header fw-bold text-uppercase text-danger bg-light py-2">⚠️ Cần xử
-                                    lý gấp (Ưu tiên Cao)</h6>
+                                    lý gấp</h6>
                             </li>
                             <div id="notificationList"></div>
                         </ul>
@@ -104,8 +91,7 @@
 
     <div class="container py-4 flex-grow-1">
         <div id="loginWarning" class="alert alert-warning d-none" role="alert"><i
-                class="bi bi-exclamation-circle-fill me-2"></i> Vui lòng <b>Đăng nhập bằng Google</b> để xem và quản lý
-            công việc.</div>
+                class="bi bi-exclamation-circle-fill me-2"></i> Vui lòng <b>Đăng nhập bằng Google</b> để sử dụng.</div>
         <div id="errorAlert" class="alert alert-danger d-none" role="alert"><i
                 class="bi bi-exclamation-triangle-fill me-2"></i> <span id="errorMsg"></span></div>
 
@@ -232,8 +218,8 @@
                         <h5 class="card-title fw-bold mb-3 d-flex align-items-center gap-2" style="font-size: 1rem;"><i
                                 class="bi bi-pie-chart-fill text-primary"></i> Phân bổ Danh mục</h5>
                         <div class="flex-grow-1 d-flex align-items-center justify-content-center mb-2"
-                            style="min-height: 150px;">
-                            <div style="height: 150px; width: 150px;"><canvas id="categoryChart"></canvas></div>
+                            style="min-height: 120px;">
+                            <div style="height: 120px; width: 120px;"><canvas id="categoryChart"></canvas></div>
                         </div>
                         <div id="categoryLegend" class="mt-auto small"></div>
                     </div>
@@ -243,8 +229,8 @@
                         <h5 class="card-title fw-bold mb-3 d-flex align-items-center gap-2" style="font-size: 1rem;"><i
                                 class="bi bi-activity text-success"></i> Tình trạng Công việc</h5>
                         <div class="flex-grow-1 d-flex align-items-center justify-content-center mb-2"
-                            style="min-height: 150px;">
-                            <div style="height: 150px; width: 150px;"><canvas id="completionChart"></canvas></div>
+                            style="min-height: 120px;">
+                            <div style="height: 120px; width: 120px;"><canvas id="completionChart"></canvas></div>
                         </div>
                         <div id="completionLegend" class="mt-auto small"></div>
                     </div>
@@ -253,7 +239,7 @@
                     <div class="card chart-card p-3 h-100">
                         <h5 class="card-title fw-bold mb-3 d-flex align-items-center gap-2" style="font-size: 1rem;"><i
                                 class="bi bi-bar-chart-fill text-info"></i> Khối lượng (Tuần)</h5>
-                        <div class="flex-grow-1 position-relative" style="min-height: 180px;"><canvas
+                        <div class="flex-grow-1 position-relative" style="min-height: 150px;"><canvas
                                 id="workloadChart"></canvas></div>
                     </div>
                 </div>
@@ -269,8 +255,7 @@
                         class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <form id="addTaskForm">
-                        <input type="hidden" id="editTaskId">
+                    <form id="addTaskForm"><input type="hidden" id="editTaskId">
                         <div class="mb-3"><label class="form-label fw-bold text-secondary small text-uppercase">Tên công
                                 việc</label><input type="text" class="form-control" id="taskName" required
                                 placeholder="Nhập tên công việc..."></div>
@@ -304,13 +289,7 @@
                                     oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null">
                             </div>
                         </div>
-
-                        <div class="mb-3 form-check bg-blue-50 p-3 rounded border border-blue-100">
-                            <input type="checkbox" class="form-check-input" id="sendEmailCheck" style="margin-left: 0;">
-                            <label class="form-check-label fw-bold text-primary ms-2" for="sendEmailCheck"><i
-                                    class="bi bi-envelope-fill me-1"></i> Gửi email nhắc nhở tôi</label>
-                        </div>
-
+                        <!-- [EDIT] ĐÃ XÓA CHECKBOX EMAIL THỦ CÔNG -->
                         <div class="mb-3 bg-light p-3 rounded border"><label
                                 class="form-label fw-bold text-secondary small text-uppercase mb-2">Việc cần làm
                                 (Checklist)</label>
@@ -333,7 +312,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" id="taskDetailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
@@ -409,6 +387,7 @@
             </div>
         </div>
     </div>
+
     <script type="module" src="js/firebase-config.js"></script>
     <script type="module" src="js/index.js"></script>
 </body>

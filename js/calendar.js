@@ -5,13 +5,6 @@ let unsubscribeSnapshot = null;
 window.tasks = [];
 window.calendar = null;
 
-const CATEGORIES = [
-    { id: 'Giảng dạy', name: 'Giảng dạy', color: '#0d6efd' },
-    { id: 'Họp', name: 'Họp', color: '#fd7e14' },
-    { id: 'Coi thi', name: 'Coi thi', color: '#dc3545' },
-    { id: 'Việc cá nhân', name: 'Việc cá nhân', color: '#64748b' }
-];
-
 // --- AUTH LOGIC ---
 const btnLogin = document.getElementById('btnLogin');
 const userProfile = document.getElementById('userProfile');
@@ -41,8 +34,12 @@ onAuthStateChanged(auth, user => {
                 const data = doc.data();
                 return { id: doc.id, ...data };
             });
-            const dynamicCats = new Set(['Giảng dạy', 'Họp', 'Coi thi', 'Việc cá nhân']);
-            window.tasks.forEach(t => { if (t.category) dynamicCats.add(t.category); });
+
+            const dynamicCats = new Set();
+            window.tasks.forEach(t => {
+                if (t.category && t.category.trim() !== '') dynamicCats.add(t.category);
+            });
+
             if (window.updateFilterDropdown) window.updateFilterDropdown(dynamicCats);
             if (window.updateModalDropdown) window.updateModalDropdown(dynamicCats);
             if (window.calendar) window.calendar.refetchEvents();
@@ -55,6 +52,36 @@ onAuthStateChanged(auth, user => {
 
 // --- UI LOGIC ---
 
+// [EDIT] Hàm gửi Email (Đã cập nhật kiểm tra an toàn)
+function sendEmailReminder(task, userEmail) {
+    if (!userEmail) return showToast("Không tìm thấy email người nhận", true);
+
+    // Kiểm tra thư viện EmailJS
+    if (!window.emailjs) {
+        return showToast("Lỗi: Thư viện EmailJS chưa tải xong.", true);
+    }
+
+    const templateParams = {
+        to_email: userEmail,
+        to_name: "Bạn",
+        task_name: task.name,
+        deadline: task.deadline,
+        priority: task.priority,
+        note: task.note || "Không có ghi chú"
+    };
+
+    window.emailjs.send('service_7gonw9k', 'template_6s0c89e', templateParams)
+        .then(function (response) {
+            showToast('📧 Đã TỰ ĐỘNG gửi email nhắc nhở (Việc gấp)!');
+        }, function (error) {
+            console.error('Email Failed...', error);
+            const subject = encodeURIComponent(`[NHẮC NHỞ] Việc gấp: ${task.name}`);
+            const body = encodeURIComponent(`Công việc: ${task.name}\nHạn chót: ${task.deadline}\nGhi chú: ${task.note}`);
+            window.open(`https://mail.google.com/mail/?view=cm&fs=1&su=${subject}&body=${body}`, '_blank');
+            showToast('⚠️ Mở Gmail thủ công do lỗi gửi tự động', true);
+        });
+}
+
 function getCategoryColor(catName) {
     const baseColors = {
         'Giảng dạy': '#0d6efd', 'Họp': '#fd7e14', 'Coi thi': '#dc3545', 'Việc cá nhân': '#64748b'
@@ -66,30 +93,17 @@ function getCategoryColor(catName) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    populateCategorySelects();
     initCalendar();
     setupSearch();
     setupSidebar();
 });
 
-function populateCategorySelects() {
-    const formSelect = document.getElementById('taskCategory');
-    const filterSelect = document.getElementById('categoryFilterDesktop');
-    formSelect.innerHTML = '';
-    CATEGORIES.forEach(cat => {
-        const opt = document.createElement('option');
-        opt.value = cat.id; opt.innerText = cat.name; formSelect.appendChild(opt);
-        const opt2 = document.createElement('option');
-        opt2.value = cat.id; opt2.innerText = cat.name; filterSelect.appendChild(opt2);
-    });
-    filterSelect.addEventListener('change', () => { if (window.calendar) window.calendar.refetchEvents(); });
-}
-
 window.updateFilterDropdown = function (categories) {
     const filterSelect = document.getElementById('categoryFilterDesktop');
     const currentVal = filterSelect.value;
     while (filterSelect.options.length > 1) filterSelect.remove(1);
-    categories.forEach(cat => filterSelect.add(new Option(cat, cat)));
+    const sortedCats = Array.from(categories).sort((a, b) => a.localeCompare(b));
+    sortedCats.forEach(cat => filterSelect.add(new Option(cat, cat)));
     if (Array.from(filterSelect.options).some(o => o.value === currentVal)) filterSelect.value = currentVal;
 }
 
@@ -98,7 +112,8 @@ window.updateModalDropdown = function (categories) {
     if (modalSelect.value === '__other__') return;
     const currentVal = modalSelect.value;
     modalSelect.innerHTML = '';
-    categories.forEach(cat => modalSelect.add(new Option(cat, cat)));
+    const sortedCats = Array.from(categories).sort((a, b) => a.localeCompare(b));
+    sortedCats.forEach(cat => modalSelect.add(new Option(cat, cat)));
     const otherOpt = new Option('+ Nhập danh mục mới...', '__other__');
     otherOpt.className = "fw-bold text-primary";
     modalSelect.add(otherOpt);
@@ -112,7 +127,12 @@ function initCalendar() {
         locale: 'vi',
         headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
         buttonText: { today: 'Hôm nay', month: 'Tháng', week: 'Tuần', day: 'Ngày' },
-        aspectRatio: 1.1, height: 'auto', dayMaxEvents: false, slotMinTime: '06:00:00', slotMaxTime: '22:00:00', allDaySlot: true,
+
+        // [EDIT] Quan trọng: 'auto' giúp lịch tự giãn theo nội dung, KHÔNG có thanh cuộn trong
+        height: 'auto',
+
+        dayMaxEvents: false, // Hiển thị hết sự kiện, không gộp vào "+ more"
+        slotMinTime: '06:00:00', slotMaxTime: '22:00:00', allDaySlot: true,
         events: function (info, successCallback) {
             const filterCat = document.getElementById('categoryFilterDesktop').value;
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
@@ -254,21 +274,32 @@ window.openModal = function (task = null, dateStr = null) {
     form.reset();
     customInput.classList.add('hidden');
     document.getElementById('hourDurationText').innerText = "";
-    const dynamicCats = new Set(['Giảng dạy', 'Họp', 'Coi thi', 'Việc cá nhân']);
-    if (window.tasks) window.tasks.forEach(t => { if (t.category) dynamicCats.add(t.category); });
+
+    // [EDIT] Đã xóa logic reset checkbox vì không còn checkbox
+
+    const dynamicCats = new Set();
+    if (window.tasks) window.tasks.forEach(t => { if (t.category && t.category.trim() !== '') dynamicCats.add(t.category); });
     updateModalDropdown(dynamicCats);
+
+    const catSelect = document.getElementById('taskCategory');
+    if (dynamicCats.size === 0 && catSelect.options.length > 0) {
+        catSelect.value = '__other__';
+        toggleCustomCategory(catSelect);
+    }
+
     if (task) {
         const isCompleted = task.status === 'Hoàn thành';
         title.innerText = isCompleted ? 'Chi tiết công việc (Đã hoàn thành)' : 'Cập nhật công việc';
         document.getElementById('taskId').value = task.id;
         document.getElementById('taskName').value = task.name;
-        const catSelect = document.getElementById('taskCategory');
+
         if ([...catSelect.options].some(o => o.value === task.category)) {
             catSelect.value = task.category;
         } else {
             catSelect.value = '__other__'; customInput.value = task.category;
             if (!isCompleted) customInput.classList.remove('hidden');
         }
+
         document.getElementById('taskStatus').value = task.status;
         document.getElementById('taskStartDate').value = task.createdDate || '';
         document.getElementById('taskDuration').value = task.duration || 0;
@@ -313,7 +344,14 @@ window.openModal = function (task = null, dateStr = null) {
             document.getElementById('taskEndTime').value = endH.toString().padStart(2, '0') + ":" + m.toString().padStart(2, '0');
         }
         calculateHours();
-        document.getElementById('taskCategory').value = 'Giảng dạy';
+
+        if (catSelect.options.length > 1) { // 1 option là __other__
+            catSelect.selectedIndex = 0;
+        } else {
+            catSelect.value = '__other__';
+            toggleCustomCategory(catSelect);
+        }
+
         document.getElementById('taskStatus').value = 'Đang thực hiện';
         deleteBtn.classList.add('hidden');
     }
@@ -328,20 +366,40 @@ window.saveTask = async function (e) {
     const startDate = document.getElementById('taskStartDate').value;
     let duration = parseInt(document.getElementById('taskDuration').value) || 0;
     const status = document.getElementById('taskStatus').value;
+
+    // [EDIT] Tính toán Deadline và Số ngày còn lại ngay từ đầu
+    const deadline = addDays(startDate, duration);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const deadlineDate = new Date(deadline);
+    deadlineDate.setHours(0, 0, 0, 0);
+
+    const diffTime = deadlineDate - today;
+    const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
     let priority = 'Trung bình';
     if (status === 'Chưa thực hiện' || status === 'Hoàn thành') {
         priority = 'Thấp'; if (status === 'Hoàn thành') duration = 0;
     } else {
-        const deadlineCheck = addDays(startDate, duration);
-        const daysLeft = Math.ceil((new Date(deadlineCheck) - new Date().setHours(0, 0, 0, 0)) / (1000 * 60 * 60 * 24));
+        // [EDIT] Dùng biến daysLeft đã tính ở trên
         if (daysLeft <= 3) priority = 'Cao'; else if (daysLeft >= 10) priority = 'Thấp';
     }
-    const deadline = addDays(startDate, duration);
+
     let category = document.getElementById('taskCategory').value;
     if (category === '__other__') {
         category = document.getElementById('customCategoryInput').value.trim();
         if (!category) return alert("Vui lòng nhập tên danh mục mới");
     }
+
+    // [EDIT] Logic tự động gửi Email (Bỏ check box, chỉ dựa vào ngày)
+    let isSendEmail = false;
+
+    // Nếu công việc còn <= 3 ngày và chưa hoàn thành -> TỰ ĐỘNG GỬI
+    if (daysLeft <= 3 && status !== 'Hoàn thành') {
+        isSendEmail = true;
+    }
+
     const taskData = {
         name: document.getElementById('taskName').value,
         category: category,
@@ -357,9 +415,24 @@ window.saveTask = async function (e) {
     try {
         if (window.dbActions) {
             if (id) { await window.dbActions.update(id, taskData); showToast("Đã cập nhật thành công!"); }
-            else { await window.dbActions.add(taskData); showToast("Đã thêm công việc mới!"); }
+            else {
+                await window.dbActions.add(taskData);
+                showToast("Đã thêm công việc mới!");
+
+                // [EDIT] Gửi mail Tự động
+                if (isSendEmail) {
+                    const user = auth.currentUser;
+                    if (user && user.email) {
+                        sendEmailReminder(taskData, user.email);
+                    } else {
+                        // Không hiện lỗi nếu không gửi được để tránh làm phiền
+                    }
+                }
+            }
+
             if (document.getElementById('taskCategory').value === '__other__') {
-                document.getElementById('taskCategory').value = 'Giảng dạy'; document.getElementById('customCategoryInput').classList.add('hidden');
+                document.getElementById('customCategoryInput').value = '';
+                document.getElementById('customCategoryInput').classList.add('hidden');
             }
             closeModal();
         } else { alert("Chưa kết nối DB"); }
@@ -440,3 +513,37 @@ if (themeBtn) {
         applyTheme(newTheme);
     });
 }
+// --- LOGIC CHUYỂN TRANG MƯỢT MÀ ---
+
+// 1. Khi trang vừa tải xong -> Thêm class 'loaded' để hiện dần ra
+window.addEventListener('DOMContentLoaded', () => {
+    // Timeout nhỏ để đảm bảo CSS kịp nhận diện
+    setTimeout(() => {
+        document.body.classList.add('loaded');
+    }, 50);
+});
+
+// 2. Xử lý khi bấm link chuyển trang (Fade Out)
+document.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', e => {
+        const href = link.getAttribute('href');
+
+        // Chỉ áp dụng với link nội bộ (không phải #, không phải mở tab mới)
+        if (href && !href.startsWith('#') && !href.startsWith('mailto') && link.target !== '_blank') {
+            e.preventDefault(); // Ngặn chặn chuyển trang ngay lập tức
+
+            // Nếu trình duyệt hỗ trợ View Transitions (Chrome/Edge)
+            if (document.startViewTransition) {
+                document.startViewTransition(() => {
+                    window.location.href = href;
+                });
+            } else {
+                // Fallback cho trình duyệt cũ: Mờ dần body rồi mới chuyển
+                document.body.classList.remove('loaded');
+                setTimeout(() => {
+                    window.location.href = href;
+                }, 400); // Chờ 0.4s cho hiệu ứng mờ kết thúc
+            }
+        }
+    });
+});

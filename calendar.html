@@ -4,115 +4,118 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Schedoria</title>
+    <title>Lịch Làm Việc</title>
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        slate: { 850: '#1e293b', 900: '#0f172a' }
-                    }
-                }
-            }
+            theme: { extend: { colors: { slate: { 850: '#1e293b', 900: '#0f172a' } } } }
         }
     </script>
 
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/locales/vi.global.min.js'></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Thư viện EmailJS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript"> (function () { emailjs.init("ixYsvgb9x6sv8PxzG"); })(); </script>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="css/calendar.css">
+    <meta name="view-transition" content="same-origin" />
 </head>
 
-<body class="flex flex-col h-screen text-slate-800 transition-colors duration-300">
-
-    <header class="bg-white border-b border-slate-200 z-30 shadow-sm flex-none transition-colors duration-300">
-        <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-3">
-                    <button id="menuOpenButton"
-                        class="md:hidden text-gray-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-700 btn-circle">
-                        <i class="bi bi-list text-2xl"></i>
-                    </button>
-
-                    <a href="index.html"
-                        class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 btn-circle transition"
+<body class="flex flex-col min-h-screen text-slate-800 transition-colors duration-300 bg-slate-100 dark:bg-slate-900">
+    <header class="header-custom bg-white sticky-top z-50 border-b border-slate-200">
+        <div class="container py-2">
+            <nav class="d-flex justify-content-between align-items-center gap-2 md:gap-4">
+                <div class="d-flex align-items-center gap-2" style="min-width: 200px;">
+                    <a href="index.html" class="btn btn-light btn-circle-custom shadow-sm text-secondary"
                         title="Quay lại Dashboard">
-                        <i class="bi bi-arrow-left text-xl"></i>
+                        <i class="bi bi-arrow-left"></i>
                     </a>
-
-                    <div class="bg-blue-600 p-2 rounded-lg text-white shadow-md hidden sm:block">
-                        <i class="bi bi-calendar-check-fill text-xl"></i>
+                    <div class="bg-primary bg-opacity-10 p-2 rounded-lg text-primary d-none d-sm-block">
+                        <i class="bi bi-calendar-check-fill fs-5"></i>
                     </div>
-                    <h1 class="text-xl font-bold text-slate-800 dark:text-white tracking-tight hidden sm:block">Lịch Làm
-                        Việc</h1>
+                    <h1 class="h5 fw-bold mb-0 text-gray-800 d-none d-sm-block">Lịch Làm Việc</h1>
                 </div>
 
-                <div class="flex items-center gap-3">
-                    <div class="relative hidden lg:block">
-                        <input type="text" id="searchInput" placeholder="Tìm kiếm..."
-                            class="pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-900 border-none rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-64 transition dark:text-white">
-                        <i class="bi bi-search absolute left-3.5 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                <div class="flex-grow-1 mx-3 d-none d-md-block" style="max-width: 400px;">
+                    <div class="search-wrapper position-relative w-100">
+                        <i class="bi bi-search search-icon-absolute"></i>
+                        <input type="text" id="searchInput" class="form-control shadow-none"
+                            placeholder="Tìm kiếm sự kiện..." autocomplete="off"
+                            style="border-radius: 50px; padding-left: 45px; height: 40px;">
                     </div>
+                </div>
 
-                    <div class="hidden md:block relative">
-                        <select id="categoryFilterDesktop"
-                            class="appearance-none pl-9 pr-8 py-2 bg-slate-100 dark:bg-slate-900 border-none rounded-full text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer dark:text-white">
+                <div class="d-flex align-items-center gap-2 md:gap-3 justify-content-end" style="min-width: 200px;">
+                    <div class="d-none d-md-block">
+                        <select id="categoryFilterDesktop" class="form-select rounded-pill shadow-sm"
+                            style="height: 40px; font-size: 0.9rem; border-radius: 50px;">
                             <option value="all">Tất cả phân loại</option>
                         </select>
-                        <i
-                            class="bi bi-funnel-fill absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
                     </div>
 
                     <button onclick="openModal()"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md transition flex items-center gap-2 transform active:scale-95">
-                        <i class="bi bi-plus-lg text-lg"></i> <span class="hidden sm:inline">Thêm mới</span>
+                        class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-pill"
+                        style="height: 40px;">
+                        <i class="bi bi-plus-circle-fill"></i> <span class="d-none d-sm-inline">Thêm mới</span>
                     </button>
 
                     <button onclick="exportExcel()"
-                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md transition flex items-center gap-2 transform active:scale-95">
-                        <i class="bi bi-file-earmark-excel-fill"></i> <span class="hidden sm:inline">Xuất Excel</span>
+                        class="btn btn-success d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-pill"
+                        style="height: 40px;">
+                        <i class="bi bi-file-earmark-excel-fill"></i> <span class="d-none d-sm-inline">Excel</span>
                     </button>
 
-                    <button id="themeToggle"
-                        class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-yellow-400 hover:bg-slate-200 dark:hover:bg-slate-600 btn-circle transition shadow-sm mr-2">
-                        <i class="bi bi-moon-stars-fill text-lg"></i>
+                    <button id="themeToggle" class="btn btn-light btn-circle-custom border shadow-sm text-warning me-2">
+                        <i class="bi bi-moon-stars-fill"></i>
                     </button>
 
-                    <div id="authContainer" class="ml-2">
-                        <button id="btnLogin"
-                            class="hidden text-sm bg-white border border-blue-500 text-blue-500 px-3 py-1.5 rounded-full hover:bg-blue-50 transition">Đăng
+                    <div id="authContainer" class="ml-2 relative group">
+                        <button id="btnLogin" class="hidden btn btn-outline-primary rounded-pill px-3">Đăng
                             nhập</button>
-                        <div id="userProfile" class="hidden flex items-center gap-2">
-                            <img id="userAvatar" src=""
-                                class="w-10 h-10 rounded-full border border-slate-300 dark:border-slate-600"
-                                alt="Avatar">
-                            <button id="btnLogout" class="text-xs text-red-500 hover:underline">Thoát</button>
+                        <div id="userProfile" class="hidden relative">
+                            <button class="focus:outline-none"
+                                onclick="document.getElementById('userDropdown').classList.toggle('hidden')">
+                                <img id="userAvatar" src=""
+                                    class="w-10 h-10 rounded-full border-2 border-blue-500 object-cover" alt="Avatar">
+                            </button>
+                            <div id="userDropdown"
+                                class="hidden absolute right-0 mt-2 w-32 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-100 dark:border-slate-700 z-50 py-1">
+                                <button id="btnLogout"
+                                    class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center gap-2">
+                                    <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </nav>
         </div>
     </header>
 
-    <main
-        class="flex-1 p-2 sm:p-4 bg-slate-50 dark:bg-slate-900 overflow-y-auto flex flex-col transition-colors duration-300">
-        <div
-            class="bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex-1 p-2 sm:p-4 relative transition-colors duration-300">
-            <div id="calendar"></div>
+    <main class="flex-1 p-3 flex flex-col transition-colors duration-300">
+        <div class="container p-0 flex flex-col">
+            <div
+                class="rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 relative transition-colors duration-300">
+                <div id="calendar"></div>
+            </div>
         </div>
     </main>
 
-    <footer class="bg-white border-t border-slate-200 py-4 flex-none transition-colors duration-300">
+    <footer class="bg-white border-t border-slate-200 py-3 flex-none transition-colors duration-300">
         <div class="container mx-auto px-4 text-center text-slate-500 text-sm">
-            <div class="mb-1"><span class="font-bold text-slate-800 dark:text-slate-200">Schedoria</span> &copy;
+            <div class="mb-1"><span class="font-bold text-slate-800 dark:text-slate-200">Quản Lý Công Việc</span> &copy;
                 2025</div>
             <div>Thiết kế & Phát triển với <i class="bi bi-heart-fill text-red-500 mx-1"></i> cho hiệu suất tối ưu.
             </div>
@@ -123,7 +126,6 @@
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
         <div
             class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[95%] sm:w-full max-w-2xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden scale-100 transition-all duration-300 max-h-[95vh] flex flex-col">
-
             <div
                 class="px-5 py-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-white dark:bg-slate-800 flex-none">
                 <h3 class="text-lg font-bold text-slate-800 dark:text-white" id="modalTitle">Công việc mới</h3>
@@ -131,7 +133,6 @@
                     class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 transition"><i
                         class="bi bi-x-lg"></i></button>
             </div>
-
             <div class="p-4 sm:p-5 space-y-3 overflow-y-auto flex-1 dark:text-slate-300">
                 <form id="taskForm" onsubmit="saveTask(event)">
                     <input type="hidden" id="taskId">
@@ -185,7 +186,6 @@
                                 class="form-input bg-white dark:bg-slate-800 text-slate-500 font-bold border-slate-200 dark:border-slate-600">
                         </div>
                     </div>
-
                     <div
                         class="p-3 bg-blue-50 dark:bg-slate-900/50 rounded-lg border border-blue-100 dark:border-slate-700">
                         <h4
@@ -214,6 +214,8 @@
                         </div>
                     </div>
 
+                    <!-- [EDIT] ĐÃ XÓA CHECKBOX GỬI EMAIL THỦ CÔNG -->
+
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">Ghi
                             chú</label>
@@ -222,7 +224,6 @@
                     </div>
                 </form>
             </div>
-
             <div
                 class="px-5 py-3 border-t border-slate-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 flex justify-between items-center flex-none">
                 <button type="button" id="deleteBtn" onclick="deleteTask()"
