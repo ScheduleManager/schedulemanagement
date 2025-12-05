@@ -1,0 +1,250 @@
+/* css/calendar.css */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8fafc;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-circle {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+:root {
+    --fc-border-color: #e2e8f0;
+    --fc-today-bg-color: #fffbeb;
+    --fc-page-bg-color: #ffffff;
+    --fc-neutral-bg-color: #f1f5f9;
+    --fc-list-event-hover-bg-color: #f1f5f9;
+}
+
+.fc .fc-toolbar-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.fc .fc-button {
+    border-radius: 0.5rem;
+    font-weight: 600;
+    padding: 0.5rem 1.25rem;
+    text-transform: capitalize;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+.fc-col-header-cell {
+    background-color: #f8fafc;
+    padding: 12px 0;
+}
+
+.fc-col-header-cell-cushion {
+    color: #64748b !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    text-decoration: none !important;
+}
+
+.fc-daygrid-day-number {
+    color: #475569 !important;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none !important;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 4px;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+    background-color: #3b82f6;
+    color: white !important;
+}
+
+.custom-event {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    color: white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    line-height: 1.2;
+    cursor: pointer;
+    transition: transform 0.1s, filter 0.1s;
+}
+
+.custom-event:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    z-index: 10;
+}
+
+.event-time-badge {
+    font-size: 0.7rem;
+    opacity: 0.9;
+    white-space: nowrap;
+    margin-bottom: 1px;
+    font-weight: 700;
+}
+
+.event-title-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.event-icon {
+    margin-right: 4px;
+    font-size: 0.8rem;
+}
+
+.event-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    background-color: #f8fafc;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.hidden {
+    display: none;
+}
+
+.dark body {
+    background-color: #0f172a;
+    color: #cbd5e1;
+}
+
+.dark header,
+.dark footer,
+.dark .bg-white {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+    color: #e2e8f0;
+}
+
+.dark .text-slate-800 {
+    color: #f1f5f9;
+}
+
+.dark .text-slate-700 {
+    color: #e2e8f0;
+}
+
+.dark .text-slate-600 {
+    color: #94a3b8;
+}
+
+.dark .text-slate-500 {
+    color: #64748b;
+}
+
+.dark .form-input,
+.dark input,
+.dark select,
+.dark textarea {
+    background-color: #0f172a;
+    border-color: #475569;
+    color: #e2e8f0;
+}
+
+.dark .fc {
+    --fc-border-color: #334155;
+    --fc-page-bg-color: #1e293b;
+    --fc-neutral-bg-color: #0f172a;
+    --fc-today-bg-color: #334155;
+}
+
+.dark .fc-toolbar-title {
+    color: #f1f5f9;
+}
+
+.dark .fc-col-header-cell {
+    background-color: #1e293b;
+}
+
+.dark .fc-col-header-cell-cushion {
+    color: #cbd5e1 !important;
+}
+
+.dark .fc-daygrid-day-number {
+    color: #cbd5e1 !important;
+}
+
+.dark .fc-scrollgrid {
+    border-color: #334155;
+}
+
+.dark .fc td,
+.dark .fc th {
+    border-color: #334155;
+}
+
+.dark #sidebar {
+    background-color: #1e293b;
+    border-right: 1px solid #334155;
+}
+
+.dark #sidebar a {
+    color: #e2e8f0;
+}
+
+.dark #sidebar a:hover {
+    background-color: #334155;
+}
+
+.dark .bg-slate-100 {
+    background-color: #334155;
+    color: #e2e8f0;
+}
+
+.dark .bg-slate-100:hover {
+    background-color: #475569;
+}
+
+@media (max-width: 640px) {
+    .fc .fc-toolbar {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .fc .fc-toolbar-title {
+        font-size: 1.25rem;
+    }
+
+    .fc-col-header-cell-cushion {
+        font-size: 0.75rem !important;
+    }
+}

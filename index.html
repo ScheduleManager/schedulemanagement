@@ -8,201 +8,30 @@
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
 
-    <!-- CSS Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { colors: { slate: { 850: '#1e293b', 900: '#0f172a' } } } }
+        }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
-
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Inter', sans-serif;
-            /* Cập nhật: Sử dụng flexbox để đẩy footer xuống đáy */
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+            (function () {
+                // 👇 THAY PUBLIC KEY THẬT CỦA BẠN VÀO ĐÂY
+                emailjs.init("ixYsvgb9x6sv8PxzG");
+            })();
+    </script>
 
-        .header-custom {
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-        }
-
-        .card-stat {
-            transition: all 0.3s ease;
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .card-stat:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .chart-card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .table-custom th {
-            background-color: #f1f5f9;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            color: #64748b;
-            white-space: nowrap;
-        }
-
-        .editable-cell {
-            position: relative;
-            transition: background-color 0.2s;
-        }
-
-        .editable-cell:not(.locked) {
-            cursor: pointer;
-        }
-
-        .editable-cell:not(.locked):hover {
-            background-color: #eef2ff !important;
-        }
-
-        .editable-cell:not(.locked):hover::after {
-            content: '\f4cb';
-            font-family: 'bootstrap-icons';
-            position: absolute;
-            right: 8px;
-            font-size: 0.8rem;
-            color: #3b82f6;
-            opacity: 0.5;
-        }
-
-        .editable-cell.locked {
-            cursor: not-allowed;
-            color: #999;
-            background-color: #f8f9fa;
-        }
-
-        .page-link {
-            border: none;
-            color: #64748b;
-            margin: 0 2px;
-            border-radius: 8px !important;
-            cursor: pointer;
-        }
-
-        .page-item.active .page-link {
-            background-color: #0d6efd;
-            color: white;
-        }
-
-        .footer-fixed {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: white;
-            box-shadow: 0 -1px 3px 0 rgba(0, 0, 0, 0.1);
-            z-index: 100;
-        }
-
-        .notification-item {
-            border-bottom: 1px solid #f1f5f9;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .notification-item:hover {
-            background-color: #eef2ff;
-        }
-
-        /* Custom Legend Style for Charts */
-        .chart-legend-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.85rem;
-            color: #4b5563;
-            padding: 6px 0;
-            border-bottom: 1px dashed #f3f4f6;
-        }
-
-        .chart-legend-item:last-child {
-            border-bottom: none;
-        }
-
-        .legend-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .legend-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        .legend-value {
-            font-weight: 700;
-            color: #1f2937;
-        }
-
-        .modal-header.bg-primary {
-            background-color: #0d6efd !important;
-        }
-
-        .modal-title {
-            font-size: 1.1rem;
-        }
-
-        /* Mobile Responsive Tweaks */
-        @media (max-width: 576px) {
-            .header-custom .container {
-                padding-left: 10px;
-                padding-right: 10px;
-            }
-
-            .navbar-brand-text {
-                font-size: 1rem;
-            }
-
-            .btn-responsive-text {
-                display: none;
-            }
-
-            .table-responsive {
-                font-size: 0.85rem;
-            }
-
-            .modal-dialog {
-                margin: 0.5rem;
-            }
-
-            /* Better spacing on mobile cards */
-            .card-stat {
-                margin-bottom: 0.5rem;
-            }
-
-            /* Giảm margin bottom của các section lớn trên mobile */
-            .mb-5 {
-                margin-bottom: 1.5rem !important;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-
-    <!-- HEADER -->
     <header class="header-custom bg-white sticky-top z-50">
         <div class="container py-3">
             <nav class="d-flex justify-content-between align-items-center gap-2 md:gap-4">
@@ -211,34 +40,35 @@
                             class="bi bi-kanban-fill fs-5"></i></div>
                     <h1 class="h5 fw-bold mb-0 text-gray-800 d-none d-sm-block navbar-brand-text">Quản Lý Công Việc</h1>
                 </div>
-
                 <div class="flex-grow-1 mx-3 d-none d-md-block" style="max-width: 400px;">
-                    <div class="input-group">
-                        <span class="input-group-text bg-gray-50 border-e-0"><i
-                                class="bi bi-search text-muted"></i></span>
-                        <input type="text" id="searchInput" class="form-control border-s-0 shadow-none"
-                            placeholder="Tìm kiếm công việc...">
+                    <div class="search-wrapper position-relative">
+                        <div class="input-group">
+                            <span class="input-group-text bg-gray-50 border-e-0"><i
+                                    class="bi bi-search text-muted"></i></span>
+                            <input type="text" id="searchInput" class="form-control border-s-0 shadow-none"
+                                placeholder="Tìm kiếm công việc..." autocomplete="off">
+                        </div>
+                        <div id="searchSuggestions"></div>
                     </div>
                 </div>
-
                 <div class="d-flex align-items-center gap-2 md:gap-3">
                     <a href="calendar.html"
                         class="btn btn-outline-secondary d-flex align-items-center gap-2 px-2 px-md-3 py-2 shadow-sm rounded-pill text-decoration-none"
                         title="Xem lịch làm việc">
-                        <i class="bi bi-calendar-check"></i>
-                        <span class="d-none d-md-inline">Xem Lịch</span>
+                        <i class="bi bi-calendar-check"></i><span class="d-none d-md-inline">Xem Lịch</span>
                     </a>
-
                     <button type="button"
                         class="btn btn-primary d-flex align-items-center gap-2 px-2 px-md-3 py-2 shadow-sm rounded-pill"
                         onclick="openTaskModal()">
                         <i class="bi bi-plus-circle-fill"></i> <span class="d-none d-sm-inline">Thêm Việc</span>
                     </button>
-
+                    <button id="themeToggle"
+                        class="btn btn-light btn-circle-custom border-0 shadow-sm text-warning me-2"
+                        title="Đổi giao diện"><i class="bi bi-moon-stars-fill"></i></button>
                     <div class="dropdown">
-                        <button class="btn btn-light rounded-circle p-2 position-relative" type="button"
+                        <button class="btn btn-light btn-circle-custom position-relative" type="button"
                             data-bs-toggle="dropdown">
-                            <i class="bi bi-bell-fill fs-5 text-gray-600"></i>
+                            <i class="bi bi-bell-fill text-gray-600"></i>
                             <span id="notifyBadge"
                                 class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                                 style="display: none;">0</span>
@@ -252,17 +82,14 @@
                             <div id="notificationList"></div>
                         </ul>
                     </div>
-
                     <div id="authSection">
                         <button id="btnLogin"
-                            class="btn btn-outline-primary rounded-pill px-3 d-flex align-items-center gap-2">
-                            <i class="bi bi-google"></i> <span class="d-none d-sm-inline">Đăng nhập</span>
-                        </button>
+                            class="btn btn-outline-primary rounded-pill px-3 d-flex align-items-center gap-2"><i
+                                class="bi bi-google"></i> <span class="d-none d-sm-inline">Đăng nhập</span></button>
                         <div id="userProfile" class="d-none dropdown">
                             <a href="#" class="d-flex align-items-center text-decoration-none"
                                 data-bs-toggle="dropdown">
-                                <img id="userAvatar" src="" class="rounded-circle border border-2 border-primary"
-                                    style="width: 40px; height: 40px;">
+                                <img id="userAvatar" src="https://via.placeholder.com/40" alt="Avatar">
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow-sm mt-2">
                                 <li><a id="btnLogout" class="dropdown-item text-danger" href="#"><i
@@ -276,107 +103,84 @@
     </header>
 
     <div class="container py-4 flex-grow-1">
-        <!-- Cảnh báo chưa đăng nhập -->
-        <div id="loginWarning" class="alert alert-warning d-none" role="alert">
-            <i class="bi bi-exclamation-circle-fill me-2"></i> Vui lòng <b>Đăng nhập bằng Google</b> để xem và quản lý
-            công việc cá nhân của bạn.
-        </div>
+        <div id="loginWarning" class="alert alert-warning d-none" role="alert"><i
+                class="bi bi-exclamation-circle-fill me-2"></i> Vui lòng <b>Đăng nhập bằng Google</b> để xem và quản lý
+            công việc.</div>
+        <div id="errorAlert" class="alert alert-danger d-none" role="alert"><i
+                class="bi bi-exclamation-triangle-fill me-2"></i> <span id="errorMsg"></span></div>
 
-        <div id="errorAlert" class="alert alert-danger d-none" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i> <span id="errorMsg"></span>
-        </div>
-
-        <!-- Nội dung chính (Ẩn khi chưa login) -->
         <div id="mainContent" class="d-none">
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-                <div class="card card-stat bg-white p-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <p class="text-muted small mb-1 fw-bold text-uppercase">Tổng số</p>
-                            <h3 class="fw-bold text-dark mb-0" id="totalTasks">0</h3>
-                        </div>
-                        <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary"><i
-                                class="bi bi-layers-fill fs-5"></i></div>
-                    </div>
+            <div class="row g-4 mb-3">
+                <div class="col-lg-5 d-flex">
+                    <div id="focusTaskSection" class="w-100"></div>
                 </div>
-                <div class="card card-stat bg-white p-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <p class="text-muted small mb-1 fw-bold text-uppercase">Hoàn thành</p>
-                            <h3 class="fw-bold text-success mb-0" id="completedTasks">0</h3>
+                <div class="col-lg-7 d-flex">
+                    <div class="card border-0 shadow-sm rounded-4 w-100 overflow-hidden h-100">
+                        <div
+                            class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="fw-bold text-gray-800 mb-0"><i
+                                    class="bi bi-calendar-week text-primary me-2"></i>Tuần này</h6>
+                            <a href="calendar.html" class="text-decoration-none small fw-bold">Xem tất cả</a>
                         </div>
-                        <div class="bg-success bg-opacity-10 p-2 rounded-3 text-success"><i
-                                class="bi bi-check-circle-fill fs-5"></i></div>
-                    </div>
-                </div>
-                <div class="card card-stat bg-white p-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <p class="text-muted small mb-1 fw-bold text-uppercase">Đang thực hiện</p>
-                            <h3 class="fw-bold text-primary mb-0" id="inProgressTasks">0</h3>
+                        <div class="card-body p-0">
+                            <div id="weeklyTaskBody" class="list-group list-group-flush h-100"
+                                style="max-height: 150px; overflow-y: auto;"></div>
+                            <div id="noWeeklyTask" class="p-4 text-center text-muted d-none"><i
+                                    class="bi bi-cup-hot fs-4 d-block mb-2"></i>Tuần này rảnh rỗi</div>
                         </div>
-                        <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary"><i
-                                class="bi bi-hourglass-split fs-5"></i></div>
-                    </div>
-                </div>
-                <div class="card card-stat bg-white p-3">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <p class="text-muted small mb-1 fw-bold text-uppercase">Chưa thực hiện</p>
-                            <h3 class="fw-bold text-danger mb-0" id="overdueTasks">0</h3>
-                        </div>
-                        <div class="bg-danger bg-opacity-10 p-2 rounded-3 text-danger"><i
-                                class="bi bi-x-circle-fill fs-5"></i></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Charts Section -->
-            <div class="row g-4 mb-5">
-                <div class="col-lg-4">
-                    <div class="card chart-card p-4 h-100">
-                        <h5 class="card-title fw-bold mb-4 d-flex align-items-center gap-2"><i
-                                class="bi bi-pie-chart-fill text-primary"></i> Phân bổ Danh mục</h5>
-                        <div class="flex-grow-1 d-flex align-items-center justify-content-center mb-3"
-                            style="min-height: 200px;">
-                            <div style="height: 200px; width: 200px;"><canvas id="categoryChart"></canvas></div>
-                        </div>
-                        <div id="categoryLegend" class="mt-auto"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+                <div
+                    class="card card-stat-compact bg-white p-3 d-flex flex-row align-items-center justify-content-between">
+                    <div>
+                        <div class="stat-label text-muted">Tổng số</div>
+                        <div class="stat-value text-dark" id="totalTasks">0</div>
                     </div>
+                    <div class="icon-box-compact bg-primary bg-opacity-10 text-primary"><i
+                            class="bi bi-layers-fill"></i></div>
                 </div>
-                <div class="col-lg-4">
-                    <div class="card chart-card p-4 h-100">
-                        <h5 class="card-title fw-bold mb-4 d-flex align-items-center gap-2"><i
-                                class="bi bi-activity text-success"></i> Tình trạng Công việc</h5>
-                        <div class="flex-grow-1 d-flex align-items-center justify-content-center mb-3"
-                            style="min-height: 200px;">
-                            <div style="height: 200px; width: 200px;"><canvas id="completionChart"></canvas></div>
-                        </div>
-                        <div id="completionLegend" class="mt-auto"></div>
+                <div
+                    class="card card-stat-compact bg-white p-3 d-flex flex-row align-items-center justify-content-between">
+                    <div>
+                        <div class="stat-label text-muted">Hoàn thành</div>
+                        <div class="stat-value text-success" id="completedTasks">0</div>
                     </div>
+                    <div class="icon-box-compact bg-success bg-opacity-10 text-success"><i
+                            class="bi bi-check-circle-fill"></i></div>
                 </div>
-                <div class="col-lg-4">
-                    <div class="card chart-card p-4 h-100">
-                        <h5 class="card-title fw-bold mb-4 d-flex align-items-center gap-2"><i
-                                class="bi bi-bar-chart-fill text-info"></i> Khối lượng (Tuần)</h5>
-                        <div class="flex-grow-1 position-relative" style="min-height: 250px;"><canvas
-                                id="workloadChart"></canvas></div>
+                <div
+                    class="card card-stat-compact bg-white p-3 d-flex flex-row align-items-center justify-content-between">
+                    <div>
+                        <div class="stat-label text-muted">Đang làm</div>
+                        <div class="stat-value text-primary" id="inProgressTasks">0</div>
                     </div>
+                    <div class="icon-box-compact bg-primary bg-opacity-10 text-primary"><i
+                            class="bi bi-hourglass-split"></i></div>
+                </div>
+                <div
+                    class="card card-stat-compact bg-white p-3 d-flex flex-row align-items-center justify-content-between">
+                    <div>
+                        <div class="stat-label text-muted">Chậm tiến độ</div>
+                        <div class="stat-value text-danger" id="overdueTasks">0</div>
+                    </div>
+                    <div class="icon-box-compact bg-danger bg-opacity-10 text-danger"><i
+                            class="bi bi-exclamation-octagon-fill"></i></div>
                 </div>
             </div>
 
-            <!-- Filters & Table -->
-            <div class="card border-0 shadow-lg rounded-3 overflow-hidden mb-5">
+            <div class="card border-0 shadow-lg rounded-3 overflow-hidden mb-3">
                 <div
                     class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
-                    <h5 class="mb-0 fw-bold text-gray-800"><i class="bi bi-table text-primary me-2"></i>Danh sách công
-                        việc</h5>
+                    <h5 class="mb-0 fw-bold text-gray-800"><i class="bi bi-table text-primary me-2"></i>Tất cả công việc
+                    </h5>
                     <div class="d-flex flex-wrap gap-2 w-full md:w-auto">
                         <select id="filterStatus" class="form-select form-select-sm flex-grow-1 md:flex-grow-0"
                             style="min-width: 140px;">
                             <option value="all">Tất cả trạng thái</option>
-                            <option value="urgent" class="fw-bold text-danger">⚠️ Cần xử lý gấp (Ưu tiên Cao)</option>
+                            <option value="urgent" class="fw-bold text-danger">⚠️ Cần xử lý gấp</option>
                             <option value="Hoàn thành">Hoàn thành</option>
                             <option value="Đang thực hiện">Đang thực hiện</option>
                             <option value="Chưa thực hiện">Chưa thực hiện</option>
@@ -421,809 +225,192 @@
                     </nav>
                 </div>
             </div>
+
+            <div class="row g-4 mb-3">
+                <div class="col-lg-4">
+                    <div class="card chart-card p-3 h-100">
+                        <h5 class="card-title fw-bold mb-3 d-flex align-items-center gap-2" style="font-size: 1rem;"><i
+                                class="bi bi-pie-chart-fill text-primary"></i> Phân bổ Danh mục</h5>
+                        <div class="flex-grow-1 d-flex align-items-center justify-content-center mb-2"
+                            style="min-height: 150px;">
+                            <div style="height: 150px; width: 150px;"><canvas id="categoryChart"></canvas></div>
+                        </div>
+                        <div id="categoryLegend" class="mt-auto small"></div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card chart-card p-3 h-100">
+                        <h5 class="card-title fw-bold mb-3 d-flex align-items-center gap-2" style="font-size: 1rem;"><i
+                                class="bi bi-activity text-success"></i> Tình trạng Công việc</h5>
+                        <div class="flex-grow-1 d-flex align-items-center justify-content-center mb-2"
+                            style="min-height: 150px;">
+                            <div style="height: 150px; width: 150px;"><canvas id="completionChart"></canvas></div>
+                        </div>
+                        <div id="completionLegend" class="mt-auto small"></div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card chart-card p-3 h-100">
+                        <h5 class="card-title fw-bold mb-3 d-flex align-items-center gap-2" style="font-size: 1rem;"><i
+                                class="bi bi-bar-chart-fill text-info"></i> Khối lượng (Tuần)</h5>
+                        <div class="flex-grow-1 position-relative" style="min-height: 180px;"><canvas
+                                id="workloadChart"></canvas></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- FOOTER MỚI -->
-    <footer class="bg-white border-top py-4 mt-auto">
-        <div class="container text-center text-muted small">
-            <div class="mb-2">
-                <span class="fw-bold text-dark">Quản Lý Công Việc</span> &copy; 2025
-            </div>
-            <div>
-                Thiết kế & Phát triển với <i class="bi bi-heart-fill text-danger mx-1"></i> cho hiệu suất tối ưu.
-            </div>
-        </div>
-    </footer>
-
-    <!-- MODAL & TOAST -->
     <div class="modal fade" id="addTaskModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
                 <div class="modal-header bg-primary text-white border-0">
-                    <h5 class="modal-title fw-bold" id="modalTitle">Thêm Công Việc Mới</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                    <h5 class="modal-title fw-bold" id="modalTitle">Thêm Công Việc Mới</h5><button type="button"
+                        class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     <form id="addTaskForm">
                         <input type="hidden" id="editTaskId">
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-secondary small text-uppercase">Tên công việc</label>
-                            <input type="text" class="form-control" id="taskName" required
-                                placeholder="Nhập tên công việc...">
-                        </div>
-
+                        <div class="mb-3"><label class="form-label fw-bold text-secondary small text-uppercase">Tên công
+                                việc</label><input type="text" class="form-control" id="taskName" required
+                                placeholder="Nhập tên công việc..."></div>
                         <div class="row">
-                            <div class="col-6 mb-3">
-                                <label class="form-label fw-bold text-secondary small text-uppercase">Danh mục</label>
-                                <select class="form-select" id="taskCategory" onchange="toggleCustomCategory(this)">
+                            <div class="col-6 mb-3"><label
+                                    class="form-label fw-bold text-secondary small text-uppercase">Danh
+                                    mục</label><select class="form-select" id="taskCategory"
+                                    onchange="toggleCustomCategory(this)">
                                     <option value="__other__" class="fw-bold text-primary">+ Nhập danh mục mới...
                                     </option>
-                                </select>
-                                <input type="text" class="form-control mt-2 d-none" id="customCategoryInput"
-                                    placeholder="Nhập tên danh mục mới">
-                            </div>
-                            <div class="col-6 mb-3">
-                                <label class="form-label fw-bold text-secondary small text-uppercase">Trạng thái</label>
-                                <select class="form-select" id="taskStatus">
+                                </select><input type="text" class="form-control mt-2 d-none" id="customCategoryInput"
+                                    placeholder="Nhập tên danh mục mới"></div>
+                            <div class="col-6 mb-3"><label
+                                    class="form-label fw-bold text-secondary small text-uppercase">Trạng
+                                    thái</label><select class="form-select" id="taskStatus">
                                     <option value="Đang thực hiện">Đang thực hiện</option>
                                     <option value="Chưa thực hiện">Chưa thực hiện</option>
                                     <option value="Hoàn thành">Hoàn thành</option>
-                                </select>
-                            </div>
+                                </select></div>
                         </div>
-
                         <div class="row">
-                            <div class="col-6 mb-3">
-                                <label class="form-label fw-bold text-secondary small text-uppercase">Ngày bắt
-                                    đầu</label>
-                                <input type="date" class="form-control" id="taskStartDate" required>
+                            <div class="col-6 mb-3"><label
+                                    class="form-label fw-bold text-secondary small text-uppercase">Ngày bắt
+                                    đầu</label><input type="date" class="form-control" id="taskStartDate" required>
                             </div>
-                            <div class="col-6 mb-3">
-                                <label class="form-label fw-bold text-secondary small text-uppercase">Thời lượng
-                                    (Ngày)</label>
-                                <!-- YÊU CẦU: CHỈ NHẬP SỐ NGUYÊN -->
-                                <input type="number" class="form-control" id="taskDuration" placeholder="VD: 1"
-                                    value="1" min="0" step="1"
+                            <div class="col-6 mb-3"><label
+                                    class="form-label fw-bold text-secondary small text-uppercase">Thời lượng
+                                    (Ngày)</label><input type="number" class="form-control" id="taskDuration"
+                                    placeholder="VD: 1" value="1" min="0" step="1"
                                     onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                                     oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null">
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-secondary small text-uppercase">Ghi chú</label>
-                            <textarea class="form-control" id="taskNote" rows="3"
-                                placeholder="Nhập ghi chú..."></textarea>
+                        <div class="mb-3 form-check bg-blue-50 p-3 rounded border border-blue-100">
+                            <input type="checkbox" class="form-check-input" id="sendEmailCheck" style="margin-left: 0;">
+                            <label class="form-check-label fw-bold text-primary ms-2" for="sendEmailCheck"><i
+                                    class="bi bi-envelope-fill me-1"></i> Gửi email nhắc nhở tôi</label>
                         </div>
+
+                        <div class="mb-3 bg-light p-3 rounded border"><label
+                                class="form-label fw-bold text-secondary small text-uppercase mb-2">Việc cần làm
+                                (Checklist)</label>
+                            <div class="input-group mb-2"><input type="text" id="subtaskInput" class="form-control"
+                                    placeholder="Thêm việc nhỏ..."
+                                    onkeypress="if(event.key==='Enter'){event.preventDefault(); addSubtaskFromInput();}"><button
+                                    class="btn btn-outline-primary" type="button" onclick="addSubtaskFromInput()"><i
+                                        class="bi bi-plus-lg"></i></button></div>
+                            <ul class="list-group list-group-flush small" id="subtaskListPreview"></ul>
+                        </div>
+                        <div class="mb-3"><label class="form-label fw-bold text-secondary small text-uppercase">Ghi
+                                chú</label><textarea class="form-control" id="taskNote" rows="3"
+                                placeholder="Nhập ghi chú..."></textarea></div>
                     </form>
                 </div>
-                <div class="modal-footer border-0 pt-0 pb-4">
-                    <button type="button" class="btn btn-secondary px-4 fw-bold" data-bs-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-primary px-4 fw-bold" onclick="handleTaskSubmit()"
-                        id="saveTaskBtn">Lưu công việc</button>
-                </div>
+                <div class="modal-footer border-0 pt-0 pb-4"><button type="button"
+                        class="btn btn-secondary px-4 fw-bold" data-bs-dismiss="modal">Đóng</button><button
+                        type="button" class="btn btn-primary px-4 fw-bold" onclick="handleTaskSubmit()"
+                        id="saveTaskBtn">Lưu công việc</button></div>
             </div>
         </div>
     </div>
 
-    <!-- Detail Modal -->
     <div class="modal fade" id="taskDetailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
                 <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold text-primary fs-5 d-flex align-items-center gap-2">
-                        <i class="bi bi-info-circle-fill"></i> Chi Tiết Công Việc
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title fw-bold text-primary fs-5 d-flex align-items-center gap-2"><i
+                            class="bi bi-check2-square"></i> Quản Lý Công Việc</h5><button type="button"
+                        class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body pt-3 pb-4 px-4">
-                    <h4 class="fw-bold text-dark mb-3" id="viewTaskName" style="font-size: 1.25rem;">Tên công việc</h4>
-                    <div class="d-flex flex-wrap gap-2 mb-4">
-                        <span id="viewTaskCategory" class="badge rounded-pill" style="font-size: 0.85rem;">Danh
-                            mục</span>
-                        <span id="viewTaskPriority" class="badge rounded-pill text-dark border"
-                            style="font-size: 0.85rem; background-color: #ffc107;">Ưu tiên</span>
-                        <span id="viewTaskStatus" class="badge rounded-pill text-white"
-                            style="font-size: 0.85rem;">Trạng thái</span>
+                    <h4 class="fw-bold text-dark mb-2" id="viewTaskName" style="font-size: 1.25rem;">Tên công việc</h4>
+                    <div class="d-flex flex-wrap gap-2 mb-4"><span id="viewTaskCategory" class="badge rounded-pill">Danh
+                            mục</span><span id="viewTaskPriority" class="badge rounded-pill text-dark border">Ưu
+                            tiên</span><span id="viewTaskStatus" class="badge rounded-pill text-white">Trạng thái</span>
                     </div>
-                    <div class="row g-3 mb-4">
-                        <div class="col-6">
-                            <label class="fw-bold text-secondary small text-uppercase mb-1"
+                    <div class="mb-4 bg-light p-3 rounded border">
+                        <div class="d-flex justify-content-between align-items-center mb-2"><label
+                                class="fw-bold text-secondary small text-uppercase mb-0">Danh sách việc nhỏ</label>
+                        </div>
+                        <div class="input-group mb-2"><input type="text" id="detailSubtaskInput"
+                                class="form-control form-control-sm shadow-none" placeholder="Nhập việc cần làm..."
+                                onkeypress="if(event.key==='Enter'){event.preventDefault(); addSubtaskInDetail();}"><button
+                                class="btn btn-primary btn-sm" onclick="addSubtaskInDetail()"><i
+                                    class="bi bi-plus-lg"></i> Thêm</button></div>
+                        <div class="list-group list-group-flush bg-white rounded border-top" id="viewSubtaskList"></div>
+                    </div>
+                    <div class="row g-3 mb-2">
+                        <div class="col-6"><label class="fw-bold text-secondary small text-uppercase mb-1"
                                 style="font-size: 0.75rem;">Ngày bắt đầu</label>
                             <div class="fw-bold text-dark fs-6" id="viewTaskStartDate">...</div>
                         </div>
-                        <div class="col-6">
-                            <label class="fw-bold text-secondary small text-uppercase mb-1"
+                        <div class="col-6"><label class="fw-bold text-secondary small text-uppercase mb-1"
                                 style="font-size: 0.75rem;">Hạn chót</label>
                             <div class="fw-bold text-danger fs-6" id="viewTaskDeadline">...</div>
                         </div>
                     </div>
-                    <div class="mb-2">
-                        <label class="fw-bold text-secondary small text-uppercase mb-1" style="font-size: 0.75rem;">Ghi
-                            chú</label>
+                    <div class="mb-2"><label class="fw-bold text-secondary small text-uppercase mb-1"
+                            style="font-size: 0.75rem;">Ghi chú</label>
                         <div class="bg-light p-3 rounded text-secondary fst-italic border" id="viewTaskNote"
                             style="min-height: 60px;">Không có ghi chú.</div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pt-0">
-                    <button type="button" class="btn btn-secondary px-4 fw-bold" data-bs-dismiss="modal">Đóng</button>
-                </div>
+                <div class="modal-footer border-0 pt-0"><button type="button" class="btn btn-secondary px-4 fw-bold"
+                        data-bs-dismiss="modal">Đóng</button></div>
             </div>
         </div>
     </div>
 
+    <footer class="bg-white border-top py-3 mt-auto">
+        <div class="container text-center text-muted small">
+            <div class="mb-2"><span class="fw-bold text-dark">Quản Lý Công Việc</span> &copy; 2025</div>
+            <div>Thiết kế & Phát triển với <i class="bi bi-heart-fill text-danger mx-1"></i> cho hiệu suất tối ưu.</div>
+        </div>
+    </footer>
     <div class="modal fade" id="deleteModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-body p-4 text-center">
                     <h5 class="fw-bold mb-2">Xác nhận xóa?</h5>
                     <p class="text-muted">Hành động này sẽ xóa dữ liệu khỏi Database vĩnh viễn.</p>
-                    <div class="d-flex justify-content-center gap-2 mt-4">
-                        <button class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
-                        <button class="btn btn-danger" id="confirmDeleteBtn">Xóa ngay</button>
-                    </div>
+                    <div class="d-flex justify-content-center gap-2 mt-4"><button class="btn btn-light"
+                            data-bs-dismiss="modal">Hủy</button><button class="btn btn-danger" id="confirmDeleteBtn">Xóa
+                            ngay</button></div>
                 </div>
             </div>
         </div>
     </div>
-
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 2000;">
         <div id="liveToast" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive"
             aria-atomic="true">
             <div class="d-flex">
-                <div class="toast-body" id="toastMsg">Hello</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                <div class="toast-body" id="toastMsg">Hello</div><button type="button"
+                    class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
         </div>
     </div>
-
-    <!-- FIREBASE LOGIC -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDILs6zPfC0UdPL7crGbAot-w2vt5eCGgk",
-            authDomain: "flutter-ai-playground-c65f3.firebaseapp.com",
-            projectId: "flutter-ai-playground-c65f3",
-            storageBucket: "flutter-ai-playground-c65f3.appspot.com",
-            messagingSenderId: "932092331324",
-            appId: "1:932092331324:web:dcbb33b44b5d55a43cca39"
-        };
-
-        try {
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            const db = getFirestore(app);
-            const provider = new GoogleAuthProvider();
-
-            // YÊU CẦU: CHỌN TÀI KHOẢN GOOGLE KHI ĐĂNG NHẬP
-            provider.setCustomParameters({
-                prompt: 'select_account'
-            });
-
-            let currentUser = null;
-            let unsubscribeSnapshot = null;
-
-            const btnLogin = document.getElementById('btnLogin');
-            const userProfile = document.getElementById('userProfile');
-            const mainContent = document.getElementById('mainContent');
-            const loginWarning = document.getElementById('loginWarning');
-
-            if (btnLogin) btnLogin.addEventListener('click', () => signInWithPopup(auth, provider).catch(e => showToast(e.message, 'danger')));
-            if (document.getElementById('btnLogout')) document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
-
-            onAuthStateChanged(auth, user => {
-                currentUser = user;
-
-                // Reset khi đổi user
-                if (unsubscribeSnapshot) {
-                    unsubscribeSnapshot();
-                    unsubscribeSnapshot = null;
-                    window.tasks = [];
-                    if (window.renderApp) window.renderApp();
-                }
-
-                if (user) {
-                    // Đã login -> Hiện content, ẩn warning
-                    if (btnLogin) btnLogin.classList.add('d-none');
-                    if (userProfile) userProfile.classList.remove('d-none');
-                    if (document.getElementById('userAvatar')) document.getElementById('userAvatar').src = user.photoURL;
-                    if (mainContent) mainContent.classList.remove('d-none');
-                    if (loginWarning) loginWarning.classList.add('d-none');
-
-                    // QUAN TRỌNG: Lấy data theo UID riêng biệt
-                    const q = query(collection(db, "users", user.uid, "tasks"), orderBy("deadline"));
-
-                    unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
-                        const loadedTasks = snapshot.docs.map(doc => {
-                            const data = doc.data();
-                            const deadline = new Date(data.deadline);
-                            const today = new Date();
-                            today.setHours(0, 0, 0, 0);
-                            deadline.setHours(0, 0, 0, 0);
-                            const diffTime = deadline - today;
-                            const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                            let priority = 'Trung bình';
-                            // Fix logic: Hoàn thành hoặc Chưa thực hiện -> Thấp
-                            if (data.status === 'Chưa thực hiện' || data.status === 'Hoàn thành') {
-                                priority = 'Thấp';
-                            } else {
-                                if (daysLeft <= 3) priority = 'Cao';
-                                else if (daysLeft >= 10) priority = 'Thấp';
-                            }
-
-                            return { id: doc.id, ...data, daysLeft: daysLeft, priority: priority };
-                        });
-
-                        window.tasks = loadedTasks;
-                        if (window.renderApp) window.renderApp();
-                    }, (error) => {
-                        console.error("Lỗi Firestore:", error);
-                    });
-
-                } else {
-                    // Chưa login -> Ẩn content, hiện warning
-                    if (btnLogin) btnLogin.classList.remove('d-none');
-                    if (userProfile) userProfile.classList.add('d-none');
-                    if (mainContent) mainContent.classList.add('d-none');
-                    if (loginWarning) loginWarning.classList.remove('d-none');
-                }
-            });
-
-            window.dbActions = {
-                add: async (data) => {
-                    if (!currentUser) return alert("Vui lòng đăng nhập!");
-                    await addDoc(collection(db, "users", currentUser.uid, "tasks"), { ...data, createdAt: serverTimestamp() });
-                },
-                update: async (id, data) => {
-                    if (!currentUser) return alert("Vui lòng đăng nhập!");
-                    await updateDoc(doc(db, "users", currentUser.uid, "tasks", id), data);
-                },
-                delete: async (id) => {
-                    if (!currentUser) return alert("Vui lòng đăng nhập!");
-                    await deleteDoc(doc(db, "users", currentUser.uid, "tasks", id));
-                }
-            };
-        } catch (err) {
-            console.error("Lỗi khởi tạo:", err);
-        }
-    </script>
-
-    <!-- MAIN APP LOGIC -->
-    <script>
-        // Đảm bảo window.tasks luôn tồn tại
-        window.tasks = window.tasks || [];
-
-        // ... (Logic UI giữ nguyên như cũ) ...
-        let currentPage = 1;
-        const rowsPerPage = 10;
-        let filteredTasks = [];
-
-        const BASE_COLORS = {
-            cat: { 'Giảng dạy': '#0d6efd', 'Họp': '#fd7e14', 'Coi thi': '#dc3545', 'Việc cá nhân': '#6c757d' },
-            status: { 'Hoàn thành': 'success', 'Đang thực hiện': 'primary', 'Chưa thực hiện': 'danger' },
-            priority: { 'Cao': 'danger', 'Trung bình': 'warning', 'Thấp': 'success' }
-        };
-
-        function getCategoryColor(catName) {
-            if (BASE_COLORS.cat[catName]) return BASE_COLORS.cat[catName];
-            let hash = 0;
-            for (let i = 0; i < catName.length; i++) hash = catName.charCodeAt(i) + ((hash << 5) - hash);
-            return `hsl(${Math.abs(hash % 360)}, ${60 + (Math.abs(hash) % 20)}%, ${40 + (Math.abs(hash) % 10)}%)`;
-        }
-
-        // HÀM QUAN TRỌNG ĐÃ SỬA: Lấy tất cả danh mục (bao gồm mặc định + danh mục từ tasks)
-        // Logic: Tạo Set để lọc trùng, sau đó sort để dễ nhìn
-        function getAllCategories() {
-            const cats = new Set(['Giảng dạy', 'Họp', 'Coi thi', 'Việc cá nhân']); // Mặc định
-
-            // Kiểm tra kỹ window.tasks trước khi loop
-            if (Array.isArray(window.tasks)) {
-                window.tasks.forEach(t => {
-                    // Chỉ lấy danh mục có giá trị, loại bỏ chuỗi rỗng
-                    if (t.category && t.category.trim() !== '') {
-                        cats.add(t.category);
-                    }
-                });
-            }
-
-            // Chuyển về mảng và sắp xếp Alpha B
-            return Array.from(cats).sort((a, b) => a.localeCompare(b));
-        }
-
-        window.renderApp = function () {
-            const allCats = getAllCategories();
-            updateFilterDropdown(allCats);
-            // Không update modal dropdown ở đây nữa để tránh conflict, chỉ update khi mở modal
-            applyFilters();
-            updateCharts();
-            updateNotifications();
-        }
-
-        function updateFilterDropdown(categories) {
-            const filterSelect = document.getElementById('filterCategory');
-            const currentVal = filterSelect.value;
-            // Giữ lại option đầu tiên (Tất cả danh mục)
-            while (filterSelect.options.length > 1) filterSelect.remove(1);
-
-            categories.forEach(cat => filterSelect.add(new Option(cat, cat)));
-
-            if (Array.from(filterSelect.options).some(o => o.value === currentVal)) filterSelect.value = currentVal;
-        }
-
-        function updateModalDropdown(categories) {
-            const modalSelect = document.getElementById('taskCategory');
-
-            // Nếu đang chọn "Nhập mới", ta không reset vội để tránh mất trải nghiệm
-            // NHƯNG nếu form vừa reset xong thì value sẽ là default, ta cần reload list
-            // Để an toàn, ta luôn clear và rebuild, sau đó set lại value cũ nếu có
-
-            const currentVal = modalSelect.value;
-            modalSelect.innerHTML = ''; // Xóa sạch cũ
-
-            // Thêm các danh mục đã tìm được (đã sort)
-            categories.forEach(cat => modalSelect.add(new Option(cat, cat)));
-
-            // Thêm option nhập mới ở cuối cùng
-            const otherOpt = new Option('+ Nhập danh mục mới...', '__other__');
-            otherOpt.className = "fw-bold text-primary";
-            modalSelect.add(otherOpt);
-
-            // Cố gắng khôi phục giá trị đang chọn nếu nó vẫn còn trong list
-            // Nếu không (ví dụ mới reset form), nó sẽ tự về option đầu tiên
-            if (currentVal && currentVal !== '__other__' && categories.includes(currentVal)) {
-                modalSelect.value = currentVal;
-            } else if (currentVal === '__other__') {
-                modalSelect.value = '__other__';
-            }
-        }
-
-        function addDays(dateStr, days) {
-            const result = new Date(dateStr);
-            result.setDate(result.getDate() + parseInt(days));
-            return result.toISOString().split('T')[0];
-        }
-
-        function applyFilters() {
-            const stFilter = document.getElementById('filterStatus').value;
-            const catFilter = document.getElementById('filterCategory').value;
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            const allTasks = window.tasks || [];
-            filteredTasks = allTasks.filter(t => {
-                const matchStatus = stFilter === 'all' || (stFilter === 'urgent' ? (t.priority === 'Cao' && t.status !== 'Hoàn thành') : t.status === stFilter);
-                const matchCat = catFilter === 'all' || t.category === catFilter;
-                const matchSearch = t.name.toLowerCase().includes(search);
-                return matchStatus && matchCat && matchSearch;
-            });
-            const maxPage = Math.ceil(filteredTasks.length / rowsPerPage) || 1;
-            if (currentPage > maxPage) currentPage = maxPage;
-            renderTable();
-            renderPagination();
-        }
-
-        function renderTable() {
-            const tbody = document.getElementById('taskTableBody');
-            tbody.innerHTML = '';
-            const start = (currentPage - 1) * rowsPerPage;
-            const pageData = filteredTasks.slice(start, start + rowsPerPage);
-            if (!window.tasks || window.tasks.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="text-center py-5 text-muted">Dữ liệu trống. Hãy bấm "Thêm Việc" để bắt đầu.</td></tr>`;
-                return;
-            }
-            if (pageData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="text-center py-5 text-muted">Không tìm thấy kết quả phù hợp</td></tr>`;
-                return;
-            }
-            pageData.forEach(t => {
-                let daysBadge = '';
-                const isCompleted = t.status === 'Hoàn thành';
-
-                if (t.status === 'Chưa thực hiện') daysBadge = '';
-                else if (isCompleted) daysBadge = `<span class="badge rounded-pill text-bg-success">Đã xong</span>`;
-                else if (t.daysLeft < 0) daysBadge = `<span class="badge rounded-pill text-bg-danger">Quá ${Math.abs(t.daysLeft)} ngày</span>`;
-                else if (t.daysLeft === 0) daysBadge = `<span class="badge rounded-pill text-bg-warning text-dark">Hạn chót hôm nay</span>`;
-                else daysBadge = `<span class="fw-bold text-success">Còn ${t.daysLeft} ngày</span>`;
-
-                const tr = document.createElement('tr');
-                tr.dataset.id = t.id;
-                if (isCompleted) {
-                    tr.classList.add('table-secondary', 'opacity-75');
-                }
-
-                const getEditAttr = (field) => isCompleted ? '' : `onclick="editCell(this, '${field}')"`;
-                const getCellClass = () => `editable-cell ${isCompleted ? 'locked' : ''}`;
-
-                tr.innerHTML = `
-                    <td class="fw-bold ${getCellClass()} ps-4" ${getEditAttr('name')}>${t.name}</td>
-                    <td class="${getCellClass()}" ${getEditAttr('category')}><span class="badge" style="background:${getCategoryColor(t.category)}">${t.category}</span></td>
-                    <td><span class="badge text-bg-${BASE_COLORS.priority[t.priority] || 'secondary'}">${t.priority}</span></td>
-                    <td class="text-muted small ${getCellClass()}" ${getEditAttr('createdDate')}>${t.createdDate || '-'}</td>
-                    <td class="text-center ${getCellClass()}" ${getEditAttr('duration')}>${t.duration} ngày</td>
-                    <td class="${getCellClass()}" ${getEditAttr('status')}><span class="badge text-bg-${BASE_COLORS.status[t.status] || 'secondary'}">${t.status}</span></td>
-                    <td class="text-muted fw-bold">${t.deadline}</td>
-                    <td>${daysBadge}</td>
-                    <td class="text-muted small fst-italic ${getCellClass()}" ${getEditAttr('note')}>${t.note || ''}</td>
-                    <td class="text-end pe-4">
-                        <button class="btn btn-outline-danger btn-sm rounded-circle" onclick="confirmDelete('${t.id}')"><i class="bi bi-trash"></i></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        window.editCell = function (cell, field) {
-            if (cell.classList.contains('locked') || cell.querySelector('input, select')) return;
-            const row = cell.closest('tr');
-            const taskId = row.dataset.id;
-            const task = (window.tasks || []).find(t => t.id === taskId);
-            if (!task) return;
-            const oldVal = task[field];
-            const oldHtml = cell.innerHTML;
-            let input;
-            if (field === 'status') {
-                input = document.createElement('select'); input.className = 'form-select form-select-sm shadow-sm';
-                Object.keys(BASE_COLORS.status).forEach(opt => input.add(new Option(opt, opt, false, opt === oldVal)));
-            } else if (field === 'category') {
-                input = document.createElement('select'); input.className = 'form-select form-select-sm shadow-sm';
-                // Fix: Lấy đủ danh mục khi edit cell
-                const cats = getAllCategories();
-                cats.forEach(opt => input.add(new Option(opt, opt, false, opt === oldVal)));
-            } else if (field === 'createdDate') {
-                input = document.createElement('input'); input.type = 'date'; input.className = 'form-control form-control-sm'; input.value = oldVal;
-            } else if (field === 'duration') {
-                input = document.createElement('input');
-                input.type = 'number';
-                input.className = 'form-control form-control-sm';
-                input.value = oldVal || 0;
-                input.style.width = '70px';
-                // YÊU CẦU: CHẶN SỐ LẺ KHI SỬA NHANH
-                input.onkeypress = (e) => e.charCode >= 48 && e.charCode <= 57;
-                input.oninput = function () { this.value = Math.floor(this.value); };
-            } else {
-                input = document.createElement('input'); input.type = 'text'; input.className = 'form-control form-control-sm'; input.value = oldVal || '';
-            }
-            cell.innerHTML = '';
-            cell.appendChild(input);
-            input.focus();
-            const save = async () => {
-                const newVal = input.value;
-                if (newVal !== oldVal) {
-                    try {
-                        let processedVal = newVal;
-                        // YÊU CẦU: Ép kiểu số nguyên cho duration
-                        if (field === 'duration') processedVal = parseInt(newVal) || 0;
-
-                        const updates = { [field]: processedVal };
-
-                        if (field === 'status' && processedVal === 'Hoàn thành') {
-                            updates.duration = 0;
-                            updates.priority = 'Thấp';
-                            updates.deadline = task.createdDate;
-                        } else {
-                            if (field === 'duration') updates.deadline = addDays(task.createdDate, processedVal);
-                            if (field === 'createdDate') updates.deadline = addDays(processedVal, task.duration || 0);
-                        }
-
-                        await window.dbActions.update(taskId, updates);
-                        showToast('Đã cập nhật thành công!', 'success');
-                    } catch (e) {
-                        showToast('Lỗi cập nhật: ' + e.message, 'danger');
-                        cell.innerHTML = oldHtml;
-                    }
-                } else {
-                    cell.innerHTML = oldHtml;
-                }
-            };
-            input.onblur = save;
-            input.onkeydown = (e) => { if (e.key === 'Enter') { input.blur(); } };
-        };
-
-        const addTaskModalEl = document.getElementById('addTaskModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const saveBtn = document.getElementById('saveTaskBtn');
-
-        window.toggleCustomCategory = function (select) {
-            const input = document.getElementById('customCategoryInput');
-            if (select.value === '__other__') {
-                input.classList.remove('d-none');
-                input.focus();
-            } else {
-                input.classList.add('d-none');
-            }
-        }
-
-        window.openTaskModal = function (taskId = null) {
-            document.getElementById('addTaskForm').reset();
-            document.getElementById('customCategoryInput').classList.add('d-none');
-
-            // --- FIX DROPDOWN ---
-            // 1. Lấy tất cả danh mục hiện có từ DB (window.tasks)
-            const cats = getAllCategories();
-            // 2. Cập nhật ngay lập tức vào Dropdown trong modal
-            updateModalDropdown(cats);
-
-            if (taskId) {
-                // EDIT MODE
-                const task = window.tasks.find(t => t.id === taskId);
-                if (task) {
-                    document.getElementById('editTaskId').value = taskId;
-                    document.getElementById('taskName').value = task.name;
-                    const select = document.getElementById('taskCategory');
-
-                    // Kiểm tra xem danh mục của task này có trong list không (vừa update xong)
-                    if ([...select.options].some(o => o.value === task.category)) {
-                        select.value = task.category;
-                    } else {
-                        // Trường hợp cực hiếm: task có danh mục nhưng vì lý do nào đó getAllCategories bỏ qua
-                        // Hoặc dữ liệu cũ bị lỗi, ta force hiện ô nhập
-                        select.value = '__other__';
-                        document.getElementById('customCategoryInput').value = task.category;
-                        document.getElementById('customCategoryInput').classList.remove('d-none');
-                    }
-
-                    document.getElementById('taskStatus').value = task.status;
-                    document.getElementById('taskStartDate').value = task.createdDate;
-                    document.getElementById('taskDuration').value = task.duration;
-                    document.getElementById('taskNote').value = task.note;
-                    modalTitle.innerText = "Cập Nhật Công Việc";
-                    saveBtn.innerText = "Lưu Thay Đổi";
-                }
-            } else {
-                // ADD MODE
-                document.getElementById('editTaskId').value = '';
-                document.getElementById('taskStartDate').value = new Date().toISOString().split('T')[0];
-
-                // Mặc định chọn cái đầu tiên (thường là 'Coi thi' do sort Alpha, hoặc 'Giảng dạy' nếu ta muốn)
-                // Ở đây ta để mặc định là option đầu tiên trong danh sách cats
-                const select = document.getElementById('taskCategory');
-                if (select.options.length > 0) {
-                    select.selectedIndex = 0;
-                }
-
-                modalTitle.innerText = "Thêm Công Việc Mới";
-                saveBtn.innerText = "Thêm Công Việc";
-            }
-            bootstrap.Modal.getOrCreateInstance(addTaskModalEl).show();
-        }
-
-        const detailModalEl = document.getElementById('taskDetailModal');
-        window.openTaskDetail = function (taskId) {
-            const task = (window.tasks || []).find(t => t.id === taskId);
-            if (!task) return;
-            document.getElementById('viewTaskName').innerText = task.name;
-            const catBadge = document.getElementById('viewTaskCategory');
-            catBadge.innerText = task.category;
-            catBadge.style.backgroundColor = getCategoryColor(task.category);
-            const priBadge = document.getElementById('viewTaskPriority');
-            priBadge.innerText = `Ưu tiên: ${task.priority}`;
-            priBadge.className = `badge rounded-pill text-bg-${BASE_COLORS.priority[task.priority] || 'secondary'}`;
-            const statusBadge = document.getElementById('viewTaskStatus');
-            statusBadge.innerText = task.status;
-            statusBadge.className = `badge rounded-pill text-bg-${BASE_COLORS.status[task.status] || 'secondary'}`;
-            document.getElementById('viewTaskStartDate').innerText = task.createdDate;
-            document.getElementById('viewTaskDeadline').innerText = task.deadline;
-            document.getElementById('viewTaskNote').innerText = task.note || "Không có ghi chú.";
-            bootstrap.Modal.getOrCreateInstance(detailModalEl).show();
-        }
-
-        window.handleTaskSubmit = async () => {
-            const taskId = document.getElementById('editTaskId').value;
-            const startDate = document.getElementById('taskStartDate').value;
-
-            // YÊU CẦU: LẤY SỐ NGUYÊN
-            let duration = parseInt(document.getElementById('taskDuration').value) || 0;
-
-            let status = document.getElementById('taskStatus').value;
-            let priority = 'Trung bình';
-
-            if (status === 'Hoàn thành') {
-                duration = 0;
-                priority = 'Thấp';
-            }
-
-            const deadline = addDays(startDate, duration);
-
-            let category = document.getElementById('taskCategory').value;
-            if (category === '__other__') {
-                category = document.getElementById('customCategoryInput').value.trim();
-                if (!category) return alert("Vui lòng nhập tên danh mục mới");
-            }
-
-            const taskData = {
-                name: document.getElementById('taskName').value,
-                category: category,
-                priority: priority,
-                status: status,
-                duration: duration,
-                createdDate: startDate,
-                deadline: deadline,
-                note: document.getElementById('taskNote').value
-            };
-
-            if (!taskData.name) return alert("Vui lòng nhập tên công việc");
-
-            try {
-                if (window.dbActions) {
-                    if (taskId) {
-                        await window.dbActions.update(taskId, taskData);
-                        showToast('Đã cập nhật công việc!', 'success');
-                    } else {
-                        await window.dbActions.add(taskData);
-                        showToast('Đã thêm công việc mới!', 'success');
-                    }
-
-                    if (document.getElementById('taskCategory').value === '__other__') {
-                        // Reset lại dropdown sau khi thêm thành công để UX tốt hơn
-                        document.getElementById('taskCategory').value = getAllCategories()[0] || 'Giảng dạy';
-                        document.getElementById('customCategoryInput').classList.add('d-none');
-                    }
-                    const modal = bootstrap.Modal.getInstance(addTaskModalEl);
-                    if (modal) modal.hide();
-                } else {
-                    alert("Chưa kết nối được Database.");
-                }
-            } catch (e) {
-                showToast('Lỗi: ' + e.message, 'danger');
-            }
-        };
-
-        let deleteId = null;
-        const delModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-        window.confirmDelete = (id) => { deleteId = id; delModal.show(); };
-        document.getElementById('confirmDeleteBtn').onclick = async () => {
-            if (deleteId) {
-                await window.dbActions.delete(deleteId);
-                delModal.hide();
-                showToast('Đã xóa công việc', 'success');
-            }
-        };
-
-        function updateCharts() {
-            const allTasks = window.tasks || [];
-            if (allTasks.length === 0 && typeof tasks === 'undefined') return;
-            const total = allTasks.length;
-            const completed = allTasks.filter(t => t.status === 'Hoàn thành').length;
-            const inProgress = allTasks.filter(t => t.status === 'Đang thực hiện').length;
-            const overdue = allTasks.filter(t => t.status === 'Chưa thực hiện').length;
-            document.getElementById('totalTasks').innerText = total;
-            document.getElementById('completedTasks').innerText = completed;
-            document.getElementById('inProgressTasks').innerText = inProgress;
-            document.getElementById('overdueTasks').innerText = overdue;
-            const catCounts = {};
-            allTasks.forEach(t => catCounts[t.category] = (catCounts[t.category] || 0) + 1);
-            if (charts.cat) {
-                charts.cat.data.labels = Object.keys(catCounts);
-                charts.cat.data.datasets[0].data = Object.values(catCounts);
-                charts.cat.data.datasets[0].backgroundColor = Object.keys(catCounts).map(c => getCategoryColor(c));
-                charts.cat.update();
-
-                const legendDiv = document.getElementById('categoryLegend');
-                legendDiv.innerHTML = '';
-                Object.keys(catCounts).forEach(catName => {
-                    const color = getCategoryColor(catName);
-                    const count = catCounts[catName];
-                    const item = document.createElement('div');
-                    item.className = 'chart-legend-item';
-                    item.innerHTML = `
-                        <div class="legend-label">
-                            <span class="legend-dot" style="background-color: ${color};"></span>
-                            <span class="fw-medium text-dark">${catName}</span>
-                        </div>
-                        <span class="legend-value">${count}</span>
-                    `;
-                    legendDiv.appendChild(item);
-                });
-            }
-            if (charts.status) {
-                charts.status.data.datasets[0].data = [completed, inProgress, overdue];
-                charts.status.update();
-
-                const legendDiv = document.getElementById('completionLegend');
-                legendDiv.innerHTML = '';
-                const statusData = [
-                    { label: 'Hoàn thành', color: '#198754', count: completed },
-                    { label: 'Đang thực hiện', color: '#0d6efd', count: inProgress },
-                    { label: 'Chưa thực hiện', color: '#dc3545', count: overdue }
-                ];
-                statusData.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'chart-legend-item';
-                    div.innerHTML = `
-                        <div class="legend-label">
-                            <span class="legend-dot" style="background-color: ${item.color};"></span>
-                            <span class="fw-medium text-dark">${item.label}</span>
-                        </div>
-                        <span class="legend-value">${item.count}</span>
-                     `;
-                    legendDiv.appendChild(div);
-                });
-            }
-            const dayCounts = { 'T2': 0, 'T3': 0, 'T4': 0, 'T5': 0, 'T6': 0, 'T7': 0, 'CN': 0 };
-            allTasks.forEach(t => {
-                const day = new Date(t.deadline).getDay();
-                const map = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-                if (t.status !== 'Hoàn thành') dayCounts[map[day]]++;
-            });
-            if (charts.work) {
-                charts.work.data.datasets[0].data = Object.values(dayCounts);
-                charts.work.update();
-            }
-        }
-
-        function updateNotifications() {
-            const urgent = (window.tasks || []).filter(t => t.priority === 'Cao' && t.status !== 'Hoàn thành').sort((a, b) => a.daysLeft - b.daysLeft);
-            const badge = document.getElementById('notifyBadge');
-            const list = document.getElementById('notificationList');
-            badge.innerText = urgent.length;
-            badge.style.display = urgent.length ? 'block' : 'none';
-            list.innerHTML = '';
-            if (urgent.length === 0) {
-                list.innerHTML = '<li class="text-center p-3 text-muted">Không có việc gấp</li>';
-            } else {
-                urgent.forEach(t => {
-                    const colorClass = t.daysLeft < 0 ? 'text-danger' : 'text-warning';
-                    const timeText = t.daysLeft < 0 ? `Quá ${Math.abs(t.daysLeft)} ngày` : (t.daysLeft == 0 ? 'Hôm nay' : `Còn ${t.daysLeft} ngày`);
-                    list.innerHTML += `
-                        <div class="dropdown-item notification-item py-2 cursor-pointer" onclick="openTaskDetail('${t.id}')">
-                            <div class="fw-bold text-dark text-truncate">${t.name}</div>
-                            <div class="d-flex justify-content-between small">
-                                <span class="badge bg-secondary bg-opacity-25 text-dark">${t.status}</span>
-                                <span class="${colorClass} fw-bold">${timeText}</span>
-                            </div>
-                        </div>`;
-                });
-            }
-        }
-
-        function showToast(msg, type = 'primary') {
-            const el = document.getElementById('liveToast');
-            document.getElementById('toastMsg').innerText = msg;
-            el.className = `toast align-items-center text-bg-${type} border-0`;
-            new bootstrap.Toast(el).show();
-        }
-
-        function renderPagination() {
-            const pages = Math.ceil(filteredTasks.length / rowsPerPage) || 1;
-            const ul = document.getElementById('paginationControls');
-            let html = '';
-            for (let i = 1; i <= pages; i++) {
-                html += `<li class="page-item ${i === currentPage ? 'active' : ''}"><button class="page-link" onclick="currentPage=${i}; renderTable()">${i}</button></li>`;
-            }
-            ul.innerHTML = html;
-            document.getElementById('paginationInfo').innerText = `Trang ${currentPage}/${pages} (${filteredTasks.length} việc)`;
-        }
-
-        let charts = {};
-        document.addEventListener('DOMContentLoaded', () => {
-            Chart.defaults.font.family = "'Inter', sans-serif";
-            const commonOpt = { plugins: { legend: { display: false } }, cutout: '75%', responsive: true, maintainAspectRatio: false };
-            charts.cat = new Chart(document.getElementById('categoryChart'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], borderWidth: 0 }] }, options: commonOpt });
-            charts.status = new Chart(document.getElementById('completionChart'), { type: 'doughnut', data: { labels: ['Xong', 'Đang làm', 'Chưa làm'], datasets: [{ data: [], backgroundColor: ['#198754', '#0d6efd', '#dc3545'], borderWidth: 0 }] }, options: commonOpt });
-            charts.work = new Chart(document.getElementById('workloadChart'), {
-                type: 'bar',
-                data: { labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'], datasets: [{ label: 'Việc', data: [], backgroundColor: '#0dcaf0', borderRadius: 4 }] },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { grid: { color: '#f0f0f0' } },
-                        y: { grid: { display: false } }
-                    }
-                }
-            });
-
-            document.getElementById('searchInput').addEventListener('input', applyFilters);
-            document.getElementById('filterStatus').addEventListener('change', applyFilters);
-            document.getElementById('filterCategory').addEventListener('change', applyFilters);
-        });
-    </script>
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/index.js"></script>
 </body>
 
 </html>
