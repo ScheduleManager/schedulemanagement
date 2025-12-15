@@ -1,4 +1,5 @@
-// js/calendar.js
+// js/calendar.js - LIGHT MODE ONLY
+
 import { auth, provider, signInWithPopup, signOut, onAuthStateChanged, db, collection, query, orderBy, onSnapshot } from "./firebase-config.js";
 
 let unsubscribeSnapshot = null;
@@ -32,7 +33,8 @@ onAuthStateChanged(auth, user => {
         unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
             window.tasks = snapshot.docs.map(doc => {
                 const data = doc.data();
-                return { id: doc.id, ...data };
+                const subtasks = Array.isArray(data.subtasks) ? data.subtasks : [];
+                return { id: doc.id, ...data, subtasks };
             });
 
             const dynamicCats = new Set();
@@ -52,14 +54,9 @@ onAuthStateChanged(auth, user => {
 
 // --- UI LOGIC ---
 
-// [EDIT] Hàm gửi Email (Đã cập nhật kiểm tra an toàn)
 function sendEmailReminder(task, userEmail) {
     if (!userEmail) return showToast("Không tìm thấy email người nhận", true);
-
-    // Kiểm tra thư viện EmailJS
-    if (!window.emailjs) {
-        return showToast("Lỗi: Thư viện EmailJS chưa tải xong.", true);
-    }
+    if (!window.emailjs) return showToast("Lỗi: Thư viện EmailJS chưa tải xong.", true);
 
     const templateParams = {
         to_email: userEmail,
@@ -117,6 +114,7 @@ window.updateModalDropdown = function (categories) {
     const otherOpt = new Option('+ Nhập danh mục mới...', '__other__');
     otherOpt.className = "fw-bold text-primary";
     modalSelect.add(otherOpt);
+
     if (Array.from(modalSelect.options).some(o => o.value === currentVal)) modalSelect.value = currentVal;
 }
 
@@ -127,12 +125,10 @@ function initCalendar() {
         locale: 'vi',
         headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
         buttonText: { today: 'Hôm nay', month: 'Tháng', week: 'Tuần', day: 'Ngày' },
-
-        // [EDIT] Quan trọng: 'auto' giúp lịch tự giãn theo nội dung, KHÔNG có thanh cuộn trong
         height: 'auto',
-
-        dayMaxEvents: false, // Hiển thị hết sự kiện, không gộp vào "+ more"
+        dayMaxEvents: false,
         slotMinTime: '06:00:00', slotMaxTime: '22:00:00', allDaySlot: true,
+
         events: function (info, successCallback) {
             const filterCat = document.getElementById('categoryFilterDesktop').value;
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
@@ -142,19 +138,32 @@ function initCalendar() {
                 const matchSearch = t.name && t.name.toLowerCase().includes(searchTerm);
                 return matchCat && matchSearch;
             });
+
             successCallback(filtered.map(t => {
-                let baseDate = t.deadline;
-                let startISO = baseDate;
+                const displayDate = t.deadline || t.createdDate;
+                let startISO = displayDate;
                 let endISO = null;
                 let isAllDay = true;
+
                 if (t.startTime) {
-                    startISO = `${baseDate}T${t.startTime}`;
+                    startISO = `${displayDate}T${t.startTime}`;
                     isAllDay = false;
-                    if (t.endTime) endISO = `${baseDate}T${t.endTime}`;
+                    if (t.endTime) endISO = `${displayDate}T${t.endTime}`;
                 }
-                return { id: t.id, title: t.name, start: startISO, end: endISO, allDay: isAllDay, extendedProps: { ...t } }
+
+                return {
+                    id: t.id,
+                    title: t.name,
+                    start: startISO,
+                    end: endISO,
+                    allDay: isAllDay,
+                    backgroundColor: 'transparent',
+                    borderColor: 'transparent',
+                    extendedProps: { ...t }
+                }
             }));
         },
+
         eventContent: function (arg) {
             const props = arg.event.extendedProps;
             const bgColor = getCategoryColor(props.category);
@@ -167,7 +176,7 @@ function initCalendar() {
                 timeDisplay = `<div class="event-time-badge">${props.startTime}${props.endTime ? ' - ' + props.endTime : ''}</div>`;
             }
             const today = new Date().setHours(0, 0, 0, 0);
-            const deadline = new Date(props.deadline).setHours(0, 0, 0, 0);
+            const deadline = new Date(props.deadline || props.createdDate).setHours(0, 0, 0, 0);
             let warningBadge = '';
             if (props.status !== 'Hoàn thành' && deadline === today) {
                 warningBadge = '<span class="ml-auto bg-red-500 text-white text-[10px] font-bold px-1.5 rounded animate-pulse"><i class="bi bi-alarm-fill"></i></span>';
@@ -187,23 +196,26 @@ function initCalendar() {
         },
         eventDrop: function (info) {
             const id = info.event.id;
-            const newDeadline = info.event.start.toISOString().split('T')[0];
+            const newStart = info.event.start.toISOString().split('T')[0];
             const task = (window.tasks || []).find(t => t.id === id);
+
             if (task && window.dbActions) {
-                const duration = task.duration || 0;
-                const d = new Date(newDeadline);
-                d.setDate(d.getDate() - parseInt(duration));
-                const newStartDate = d.toISOString().split('T')[0];
+                const updates = { deadline: newStart };
                 let newStartTime = null;
                 let newEndTime = null;
                 if (!info.event.allDay && info.event.start) {
                     newStartTime = info.event.start.toTimeString().substring(0, 5);
                     if (info.event.end) newEndTime = info.event.end.toTimeString().substring(0, 5);
+                    updates.startTime = newStartTime;
+                    updates.endTime = newEndTime;
                 }
-                const updates = { createdDate: newStartDate, deadline: newDeadline };
-                if (!info.event.allDay) { updates.startTime = newStartTime; updates.endTime = newEndTime; }
+
+                updates.createdDate = newStart;
+                updates.emailSent24h = false;
+                updates.emailSent4h = false;
+
                 window.dbActions.update(id, updates);
-                showToast("Đã cập nhật thời gian");
+                showToast("Đã cập nhật ngày hạn chót");
             }
         }
     });
@@ -275,8 +287,6 @@ window.openModal = function (task = null, dateStr = null) {
     customInput.classList.add('hidden');
     document.getElementById('hourDurationText').innerText = "";
 
-    // [EDIT] Đã xóa logic reset checkbox vì không còn checkbox
-
     const dynamicCats = new Set();
     if (window.tasks) window.tasks.forEach(t => { if (t.category && t.category.trim() !== '') dynamicCats.add(t.category); });
     updateModalDropdown(dynamicCats);
@@ -302,7 +312,7 @@ window.openModal = function (task = null, dateStr = null) {
 
         document.getElementById('taskStatus').value = task.status;
         document.getElementById('taskStartDate').value = task.createdDate || '';
-        document.getElementById('taskDuration').value = task.duration || 0;
+        document.getElementById('taskDuration').value = task.duration || 1;
         document.getElementById('taskDeadline').value = task.deadline || '';
         document.getElementById('taskStartTime').value = task.startTime || '';
         document.getElementById('taskEndTime').value = task.endTime || '';
@@ -327,7 +337,8 @@ window.openModal = function (task = null, dateStr = null) {
             if (dateStr.includes('T')) {
                 const parts = dateStr.split('T'); deadlineDate = parts[0]; startDate = subtractDays(deadlineDate, defaultDuration); startTime = parts[1].substring(0, 5);
             } else {
-                deadlineDate = dateStr; startDate = subtractDays(deadlineDate, defaultDuration);
+                deadlineDate = dateStr;
+                startDate = dateStr;
                 const now = new Date(); startTime = (now.getHours() + 1).toString().padStart(2, '0') + ":00";
             }
         } else {
@@ -345,7 +356,7 @@ window.openModal = function (task = null, dateStr = null) {
         }
         calculateHours();
 
-        if (catSelect.options.length > 1) { // 1 option là __other__
+        if (catSelect.options.length > 1) {
             catSelect.selectedIndex = 0;
         } else {
             catSelect.value = '__other__';
@@ -367,7 +378,6 @@ window.saveTask = async function (e) {
     let duration = parseInt(document.getElementById('taskDuration').value) || 0;
     const status = document.getElementById('taskStatus').value;
 
-    // [EDIT] Tính toán Deadline và Số ngày còn lại ngay từ đầu
     const deadline = addDays(startDate, duration);
 
     const today = new Date();
@@ -382,7 +392,6 @@ window.saveTask = async function (e) {
     if (status === 'Chưa thực hiện' || status === 'Hoàn thành') {
         priority = 'Thấp'; if (status === 'Hoàn thành') duration = 0;
     } else {
-        // [EDIT] Dùng biến daysLeft đã tính ở trên
         if (daysLeft <= 3) priority = 'Cao'; else if (daysLeft >= 10) priority = 'Thấp';
     }
 
@@ -390,14 +399,6 @@ window.saveTask = async function (e) {
     if (category === '__other__') {
         category = document.getElementById('customCategoryInput').value.trim();
         if (!category) return alert("Vui lòng nhập tên danh mục mới");
-    }
-
-    // [EDIT] Logic tự động gửi Email (Bỏ check box, chỉ dựa vào ngày)
-    let isSendEmail = false;
-
-    // Nếu công việc còn <= 3 ngày và chưa hoàn thành -> TỰ ĐỘNG GỬI
-    if (daysLeft <= 3 && status !== 'Hoàn thành') {
-        isSendEmail = true;
     }
 
     const taskData = {
@@ -410,24 +411,23 @@ window.saveTask = async function (e) {
         deadline: deadline,
         startTime: document.getElementById('taskStartTime').value,
         endTime: document.getElementById('taskEndTime').value,
-        note: document.getElementById('taskNote').value
+        note: document.getElementById('taskNote').value,
+        emailSent24h: false,
+        emailSent4h: false
     };
+
+    if (!id) {
+        taskData.subtasks = [];
+    }
+
     try {
         if (window.dbActions) {
-            if (id) { await window.dbActions.update(id, taskData); showToast("Đã cập nhật thành công!"); }
-            else {
+            if (id) {
+                await window.dbActions.update(id, taskData);
+                showToast("Đã cập nhật thành công!");
+            } else {
                 await window.dbActions.add(taskData);
                 showToast("Đã thêm công việc mới!");
-
-                // [EDIT] Gửi mail Tự động
-                if (isSendEmail) {
-                    const user = auth.currentUser;
-                    if (user && user.email) {
-                        sendEmailReminder(taskData, user.email);
-                    } else {
-                        // Không hiện lỗi nếu không gửi được để tránh làm phiền
-                    }
-                }
             }
 
             if (document.getElementById('taskCategory').value === '__other__') {
@@ -480,69 +480,26 @@ function setupSidebar() {
     if (sidebarOverlay) sidebarOverlay.addEventListener('click', close);
 }
 
-// --- DARK MODE LOGIC (Y NHƯ INDEX.JS) ---
-const themeBtn = document.getElementById('themeToggle');
-const htmlEl = document.documentElement;
-const themeIcon = themeBtn ? themeBtn.querySelector('i') : null;
-
-function applyTheme(theme) {
-    if (theme === 'dark') {
-        htmlEl.setAttribute('data-bs-theme', 'dark');
-        htmlEl.classList.add('dark');
-        if (themeIcon) {
-            themeIcon.className = 'bi bi-sun-fill';
-            // Không thay đổi class btn vì calendar dùng tailwind cứng
-        }
-    } else {
-        htmlEl.setAttribute('data-bs-theme', 'light');
-        htmlEl.classList.remove('dark');
-        if (themeIcon) {
-            themeIcon.className = 'bi bi-moon-stars-fill';
-        }
-    }
-}
-
-const savedTheme = localStorage.getItem('theme') || 'light';
-applyTheme(savedTheme);
-
-if (themeBtn) {
-    themeBtn.addEventListener('click', () => {
-        const currentTheme = htmlEl.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light';
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        localStorage.setItem('theme', newTheme);
-        applyTheme(newTheme);
-    });
-}
-// --- LOGIC CHUYỂN TRANG MƯỢT MÀ ---
-
-// 1. Khi trang vừa tải xong -> Thêm class 'loaded' để hiện dần ra
 window.addEventListener('DOMContentLoaded', () => {
-    // Timeout nhỏ để đảm bảo CSS kịp nhận diện
     setTimeout(() => {
         document.body.classList.add('loaded');
     }, 50);
 });
 
-// 2. Xử lý khi bấm link chuyển trang (Fade Out)
 document.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', e => {
         const href = link.getAttribute('href');
-
-        // Chỉ áp dụng với link nội bộ (không phải #, không phải mở tab mới)
         if (href && !href.startsWith('#') && !href.startsWith('mailto') && link.target !== '_blank') {
-            e.preventDefault(); // Ngặn chặn chuyển trang ngay lập tức
-
-            // Nếu trình duyệt hỗ trợ View Transitions (Chrome/Edge)
+            e.preventDefault();
             if (document.startViewTransition) {
                 document.startViewTransition(() => {
                     window.location.href = href;
                 });
             } else {
-                // Fallback cho trình duyệt cũ: Mờ dần body rồi mới chuyển
                 document.body.classList.remove('loaded');
                 setTimeout(() => {
                     window.location.href = href;
-                }, 400); // Chờ 0.4s cho hiệu ứng mờ kết thúc
+                }, 400);
             }
         }
     });

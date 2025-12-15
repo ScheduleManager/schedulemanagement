@@ -10,27 +10,28 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>tailwind.config = { darkMode: 'class', theme: { extend: { colors: { slate: { 850: '#1e293b', 900: '#0f172a' } } } } }</script>
+    <script>tailwind.config = { theme: { extend: { colors: { slate: { 850: '#1e293b', 900: '#0f172a' } } } } }</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript"> (function () { emailjs.init("ixYsvgb9x6sv8PxzG"); })(); </script>
     <link rel="stylesheet" href="css/style.css">
     <meta name="view-transition" content="same-origin" />
-
 </head>
 
 <body>
     <header class="header-custom sticky-top z-50">
-        <div class="container py-2">
+        <div class="container">
             <nav class="d-flex justify-content-between align-items-center gap-2 md:gap-4">
-                <div class="d-flex align-items-center gap-2" style="min-width: 200px;">
-                    <div class="bg-primary bg-opacity-10 p-2 rounded-lg text-primary"><i
-                            class="bi bi-kanban-fill fs-5"></i></div>
-                    <h1 class="h5 fw-bold mb-0 text-gray-800 d-none d-sm-block navbar-brand-text">Quản Lý Công Việc</h1>
+                <div class="d-flex align-items-center gap-2" style="min-width: 180px;">
+                    <div class="bg-primary bg-opacity-10 p-1 rounded text-primary d-flex align-items-center justify-content-center"
+                        style="width: 32px; height: 32px;">
+                        <i class="bi bi-kanban-fill fs-6"></i>
+                    </div>
+                    <h1 class="h6 fw-bold mb-0 text-gray-800 d-none d-sm-block navbar-brand-text">Quản Lý Công Việc</h1>
                 </div>
 
-                <div class="flex-grow-1 mx-3 d-none d-md-block" style="max-width: 400px;">
+                <div class="flex-grow-1 mx-3 d-none d-md-block" style="max-width: 380px;">
                     <div class="search-wrapper position-relative w-100">
                         <i class="bi bi-search search-icon-absolute"></i>
                         <input type="text" id="searchInput" class="form-control shadow-none"
@@ -39,47 +40,43 @@
                     </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-2 md:gap-3 justify-content-end" style="min-width: 200px;">
+                <div class="d-flex align-items-center gap-2 justify-content-end" style="min-width: 200px;">
                     <a href="calendar.html"
-                        class="btn btn-outline-secondary d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-pill text-decoration-none"
-                        style="height: 40px;">
-                        <i class="bi bi-calendar-check"></i><span class="d-none d-md-inline">Xem Lịch</span>
+                        class="btn btn-outline-secondary btn-action-custom rounded-pill text-decoration-none shadow-sm">
+                        <i class="bi bi-calendar-check me-2"></i><span class="d-none d-lg-inline">Xem Lịch</span>
                     </a>
-                    <button type="button"
-                        class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-pill"
-                        onclick="openTaskModal()" style="height: 40px;">
-                        <i class="bi bi-plus-circle-fill"></i> <span class="d-none d-sm-inline">Thêm Việc</span>
+                    <button type="button" class="btn btn-primary btn-action-custom rounded-pill shadow-sm"
+                        onclick="openTaskModal()">
+                        <i class="bi bi-plus-circle-fill me-2"></i><span>Thêm Việc</span>
                     </button>
-                    <button id="themeToggle" class="btn btn-light btn-circle-custom border shadow-sm text-warning me-2"
-                        title="Đổi giao diện"><i class="bi bi-moon-stars-fill"></i></button>
                     <div class="dropdown">
-                        <button class="btn btn-light btn-circle-custom position-relative border shadow-sm" type="button"
+                        <button class="btn btn-circle-custom shadow-sm position-relative" type="button"
                             data-bs-toggle="dropdown">
-                            <i class="bi bi-bell-fill text-secondary"></i>
+                            <i class="bi bi-bell-fill"></i>
                             <span id="notifyBadge"
-                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                style="display: none;">0</span>
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white"
+                                style="display: none; padding: 0.25em 0.4em; font-size: 0.6rem;">0</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0"
-                            style="width: 300px; max-width: 90vw; max-height: 400px; overflow-y: auto;">
+                            style="width: 280px; max-height: 350px; overflow-y: auto;">
                             <li>
-                                <h6 class="dropdown-header fw-bold text-uppercase text-danger bg-light py-2">⚠️ Cần xử
-                                    lý gấp</h6>
+                                <h6 class="dropdown-header fw-bold text-uppercase text-danger bg-light py-2"
+                                    style="font-size: 0.75rem;">⚠️ Cần xử lý gấp</h6>
                             </li>
                             <div id="notificationList"></div>
                         </ul>
                     </div>
-                    <div id="authSection">
-                        <button id="btnLogin"
-                            class="btn btn-outline-primary rounded-pill px-3 d-flex align-items-center gap-2"><i
-                                class="bi bi-google"></i> <span class="d-none d-sm-inline">Đăng nhập</span></button>
+                    <div id="authSection" class="ms-1">
+                        <button id="btnLogin" class="btn btn-outline-primary btn-action-custom rounded-pill">
+                            <i class="bi bi-google me-2"></i><span>Đăng nhập</span>
+                        </button>
                         <div id="userProfile" class="d-none dropdown">
                             <a href="#" class="d-flex align-items-center text-decoration-none"
                                 data-bs-toggle="dropdown">
-                                <img id="userAvatar" src="https://via.placeholder.com/40" alt="Avatar">
+                                <img id="userAvatar" src="https://placehold.co/40" alt="Avatar">
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow-sm mt-2">
-                                <li><a id="btnLogout" class="dropdown-item text-danger" href="#"><i
+                                <li><a id="btnLogout" class="dropdown-item text-danger small" href="#"><i
                                             class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
                             </ul>
                         </div>
@@ -89,90 +86,134 @@
         </div>
     </header>
 
-    <div class="container py-4 flex-grow-1">
-        <div id="loginWarning" class="alert alert-warning d-none" role="alert"><i
-                class="bi bi-exclamation-circle-fill me-2"></i> Vui lòng <b>Đăng nhập bằng Google</b> để sử dụng.</div>
-        <div id="errorAlert" class="alert alert-danger d-none" role="alert"><i
-                class="bi bi-exclamation-triangle-fill me-2"></i> <span id="errorMsg"></span></div>
+    <div class="container py-3 flex-grow-1">
+        <div id="loginWarning" class="alert alert-warning d-none py-2 small" role="alert">
+            <i class="bi bi-exclamation-circle-fill me-2"></i> Vui lòng <b>Đăng nhập bằng Google</b> để sử dụng.
+        </div>
+        <div id="errorAlert" class="alert alert-danger d-none py-2 small" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> <span id="errorMsg"></span>
+        </div>
 
         <div id="mainContent" class="d-none">
-            <div class="row g-4 mb-3">
+            <div class="row g-3 mb-3">
                 <div class="col-lg-5 d-flex">
                     <div id="focusTaskSection" class="w-100"></div>
                 </div>
                 <div class="col-lg-7 d-flex">
-                    <div class="card border-0 shadow-sm rounded-4 w-100 overflow-hidden h-100">
+                    <div class="card border-0 shadow-sm rounded-3 w-100 overflow-hidden h-100">
                         <div
-                            class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-                            <h6 class="fw-bold text-gray-800 mb-0"><i
-                                    class="bi bi-calendar-week text-primary me-2"></i>Tuần này</h6>
-                            <a href="calendar.html" class="text-decoration-none small fw-bold">Xem tất cả</a>
+                            class="card-header bg-white border-0 py-2 px-3 d-flex justify-content-between align-items-center">
+                            <h6 class="fw-bold text-gray-800 mb-0" style="font-size: 0.95rem;"><i
+                                    class="bi bi-calendar-day text-primary me-2"></i>Lịch trình hôm nay</h6>
+                            <a href="calendar.html" class="text-decoration-none small fw-bold"
+                                style="font-size: 0.8rem;">Xem tất cả</a>
+                        </div>
+                        <div class="px-3 pb-2 border-bottom border-light bg-light bg-opacity-25 pt-1">
+                            <div class="d-flex justify-content-between align-items-end mb-2">
+                                <div>
+                                    <div class="text-uppercase text-muted fw-bold" id="currentDateName"
+                                        style="font-size: 0.65rem; letter-spacing: 0.5px;">...</div>
+                                    <h4 class="fw-bold text-dark mb-0" id="currentDateValue"
+                                        style="letter-spacing: -0.5px; font-size: 1.1rem;">...</h4>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-bold text-primary mb-0 lh-1" id="dailyRemainingCount"
+                                        style="font-size: 1.8rem;">0</div>
+                                    <div class="text-muted fw-bold"
+                                        style="font-size: 0.6rem; text-transform: uppercase;">Việc chưa xong</div>
+                                </div>
+                            </div>
+                            <div
+                                class="d-flex align-items-center bg-white py-1 px-2 rounded-3 border border-light shadow-sm gap-2">
+                                <i class="bi bi-hourglass-split text-warning" style="font-size: 0.9rem;"></i>
+                                <div class="fw-bold text-truncate text-dark flex-grow-1" id="nextTaskInfo"
+                                    style="font-size: 0.8rem;">Đang tải dữ liệu...</div>
+                            </div>
                         </div>
                         <div class="card-body p-0">
-                            <div id="weeklyTaskBody" class="list-group list-group-flush h-100"
+                            <div id="dailyTaskBody" class="list-group list-group-flush h-100"
                                 style="max-height: 150px; overflow-y: auto;"></div>
-                            <div id="noWeeklyTask" class="p-4 text-center text-muted d-none"><i
-                                    class="bi bi-cup-hot fs-4 d-block mb-2"></i>Tuần này rảnh rỗi</div>
+                            <div id="noDailyTask" class="p-4 text-center text-muted d-none small"><i
+                                    class="bi bi-cup-hot fs-5 d-block mb-2"></i>Hôm nay đã xong hết việc!</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
-                <div
-                    class="card card-stat-compact bg-white p-3 d-flex flex-row align-items-center justify-content-between">
-                    <div>
-                        <div class="stat-label text-muted">Tổng số</div>
-                        <div class="stat-value text-dark" id="totalTasks">0</div>
+            <div class="row g-2 mb-3 row-cols-1 row-cols-sm-2 row-cols-lg-4">
+                <div class="col">
+                    <div
+                        class="card card-stat-compact bg-white d-flex flex-row align-items-center justify-content-between">
+                        <div>
+                            <div class="stat-label">Tổng số</div>
+                            <div class="stat-value text-dark" id="totalTasks">0</div>
+                        </div>
+                        <div class="icon-box-compact bg-primary bg-opacity-10 text-primary"><i
+                                class="bi bi-layers-fill"></i></div>
                     </div>
-                    <div class="icon-box-compact bg-primary bg-opacity-10 text-primary"><i
-                            class="bi bi-layers-fill"></i></div>
                 </div>
-                <div
-                    class="card card-stat-compact bg-white p-3 d-flex flex-row align-items-center justify-content-between">
-                    <div>
-                        <div class="stat-label text-muted">Hoàn thành</div>
-                        <div class="stat-value text-success" id="completedTasks">0</div>
+                <div class="col">
+                    <div
+                        class="card card-stat-compact bg-white d-flex flex-row align-items-center justify-content-between">
+                        <div>
+                            <div class="stat-label">Hoàn thành</div>
+                            <div class="stat-value text-success" id="completedTasks">0</div>
+                        </div>
+                        <div class="icon-box-compact bg-success bg-opacity-10 text-success"><i
+                                class="bi bi-check-circle-fill"></i></div>
                     </div>
-                    <div class="icon-box-compact bg-success bg-opacity-10 text-success"><i
-                            class="bi bi-check-circle-fill"></i></div>
                 </div>
-                <div
-                    class="card card-stat-compact bg-white p-3 d-flex flex-row align-items-center justify-content-between">
-                    <div>
-                        <div class="stat-label text-muted">Đang làm</div>
-                        <div class="stat-value text-primary" id="inProgressTasks">0</div>
+                <div class="col">
+                    <div
+                        class="card card-stat-compact bg-white d-flex flex-row align-items-center justify-content-between">
+                        <div>
+                            <div class="stat-label">Đang làm</div>
+                            <div class="stat-value text-primary" id="inProgressTasks">0</div>
+                        </div>
+                        <div class="icon-box-compact bg-primary bg-opacity-10 text-primary"><i
+                                class="bi bi-hourglass-split"></i></div>
                     </div>
-                    <div class="icon-box-compact bg-primary bg-opacity-10 text-primary"><i
-                            class="bi bi-hourglass-split"></i></div>
                 </div>
-                <div
-                    class="card card-stat-compact bg-white p-3 d-flex flex-row align-items-center justify-content-between">
-                    <div>
-                        <div class="stat-label text-muted">Chậm tiến độ</div>
-                        <div class="stat-value text-danger" id="overdueTasks">0</div>
+                <div class="col">
+                    <div
+                        class="card card-stat-compact bg-white d-flex flex-row align-items-center justify-content-between">
+                        <div>
+                            <div class="stat-label">Chậm tiến độ</div>
+                            <div class="stat-value text-danger" id="overdueTasks">0</div>
+                        </div>
+                        <div class="icon-box-compact bg-danger bg-opacity-10 text-danger"><i
+                                class="bi bi-exclamation-octagon-fill"></i></div>
                     </div>
-                    <div class="icon-box-compact bg-danger bg-opacity-10 text-danger"><i
-                            class="bi bi-exclamation-octagon-fill"></i></div>
                 </div>
             </div>
 
             <div class="card border-0 shadow-lg rounded-3 overflow-hidden mb-3">
                 <div
-                    class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
-                    <h5 class="mb-0 fw-bold text-gray-800"><i class="bi bi-table text-primary me-2"></i>Tất cả công việc
-                    </h5>
-                    <div class="d-flex flex-wrap gap-2 w-full md:w-auto">
-                        <select id="filterStatus" class="form-select form-select-sm flex-grow-1 md:flex-grow-0"
-                            style="min-width: 140px;">
+                    class="card-header bg-white py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <h5 class="mb-0 fw-bold text-gray-800" style="font-size: 1rem;"><i
+                            class="bi bi-table text-primary me-2"></i>Tất cả công việc</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <select id="filterTime" class="form-select form-select-sm shadow-none border-secondary-subtle"
+                            style="width: auto; font-size: 0.85rem;">
+                            <option value="7">7 ngày tới</option>
+                            <option value="14">14 ngày tới</option>
+                            <option value="30">30 ngày tới</option>
+                            <option value="60">60 ngày tới</option>
+                            <option value="90">90 ngày tới</option>
+                            <option value="all">Tất cả</option>
+                        </select>
+
+                        <select id="filterStatus" class="form-select form-select-sm shadow-none border-secondary-subtle"
+                            style="width: auto; font-size: 0.85rem;">
                             <option value="all">Tất cả trạng thái</option>
                             <option value="urgent" class="fw-bold text-danger">⚠️ Cần xử lý gấp</option>
                             <option value="Hoàn thành">Hoàn thành</option>
                             <option value="Đang thực hiện">Đang thực hiện</option>
                             <option value="Chưa thực hiện">Chưa thực hiện</option>
                         </select>
-                        <select id="filterCategory" class="form-select form-select-sm flex-grow-1 md:flex-grow-0"
-                            style="min-width: 140px;">
+                        <select id="filterCategory"
+                            class="form-select form-select-sm shadow-none border-secondary-subtle"
+                            style="width: auto; font-size: 0.85rem;">
                             <option value="all">Tất cả danh mục</option>
                         </select>
                     </div>
@@ -181,65 +222,64 @@
                     <table class="table table-hover table-custom align-middle mb-0">
                         <thead>
                             <tr>
-                                <th class="ps-4">Tên công việc</th>
+                                <th class="ps-3">Tên công việc</th>
                                 <th>Danh mục</th>
-                                <th>Ưu tiên</th>
-                                <th>Ngày bắt đầu</th>
-                                <th>Thời lượng</th>
+                                <th>Khung giờ</th>
+                                <th>Ngày làm</th>
                                 <th>Trạng thái</th>
                                 <th>Hạn cuối</th>
                                 <th>Còn lại</th>
                                 <th>Ghi chú</th>
-                                <th class="text-end pe-4">Thao tác</th>
+                                <th class="text-end pe-3">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody id="taskTableBody">
                             <tr>
-                                <td colspan="10" class="text-center py-5 text-muted">
-                                    <div class="spinner-border text-primary" role="status"></div>
-                                    <div class="mt-2">Đang tải dữ liệu...</div>
+                                <td colspan="10" class="text-center py-4 text-muted small">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                    <div class="mt-1">Đang tải dữ liệu...</div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 <div
-                    class="card-footer bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
-                    <div class="small text-muted" id="paginationInfo">...</div>
+                    class="card-footer bg-white py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div class="small text-muted" id="paginationInfo" style="font-size: 0.8rem;">...</div>
                     <nav>
                         <ul class="pagination pagination-sm mb-0" id="paginationControls"></ul>
                     </nav>
                 </div>
             </div>
 
-            <div class="row g-4 mb-3">
+            <div class="row g-3 mb-3">
                 <div class="col-lg-4">
                     <div class="card chart-card p-3 h-100">
-                        <h5 class="card-title fw-bold mb-3 d-flex align-items-center gap-2" style="font-size: 1rem;"><i
+                        <h5 class="card-title fw-bold mb-2 d-flex align-items-center gap-2"><i
                                 class="bi bi-pie-chart-fill text-primary"></i> Phân bổ Danh mục</h5>
-                        <div class="flex-grow-1 d-flex align-items-center justify-content-center mb-2"
-                            style="min-height: 120px;">
-                            <div style="height: 120px; width: 120px;"><canvas id="categoryChart"></canvas></div>
+                        <div class="flex-grow-1 d-flex align-items-center justify-content-center mb-1"
+                            style="min-height: 100px;">
+                            <div style="height: 100px; width: 100px;"><canvas id="categoryChart"></canvas></div>
                         </div>
-                        <div id="categoryLegend" class="mt-auto small"></div>
+                        <div id="categoryLegend" class="mt-auto"></div>
                     </div>
                 </div>
                 <div class="col-lg-4">
                     <div class="card chart-card p-3 h-100">
-                        <h5 class="card-title fw-bold mb-3 d-flex align-items-center gap-2" style="font-size: 1rem;"><i
-                                class="bi bi-activity text-success"></i> Tình trạng Công việc</h5>
-                        <div class="flex-grow-1 d-flex align-items-center justify-content-center mb-2"
-                            style="min-height: 120px;">
-                            <div style="height: 120px; width: 120px;"><canvas id="completionChart"></canvas></div>
+                        <h5 class="card-title fw-bold mb-2 d-flex align-items-center gap-2"><i
+                                class="bi bi-activity text-success"></i> Tình trạng</h5>
+                        <div class="flex-grow-1 d-flex align-items-center justify-content-center mb-1"
+                            style="min-height: 100px;">
+                            <div style="height: 100px; width: 100px;"><canvas id="completionChart"></canvas></div>
                         </div>
-                        <div id="completionLegend" class="mt-auto small"></div>
+                        <div id="completionLegend" class="mt-auto"></div>
                     </div>
                 </div>
                 <div class="col-lg-4">
                     <div class="card chart-card p-3 h-100">
-                        <h5 class="card-title fw-bold mb-3 d-flex align-items-center gap-2" style="font-size: 1rem;"><i
+                        <h5 class="card-title fw-bold mb-2 d-flex align-items-center gap-2"><i
                                 class="bi bi-bar-chart-fill text-info"></i> Khối lượng (Tuần)</h5>
-                        <div class="flex-grow-1 position-relative" style="min-height: 150px;"><canvas
+                        <div class="flex-grow-1 position-relative" style="min-height: 120px;"><canvas
                                 id="workloadChart"></canvas></div>
                     </div>
                 </div>
@@ -247,137 +287,138 @@
         </div>
     </div>
 
+    <footer class="bg-white border-t border-slate-200 py-3 flex-none transition-colors duration-300">
+        <div class="container mx-auto px-4 text-center text-slate-500 text-sm">
+            <div class="mb-1"><span class="font-bold text-slate-800">Quản Lý Công Việc</span> &copy;
+                2025</div>
+            <div>Thiết kế & Phát triển với <i class="bi bi-heart-fill text-red-500 mx-1"></i> cho hiệu suất tối ưu.
+            </div>
+        </div>
+    </footer>
+
     <div class="modal fade" id="addTaskModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-primary text-white border-0">
-                    <h5 class="modal-title fw-bold" id="modalTitle">Thêm Công Việc Mới</h5><button type="button"
-                        class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content border-0 shadow-lg rounded-3">
+                <div class="modal-header bg-primary text-white border-0 py-2">
+                    <h5 class="modal-title fw-bold fs-6" id="modalTitle">Thêm Công Việc Mới</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body p-3">
                     <form id="addTaskForm"><input type="hidden" id="editTaskId">
-                        <div class="mb-3"><label class="form-label fw-bold text-secondary small text-uppercase">Tên công
-                                việc</label><input type="text" class="form-control" id="taskName" required
-                                placeholder="Nhập tên công việc..."></div>
-                        <div class="row">
-                            <div class="col-6 mb-3"><label
-                                    class="form-label fw-bold text-secondary small text-uppercase">Danh
-                                    mục</label><select class="form-select" id="taskCategory"
+                        <div class="mb-2"><label class="form-label fw-bold text-secondary small text-uppercase mb-1">Tên
+                                công việc</label><input type="text" class="form-control form-control-sm" id="taskName"
+                                required placeholder="Nhập tên công việc..."></div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6"><label
+                                    class="form-label fw-bold text-secondary small text-uppercase mb-1">Danh
+                                    mục</label><select class="form-select form-select-sm" id="taskCategory"
                                     onchange="toggleCustomCategory(this)">
-                                    <option value="__other__" class="fw-bold text-primary">+ Nhập danh mục mới...
-                                    </option>
-                                </select><input type="text" class="form-control mt-2 d-none" id="customCategoryInput"
-                                    placeholder="Nhập tên danh mục mới"></div>
-                            <div class="col-6 mb-3"><label
-                                    class="form-label fw-bold text-secondary small text-uppercase">Trạng
-                                    thái</label><select class="form-select" id="taskStatus">
+                                    <option value="__other__" class="fw-bold text-primary">+ Nhập mới...</option>
+                                </select><input type="text" class="form-control form-control-sm mt-1 d-none"
+                                    id="customCategoryInput" placeholder="Nhập tên danh mục"></div>
+                            <div class="col-6"><label
+                                    class="form-label fw-bold text-secondary small text-uppercase mb-1">Trạng
+                                    thái</label><select class="form-select form-select-sm" id="taskStatus">
                                     <option value="Đang thực hiện">Đang thực hiện</option>
                                     <option value="Chưa thực hiện">Chưa thực hiện</option>
                                     <option value="Hoàn thành">Hoàn thành</option>
                                 </select></div>
                         </div>
-                        <div class="row">
-                            <div class="col-6 mb-3"><label
-                                    class="form-label fw-bold text-secondary small text-uppercase">Ngày bắt
-                                    đầu</label><input type="date" class="form-control" id="taskStartDate" required>
-                            </div>
-                            <div class="col-6 mb-3"><label
-                                    class="form-label fw-bold text-secondary small text-uppercase">Thời lượng
-                                    (Ngày)</label><input type="number" class="form-control" id="taskDuration"
-                                    placeholder="VD: 1" value="1" min="0" step="1"
-                                    onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                                    oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null">
-                            </div>
+                        <div class="mb-2"><label
+                                class="form-label fw-bold text-secondary small text-uppercase mb-1">Ngày thực
+                                hiện</label><input type="date" class="form-control form-control-sm" id="taskStartDate"
+                                required></div>
+                        <div class="row g-2 bg-light p-2 rounded mb-2 border mx-0">
+                            <label class="form-label fw-bold text-secondary small text-uppercase mb-1"><i
+                                    class="bi bi-clock"></i> Thời gian</label>
+                            <div class="col-6"><label class="small text-muted mb-0">Từ</label><input type="time"
+                                    class="form-control form-control-sm" id="taskStartTime" required></div>
+                            <div class="col-6"><label class="small text-muted mb-0">Đến</label><input type="time"
+                                    class="form-control form-control-sm" id="taskEndTime" required></div>
                         </div>
-                        <!-- [EDIT] ĐÃ XÓA CHECKBOX EMAIL THỦ CÔNG -->
-                        <div class="mb-3 bg-light p-3 rounded border"><label
-                                class="form-label fw-bold text-secondary small text-uppercase mb-2">Việc cần làm
-                                (Checklist)</label>
-                            <div class="input-group mb-2"><input type="text" id="subtaskInput" class="form-control"
-                                    placeholder="Thêm việc nhỏ..."
+                        <input type="hidden" id="taskDuration" value="1">
+                        <div class="mb-2 bg-light p-2 rounded border"><label
+                                class="form-label fw-bold text-secondary small text-uppercase mb-1">Checklist</label>
+                            <div class="input-group input-group-sm mb-1"><input type="text" id="subtaskInput"
+                                    class="form-control" placeholder="Thêm việc nhỏ..."
                                     onkeypress="if(event.key==='Enter'){event.preventDefault(); addSubtaskFromInput();}"><button
                                     class="btn btn-outline-primary" type="button" onclick="addSubtaskFromInput()"><i
                                         class="bi bi-plus-lg"></i></button></div>
                             <ul class="list-group list-group-flush small" id="subtaskListPreview"></ul>
                         </div>
-                        <div class="mb-3"><label class="form-label fw-bold text-secondary small text-uppercase">Ghi
-                                chú</label><textarea class="form-control" id="taskNote" rows="3"
+                        <div class="mb-0"><label class="form-label fw-bold text-secondary small text-uppercase mb-1">Ghi
+                                chú</label><textarea class="form-control form-control-sm" id="taskNote" rows="2"
                                 placeholder="Nhập ghi chú..."></textarea></div>
                     </form>
                 </div>
-                <div class="modal-footer border-0 pt-0 pb-4"><button type="button"
-                        class="btn btn-secondary px-4 fw-bold" data-bs-dismiss="modal">Đóng</button><button
-                        type="button" class="btn btn-primary px-4 fw-bold" onclick="handleTaskSubmit()"
-                        id="saveTaskBtn">Lưu công việc</button></div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="taskDetailModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold text-primary fs-5 d-flex align-items-center gap-2"><i
-                            class="bi bi-check2-square"></i> Quản Lý Công Việc</h5><button type="button"
-                        class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body pt-3 pb-4 px-4">
-                    <h4 class="fw-bold text-dark mb-2" id="viewTaskName" style="font-size: 1.25rem;">Tên công việc</h4>
-                    <div class="d-flex flex-wrap gap-2 mb-4"><span id="viewTaskCategory" class="badge rounded-pill">Danh
-                            mục</span><span id="viewTaskPriority" class="badge rounded-pill text-dark border">Ưu
-                            tiên</span><span id="viewTaskStatus" class="badge rounded-pill text-white">Trạng thái</span>
-                    </div>
-                    <div class="mb-4 bg-light p-3 rounded border">
-                        <div class="d-flex justify-content-between align-items-center mb-2"><label
-                                class="fw-bold text-secondary small text-uppercase mb-0">Danh sách việc nhỏ</label>
-                        </div>
-                        <div class="input-group mb-2"><input type="text" id="detailSubtaskInput"
-                                class="form-control form-control-sm shadow-none" placeholder="Nhập việc cần làm..."
-                                onkeypress="if(event.key==='Enter'){event.preventDefault(); addSubtaskInDetail();}"><button
-                                class="btn btn-primary btn-sm" onclick="addSubtaskInDetail()"><i
-                                    class="bi bi-plus-lg"></i> Thêm</button></div>
-                        <div class="list-group list-group-flush bg-white rounded border-top" id="viewSubtaskList"></div>
-                    </div>
-                    <div class="row g-3 mb-2">
-                        <div class="col-6"><label class="fw-bold text-secondary small text-uppercase mb-1"
-                                style="font-size: 0.75rem;">Ngày bắt đầu</label>
-                            <div class="fw-bold text-dark fs-6" id="viewTaskStartDate">...</div>
-                        </div>
-                        <div class="col-6"><label class="fw-bold text-secondary small text-uppercase mb-1"
-                                style="font-size: 0.75rem;">Hạn chót</label>
-                            <div class="fw-bold text-danger fs-6" id="viewTaskDeadline">...</div>
-                        </div>
-                    </div>
-                    <div class="mb-2"><label class="fw-bold text-secondary small text-uppercase mb-1"
-                            style="font-size: 0.75rem;">Ghi chú</label>
-                        <div class="bg-light p-3 rounded text-secondary fst-italic border" id="viewTaskNote"
-                            style="min-height: 60px;">Không có ghi chú.</div>
-                    </div>
-                </div>
-                <div class="modal-footer border-0 pt-0"><button type="button" class="btn btn-secondary px-4 fw-bold"
-                        data-bs-dismiss="modal">Đóng</button></div>
+                <div class="modal-footer border-0 pt-0 pb-3"><button type="button"
+                        class="btn btn-sm btn-secondary px-3 fw-bold" data-bs-dismiss="modal">Đóng</button><button
+                        type="button" class="btn btn-sm btn-primary px-3 fw-bold" onclick="handleTaskSubmit()"
+                        id="saveTaskBtn">Lưu</button></div>
             </div>
         </div>
     </div>
 
-    <footer class="bg-white border-top py-3 mt-auto">
-        <div class="container text-center text-muted small">
-            <div class="mb-2"><span class="fw-bold text-dark">Quản Lý Công Việc</span> &copy; 2025</div>
-            <div>Thiết kế & Phát triển với <i class="bi bi-heart-fill text-danger mx-1"></i> cho hiệu suất tối ưu.</div>
-        </div>
-    </footer>
-    <div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal fade" id="taskDetailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
+            <div class="modal-content border-0 shadow-lg rounded-3">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-primary fs-6 d-flex align-items-center gap-2"><i
+                            class="bi bi-check2-square"></i> Chi tiết</h5><button type="button" class="btn-close"
+                        data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pt-2 pb-4 px-4">
+                    <h4 class="fw-bold text-dark mb-1" id="viewTaskName" style="font-size: 1.1rem;">Tên công việc</h4>
+                    <div class="d-flex flex-wrap gap-2 mb-3"><span id="viewTaskCategory" class="badge rounded-pill"
+                            style="font-size: 0.7rem;">Danh mục</span><span id="viewTaskPriority"
+                            class="badge rounded-pill text-dark border" style="font-size: 0.7rem;">Ưu tiên</span><span
+                            id="viewTaskStatus" class="badge rounded-pill text-white" style="font-size: 0.7rem;">Trạng
+                            thái</span></div>
+                    <div class="mb-3 bg-light p-2 rounded border">
+                        <div class="input-group input-group-sm mb-2"><input type="text" id="detailSubtaskInput"
+                                class="form-control shadow-none" placeholder="Nhập việc cần làm..."
+                                onkeypress="if(event.key==='Enter'){event.preventDefault(); addSubtaskInDetail();}"><button
+                                class="btn btn-primary" onclick="addSubtaskInDetail()"><i
+                                    class="bi bi-plus-lg"></i></button></div>
+                        <div class="list-group list-group-flush bg-white rounded border-top" id="viewSubtaskList"></div>
+                    </div>
+                    <div class="row g-3 mb-2 small">
+                        <div class="col-6"><label class="fw-bold text-secondary text-uppercase mb-0"
+                                style="font-size: 0.65rem;">Thời gian</label>
+                            <div class="fw-bold text-dark" id="viewTaskTimeRange">...</div>
+                        </div>
+                        <div class="col-6"><label class="fw-bold text-secondary text-uppercase mb-0"
+                                style="font-size: 0.65rem;">Ngày</label>
+                            <div class="fw-bold text-danger" id="viewTaskDate">...</div>
+                        </div>
+                    </div>
+                    <div class="mb-0"><label class="fw-bold text-secondary text-uppercase mb-0"
+                            style="font-size: 0.65rem;">Ghi chú</label>
+                        <div class="bg-light p-2 rounded text-secondary fst-italic border small" id="viewTaskNote"
+                            style="min-height: 40px;">Không có ghi chú.</div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0"><button type="button"
+                        class="btn btn-sm btn-secondary px-3 fw-bold" data-bs-dismiss="modal">Đóng</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content rounded-3">
                 <div class="modal-body p-4 text-center">
-                    <h5 class="fw-bold mb-2">Xác nhận xóa?</h5>
-                    <p class="text-muted">Hành động này sẽ xóa dữ liệu khỏi Database vĩnh viễn.</p>
-                    <div class="d-flex justify-content-center gap-2 mt-4"><button class="btn btn-light"
-                            data-bs-dismiss="modal">Hủy</button><button class="btn btn-danger" id="confirmDeleteBtn">Xóa
-                            ngay</button></div>
+                    <h6 class="fw-bold mb-2">Xác nhận xóa?</h6>
+                    <p class="text-muted small mb-3">Hành động này không thể hoàn tác.</p>
+                    <div class="d-flex justify-content-center gap-2"><button class="btn btn-sm btn-light px-3"
+                            data-bs-dismiss="modal">Hủy</button><button class="btn btn-sm btn-danger px-3"
+                            id="confirmDeleteBtn">Xóa</button></div>
                 </div>
             </div>
         </div>
     </div>
+
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 2000;">
         <div id="liveToast" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive"
             aria-atomic="true">
@@ -388,8 +429,9 @@
         </div>
     </div>
 
-    <script type="module" src="js/firebase-config.js"></script>
     <script type="module" src="js/index.js"></script>
+    <script type="module" src="js/firebase-config.js"></script>
+
 </body>
 
 </html>

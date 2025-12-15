@@ -14,7 +14,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: { extend: { colors: { slate: { 850: '#1e293b', 900: '#0f172a' } } } }
         }
     </script>
@@ -23,7 +22,6 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/locales/vi.global.min.js'></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
-    <!-- Thư viện EmailJS -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript"> (function () { emailjs.init("ixYsvgb9x6sv8PxzG"); })(); </script>
 
@@ -33,7 +31,7 @@
     <meta name="view-transition" content="same-origin" />
 </head>
 
-<body class="flex flex-col min-h-screen text-slate-800 transition-colors duration-300 bg-slate-100 dark:bg-slate-900">
+<body class="flex flex-col min-h-screen text-slate-800 transition-colors duration-300 bg-slate-100">
     <header class="header-custom bg-white sticky-top z-50 border-b border-slate-200">
         <div class="container py-2">
             <nav class="d-flex justify-content-between align-items-center gap-2 md:gap-4">
@@ -65,20 +63,10 @@
                         </select>
                     </div>
 
-                    <button onclick="openModal()"
-                        class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-pill"
-                        style="height: 40px;">
-                        <i class="bi bi-plus-circle-fill"></i> <span class="d-none d-sm-inline">Thêm mới</span>
-                    </button>
-
                     <button onclick="exportExcel()"
                         class="btn btn-success d-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-pill"
                         style="height: 40px;">
                         <i class="bi bi-file-earmark-excel-fill"></i> <span class="d-none d-sm-inline">Excel</span>
-                    </button>
-
-                    <button id="themeToggle" class="btn btn-light btn-circle-custom border shadow-sm text-warning me-2">
-                        <i class="bi bi-moon-stars-fill"></i>
                     </button>
 
                     <div id="authContainer" class="ml-2 relative group">
@@ -91,9 +79,9 @@
                                     class="w-10 h-10 rounded-full border-2 border-blue-500 object-cover" alt="Avatar">
                             </button>
                             <div id="userDropdown"
-                                class="hidden absolute right-0 mt-2 w-32 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-100 dark:border-slate-700 z-50 py-1">
+                                class="hidden absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-slate-100 z-50 py-1">
                                 <button id="btnLogout"
-                                    class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center gap-2">
+                                    class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-slate-50 transition flex items-center gap-2">
                                     <i class="bi bi-box-arrow-right"></i> Đăng xuất
                                 </button>
                             </div>
@@ -106,8 +94,7 @@
 
     <main class="flex-1 p-3 flex flex-col transition-colors duration-300">
         <div class="container p-0 flex flex-col">
-            <div
-                class="rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 relative transition-colors duration-300">
+            <div class="rounded-xl shadow-sm border border-slate-200 relative transition-colors duration-300">
                 <div id="calendar"></div>
             </div>
         </div>
@@ -115,7 +102,7 @@
 
     <footer class="bg-white border-t border-slate-200 py-3 flex-none transition-colors duration-300">
         <div class="container mx-auto px-4 text-center text-slate-500 text-sm">
-            <div class="mb-1"><span class="font-bold text-slate-800 dark:text-slate-200">Quản Lý Công Việc</span> &copy;
+            <div class="mb-1"><span class="font-bold text-slate-800">Quản Lý Công Việc</span> &copy;
                 2025</div>
             <div>Thiết kế & Phát triển với <i class="bi bi-heart-fill text-red-500 mx-1"></i> cho hiệu suất tối ưu.
             </div>
@@ -125,27 +112,25 @@
     <div id="taskModal" class="fixed inset-0 z-50 hidden transition-opacity duration-300">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
         <div
-            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[95%] sm:w-full max-w-2xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden scale-100 transition-all duration-300 max-h-[95vh] flex flex-col">
-            <div
-                class="px-5 py-3 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-white dark:bg-slate-800 flex-none">
-                <h3 class="text-lg font-bold text-slate-800 dark:text-white" id="modalTitle">Công việc mới</h3>
+            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[95%] sm:w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden scale-100 transition-all duration-300 max-h-[95vh] flex flex-col">
+            <div class="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-white flex-none">
+                <h3 class="text-lg font-bold text-slate-800" id="modalTitle">Công việc mới</h3>
                 <button onclick="closeModal()"
-                    class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 transition"><i
+                    class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition"><i
                         class="bi bi-x-lg"></i></button>
             </div>
-            <div class="p-4 sm:p-5 space-y-3 overflow-y-auto flex-1 dark:text-slate-300">
+            <div class="p-4 sm:p-5 space-y-3 overflow-y-auto flex-1 text-slate-800">
                 <form id="taskForm" onsubmit="saveTask(event)">
                     <input type="hidden" id="taskId">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                         <div class="sm:col-span-2">
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">Tên
+                            <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Tên
                                 công việc <span class="text-red-500">*</span></label>
                             <input type="text" id="taskName" required placeholder="Nhập tên công việc..."
                                 class="form-input">
                         </div>
                         <div>
-                            <label
-                                class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">Trạng
+                            <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Trạng
                                 thái</label>
                             <select id="taskStatus" class="form-input cursor-pointer">
                                 <option value="Đang thực hiện">Đang thực hiện</option>
@@ -155,83 +140,73 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">Danh
+                        <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Danh
                             mục</label>
                         <select id="taskCategory" class="form-input cursor-pointer"
                             onchange="toggleCustomCategory(this)"></select>
                         <input type="text" id="customCategoryInput" class="form-input mt-2 hidden"
                             placeholder="Nhập tên danh mục mới">
                     </div>
-                    <div
-                        class="grid grid-cols-3 gap-2 sm:gap-4 bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
+                    <div class="grid grid-cols-3 gap-2 sm:gap-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
                         <div class="col-span-3 sm:col-span-1">
-                            <label
-                                class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">Ngày
+                            <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Ngày
                                 bắt đầu</label>
                             <input type="date" id="taskStartDate" required class="form-input"
                                 onchange="calculateDeadline()">
                         </div>
                         <div class="col-span-1.5 sm:col-span-1">
-                            <label
-                                class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">Thời
+                            <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Thời
                                 lượng (Ngày)</label>
                             <input type="number" id="taskDuration" value="1" min="0" step="1" class="form-input"
                                 onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, ''); calculateDeadline()">
                         </div>
                         <div class="col-span-1.5 sm:col-span-1">
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase">Hạn
+                            <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Hạn
                                 cuối (Auto)</label>
                             <input type="date" id="taskDeadline" disabled
-                                class="form-input bg-white dark:bg-slate-800 text-slate-500 font-bold border-slate-200 dark:border-slate-600">
+                                class="form-input bg-white text-slate-500 font-bold border-slate-200">
                         </div>
                     </div>
-                    <div
-                        class="p-3 bg-blue-50 dark:bg-slate-900/50 rounded-lg border border-blue-100 dark:border-slate-700">
-                        <h4
-                            class="text-xs font-bold text-blue-700 dark:text-blue-400 mb-2 flex items-center gap-2 uppercase">
+                    <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
+                        <h4 class="text-xs font-bold text-blue-700 mb-2 flex items-center gap-2 uppercase">
                             <i class="bi bi-clock"></i> Chi tiết thời gian
                         </h4>
                         <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4">
                             <div class="flex-1 min-w-[100px]">
-                                <label
-                                    class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase">Giờ
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">Giờ
                                     bắt đầu</label>
                                 <input type="time" id="taskStartTime" class="form-input text-sm"
                                     onchange="calculateHours()">
                             </div>
                             <span class="text-slate-400 font-bold mt-4 hidden sm:inline">-</span>
                             <div class="flex-1 min-w-[100px]">
-                                <label
-                                    class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase">Giờ
+                                <label class="block text-[10px] font-bold text-slate-500 mb-1 uppercase">Giờ
                                     kết thúc</label>
                                 <input type="time" id="taskEndTime" class="form-input text-sm"
                                     onchange="calculateHours()">
                             </div>
                             <div id="hourDurationText"
-                                class="text-xs text-blue-600 dark:text-blue-400 font-bold w-full sm:w-auto text-left sm:text-right mt-2 sm:mt-4">
+                                class="text-xs text-blue-600 font-bold w-full sm:w-auto text-left sm:text-right mt-2 sm:mt-4">
                             </div>
                         </div>
                     </div>
 
-                    <!-- [EDIT] ĐÃ XÓA CHECKBOX GỬI EMAIL THỦ CÔNG -->
-
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">Ghi
+                        <label class="block text-xs font-bold text-slate-700 mb-1 uppercase">Ghi
                             chú</label>
                         <textarea id="taskNote" rows="2" placeholder="Ghi chú thêm..."
                             class="form-input resize-none"></textarea>
                     </div>
                 </form>
             </div>
-            <div
-                class="px-5 py-3 border-t border-slate-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 flex justify-between items-center flex-none">
+            <div class="px-5 py-3 border-t border-slate-100 bg-gray-50 flex justify-between items-center flex-none">
                 <button type="button" id="deleteBtn" onclick="deleteTask()"
-                    class="hidden text-red-600 hover:text-red-700 text-sm font-bold px-3 py-2 rounded hover:bg-red-50 dark:hover:bg-slate-700 transition flex items-center gap-2"><i
+                    class="hidden text-red-600 hover:text-red-700 text-sm font-bold px-3 py-2 rounded hover:bg-red-50 transition flex items-center gap-2"><i
                         class="bi bi-trash"></i> <span class="hidden sm:inline">Xóa</span></button>
                 <div class="flex gap-3 ml-auto">
                     <button type="button" onclick="closeModal()"
-                        class="px-4 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-white rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 text-sm font-bold transition">Hủy</button>
+                        class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 text-sm font-bold transition">Hủy</button>
                     <button type="button" id="saveBtn"
                         onclick="document.getElementById('taskForm').dispatchEvent(new Event('submit'))"
                         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-bold shadow-md transition">Lưu
@@ -243,20 +218,20 @@
 
     <div id="sidebarOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"></div>
     <div id="sidebar"
-        class="fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-slate-800 shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
-        <div class="p-4 border-b dark:border-slate-700 flex justify-between items-center bg-gray-50 dark:bg-slate-900">
-            <h2 class="text-lg font-bold text-gray-800 dark:text-white"><i class="bi bi-menu-button-wide mr-2"></i>Menu
+        class="fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <div class="p-4 border-b flex justify-between items-center bg-gray-50">
+            <h2 class="text-lg font-bold text-gray-800"><i class="bi bi-menu-button-wide mr-2"></i>Menu
             </h2>
             <button id="menuCloseButton" class="text-gray-500 hover:text-red-500 transition"><i
                     class="bi bi-x-lg text-xl"></i></button>
         </div>
         <div class="p-4 flex flex-col gap-4 overflow-y-auto">
             <a href="index.html"
-                class="flex items-center gap-3 p-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition text-slate-700 dark:text-white font-medium"><i
+                class="flex items-center gap-3 p-3 bg-slate-100 hover:bg-slate-200 rounded-lg transition text-slate-700 font-medium"><i
                     class="bi bi-house-door-fill text-lg"></i> Về Dashboard</a>
-            <hr class="border-gray-200 dark:border-slate-700">
+            <hr class="border-gray-200">
             <button onclick="exportExcel()"
-                class="w-full py-2 px-3 text-left text-sm font-medium text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition"><i
+                class="w-full py-2 px-3 text-left text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition"><i
                     class="bi bi-file-earmark-excel mr-2 text-green-600"></i> Xuất Excel</button>
         </div>
     </div>

@@ -20,11 +20,19 @@ provider.setCustomParameters({ prompt: 'select_account' });
 
 export { auth, db, provider, signInWithPopup, signOut, onAuthStateChanged, collection, query, orderBy, onSnapshot, serverTimestamp };
 
+// Global DB Actions để dùng chung cho cả Calendar và Dashboard
 window.dbActions = {
     add: async (data) => {
         const user = auth.currentUser;
         if (!user) return alert("Vui lòng đăng nhập!");
-        await addDoc(collection(db, "users", user.uid, "tasks"), { ...data, createdAt: serverTimestamp() });
+        // Luôn thêm createdAt để sort, emailSent flags để quản lý nhắc nhở
+        await addDoc(collection(db, "users", user.uid, "tasks"), {
+            ...data,
+            createdAt: serverTimestamp(),
+            // Đảm bảo các trường này luôn tồn tại khi tạo mới
+            emailSent24h: false,
+            emailSent4h: false
+        });
     },
     update: async (id, data) => {
         const user = auth.currentUser;

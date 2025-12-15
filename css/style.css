@@ -1,11 +1,17 @@
-/* css/style.css - FINAL FULL VERSION */
+/* css/style.css - LIGHT MODE ONLY */
 
 /* =========================================
    1. CẤU TRÚC CƠ BẢN & LAYOUT
    ========================================= */
-/* [EDIT] Thêm scrollbar-gutter để chống nhảy layout */
+:root {
+    --header-height: 56px;
+    --input-height: 36px;
+    --base-font-size: 0.925rem;
+}
+
 html {
     scrollbar-gutter: stable;
+    font-size: 15px;
 }
 
 body {
@@ -14,72 +20,59 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    /* [EDIT] Cập nhật padding-top để khớp với chiều cao mới của Header (65px) */
-    padding-top: 65px;
+    padding-top: var(--header-height);
+    font-size: var(--base-font-size);
+    line-height: 1.4;
+    color: #334155;
     opacity: 0;
-    transition: opacity 0.4s ease-in-out, background-color 0.3s, color 0.3s;
+    transition: opacity 0.3s ease;
 }
 
 body.loaded {
     opacity: 1;
 }
 
-/* Header cố định (Fixed Top) - [EDIT] Set height cứng */
+/* Header cố định */
 .header-custom {
     position: fixed !important;
     top: 0;
     left: 0;
     right: 0;
     width: 100%;
-    height: 65px;
-    /* Chiều cao cố định */
+    height: var(--header-height);
     z-index: 1030;
     background-color: #ffffff;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     border-bottom: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
-    /* Căn giữa dọc */
-}
-
-/* Footer cố định đáy (nếu nội dung ngắn) */
-.footer-fixed {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: white;
-    box-shadow: 0 -1px 3px 0 rgba(0, 0, 0, 0.1);
-    z-index: 100;
-}
-
-/* Giữ nguyên vị trí Header khi chuyển trang (View Transitions API) */
-.header-custom {
     view-transition-name: main-header;
 }
 
-::view-transition-old(root),
-::view-transition-new(root) {
-    animation-duration: 0.3s;
+/* Footer */
+footer {
+    font-size: 0.8rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
 }
 
 /* =========================================
-   2. CÁC THÀNH PHẦN UI (BUTTON, INPUT, AVATAR)
+   2. CÁC THÀNH PHẦN UI (BUTTON, INPUT)
    ========================================= */
 
-/* Nút tròn Custom (Theme, Bell, Back Buttons) */
+/* Nút tròn Custom */
 .btn-circle-custom {
-    width: 40px !important;
-    height: 40px !important;
+    width: 34px !important;
+    height: 34px !important;
     padding: 0 !important;
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
     border-radius: 50% !important;
     border: 1px solid #dee2e6;
-    transition: all 0.2s ease;
     background-color: white;
-    color: #6c757d;
+    color: #64748b;
+    transition: all 0.2s;
 }
 
 .btn-circle-custom:hover {
@@ -89,157 +82,98 @@ body.loaded {
 }
 
 .btn-circle-custom i {
-    line-height: 0;
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
-/* Avatar User (Chống méo hình) */
+/* Avatar User */
 #userAvatar {
-    width: 40px !important;
-    height: 40px !important;
-    object-fit: cover !important;
-    /* Quan trọng: Cắt ảnh vừa khung */
-    border-radius: 50% !important;
-    border: 2px solid #0d6efd;
-    cursor: pointer;
+    width: 34px !important;
+    height: 34px !important;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #e2e8f0;
 }
 
-/* Ô Tìm kiếm (Search Bar Design Mới) */
+/* Ô Tìm kiếm */
 .search-wrapper {
     position: relative;
-    transition: all 0.3s ease;
 }
 
 #searchInput {
-    background-color: #f8f9fa;
-    border: 1px solid #e2e8f0;
+    background-color: #f1f5f9;
+    border: 1px solid transparent;
     border-radius: 50px !important;
-    padding-left: 45px;
-    /* Chừa chỗ cho icon */
-    padding-right: 20px;
-    height: 40px;
-    /* [EDIT] Giảm chiều cao xuống 40px cho gọn */
-    font-size: 0.95rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    padding-left: 38px;
+    padding-right: 15px;
+    height: var(--input-height);
+    font-size: 0.9rem;
+    transition: all 0.2s;
     width: 100%;
+    color: #334155;
 }
 
 #searchInput:focus {
     background-color: #ffffff;
     border-color: #3b82f6;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     outline: none;
 }
 
 .search-icon-absolute {
     position: absolute;
-    left: 18px;
+    left: 14px;
     top: 50%;
     transform: translateY(-50%);
     color: #94a3b8;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     pointer-events: none;
-    transition: color 0.3s;
-    z-index: 10;
 }
 
-#searchInput:focus+.search-icon-absolute {
-    color: #3b82f6;
-}
-
-/* Hộp gợi ý tìm kiếm (Dropdown) */
-#searchSuggestions {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    max-height: 300px;
-    overflow-y: auto;
-    display: none;
-    margin-top: 5px;
-}
-
-.suggestion-item {
-    padding: 10px 15px;
-    cursor: pointer;
-    border-bottom: 1px solid #f1f5f9;
-    font-size: 0.9rem;
+/* Các nút bấm chính */
+.btn-action-custom {
+    height: var(--input-height);
     display: flex;
     align-items: center;
-    gap: 10px;
-}
-
-.suggestion-item:last-child {
-    border-bottom: none;
-}
-
-.suggestion-item:hover {
-    background-color: #f8fafc;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding-left: 1rem;
+    padding-right: 1rem;
 }
 
 /* =========================================
-   3. WIDGETS & DASHBOARD COMPONENTS
+   3. WIDGETS & DASHBOARD
    ========================================= */
 
-/* Thẻ Tiêu Điểm (Focus Card - Compact) */
+/* Thẻ Tiêu Điểm */
 .card-focus {
-    background: linear-gradient(120deg, #2563eb 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
     color: white !important;
     border: none;
-    border-radius: 1rem;
+    border-radius: 0.85rem;
     position: relative;
     overflow: hidden;
     height: 100%;
-    min-height: 140px;
-    /* Chiều cao nhỏ gọn */
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+    min-height: 110px;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
-.card-focus h3 {
+.card-focus h4 {
     color: white !important;
-    font-weight: 800;
-    font-size: 1.3rem;
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 0.25rem;
 }
 
-.card-focus .small,
-.card-focus .bi {
-    color: rgba(255, 255, 255, 0.9) !important;
-}
-
-/* Hiệu ứng nền trang trí */
-.card-focus::after {
-    content: '';
-    position: absolute;
-    right: -10px;
-    bottom: -10px;
-    width: 100px;
-    height: 100px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    z-index: 0;
-}
-
-.card-focus-content {
-    position: relative;
-    z-index: 1;
-}
-
-/* Danh sách tuần (Weekly List) */
+/* Danh sách Lịch trình */
 .weekly-item {
     border: none;
-    border-bottom: 1px dashed #f1f5f9;
-    transition: background 0.2s;
-    padding: 0.6rem 1rem !important;
-    /* Padding nhỏ */
+    border-bottom: 1px dashed #e2e8f0;
+    padding: 0.5rem 0.75rem !important;
+    transition: background 0.15s;
+    background-color: white;
 }
 
 .weekly-item:last-child {
@@ -250,413 +184,140 @@ body.loaded {
     background-color: #f8fafc;
 }
 
-/* Ô ngày tháng (Date Box) */
 .date-box {
-    width: 38px;
-    height: 38px;
+    width: 32px;
+    height: 32px;
     background-color: #f1f5f9;
-    border-radius: 8px;
+    border-radius: 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     line-height: 1;
     color: #64748b;
-    font-weight: bold;
 }
 
-.date-box .day {
-    font-size: 0.65rem;
-    text-transform: uppercase;
-}
-
-.date-box .date {
-    font-size: 1rem;
-    color: #334155;
-}
-
-/* Thẻ Thống kê (Stats Compact) */
+/* Thẻ Thống kê */
 .card-stat-compact {
     border: none;
-    border-radius: 12px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s;
-}
-
-.card-stat-compact:hover {
-    transform: translateY(-3px);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    padding: 0.85rem 1rem !important;
+    background-color: white;
 }
 
 .icon-box-compact {
-    width: 38px;
-    height: 38px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 10px;
-    font-size: 1.1rem;
+    border-radius: 8px;
+    font-size: 1rem;
 }
 
 .stat-value {
-    font-size: 1.5rem;
-    font-weight: 800;
-    line-height: 1.1;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-top: 2px;
 }
 
 .stat-label {
-    font-size: 0.65rem;
-    font-weight: 700;
+    font-size: 0.7rem;
+    font-weight: 600;
     text-transform: uppercase;
-    margin-bottom: 2px;
-    letter-spacing: 0.5px;
+    color: #64748b;
+    letter-spacing: 0.3px;
 }
 
 /* Thẻ Biểu đồ */
 .chart-card {
     border: none;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    border: 1px solid #f1f5f9;
     height: 100%;
-    display: flex;
-    flex-direction: column;
+    padding: 1rem !important;
+    background-color: white;
 }
 
-/* =========================================
-   NEW: CHART LEGEND STYLING (CHÚ THÍCH NGANG)
-   ========================================= */
+.chart-card h5 {
+    font-size: 0.9rem !important;
+    color: #1e293b;
+}
+
+/* Chart Legend */
 .chart-legend-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    /* Đẩy tên sang trái, số sang phải */
-    padding: 6px 0;
-    border-bottom: 1px solid #f1f5f9;
-    font-size: 0.85rem;
-}
-
-.chart-legend-item:last-child {
-    border-bottom: none;
-}
-
-.legend-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    padding: 4px 0;
+    border-bottom: 1px solid #f8fafc;
+    font-size: 0.8rem;
+    color: #334155;
 }
 
 .legend-dot {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.legend-value {
-    font-weight: 700;
-    color: #334155;
 }
 
 /* =========================================
    4. BẢNG DỮ LIỆU (DATA TABLE)
    ========================================= */
 .table-custom th {
-    background-color: #f1f5f9;
+    background-color: #f8fafc;
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     color: #64748b;
+    padding: 0.6rem 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
     white-space: nowrap;
 }
 
-/* Fix cột thao tác nhỏ nhất có thể */
-.table-custom td:last-child {
-    white-space: nowrap;
-    width: 1%;
+.table-custom td {
+    padding: 0.5rem 0.5rem;
+    font-size: 0.85rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
 }
 
-/* Nút thao tác nhỏ (Mắt/Rác) */
+.table-custom tr:last-child td {
+    border-bottom: none;
+}
+
+.table-custom .badge {
+    font-weight: 500;
+    font-size: 0.7rem;
+    padding: 0.35em 0.6em;
+}
+
 #taskTableBody .btn-sm {
-    width: 32px !important;
-    height: 32px !important;
-    padding: 0 !important;
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50% !important;
-    line-height: 1;
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 0.75rem;
 }
 
-/* Ô sửa trực tiếp */
-.editable-cell {
-    position: relative;
-    transition: background-color 0.2s;
-}
-
-.editable-cell:not(.locked) {
-    cursor: pointer;
-}
-
-.editable-cell:not(.locked):hover {
-    background-color: #eef2ff !important;
-}
-
-.editable-cell:not(.locked):hover::after {
-    content: '\f4cb';
-    font-family: 'bootstrap-icons';
-    position: absolute;
-    right: 8px;
-    font-size: 0.8rem;
-    color: #3b82f6;
-    opacity: 0.5;
-}
-
-.editable-cell.locked {
-    cursor: not-allowed;
-    color: #999;
-    background-color: #f8f9fa;
-}
-
-/* Phân trang */
-.page-link {
-    border: none;
-    color: #64748b;
-    margin: 0 2px;
-    border-radius: 8px !important;
-    cursor: pointer;
-}
-
-.page-item.active .page-link {
-    background-color: #0d6efd;
-    color: white;
-}
-
-/* =========================================
-   5. DARK MODE (CHẾ ĐỘ TỐI) - FIX LỖI QUAN TRỌNG
-   ========================================= */
-
-[data-bs-theme="dark"] body {
-    background-color: #0f172a !important;
-    color: #e2e8f0;
-}
-
-/* Header & Cards */
-[data-bs-theme="dark"] .header-custom,
-[data-bs-theme="dark"] footer,
-[data-bs-theme="dark"] .bg-white {
-    background-color: #1e293b !important;
-    /* Slate 800 */
-    border-color: #334155 !important;
-    color: #e2e8f0;
-}
-
-[data-bs-theme="dark"] .card-stat,
-[data-bs-theme="dark"] .card-stat-compact,
-[data-bs-theme="dark"] .chart-card,
-[data-bs-theme="dark"] .card {
-    background-color: #1e293b;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-    border: 1px solid #334155;
-}
-
-/* Màu chữ chung */
-[data-bs-theme="dark"] .text-gray-800,
-[data-bs-theme="dark"] .text-dark {
-    color: #f1f5f9 !important;
-}
-
-[data-bs-theme="dark"] .text-muted {
-    color: #94a3b8 !important;
-}
-
-[data-bs-theme="dark"] .stat-value {
-    color: #e2e8f0 !important;
-}
-
-/* --- FIX TABLE DARK MODE --- */
-[data-bs-theme="dark"] .table-custom th {
-    background-color: #0f172a;
-    color: #cbd5e1;
-    border-color: #334155;
-}
-
-[data-bs-theme="dark"] .table {
-    --bs-table-color: #e2e8f0;
-    --bs-table-bg: transparent;
-    border-color: #334155;
-}
-
-/* FIX LỖI: Dòng Hoàn thành bị chìm chữ */
-[data-bs-theme="dark"] .table-secondary {
-    --bs-table-bg: #334155 !important;
-    /* Nền xám sáng hơn nền đen */
-    --bs-table-color: #e2e8f0 !important;
-    /* Chữ trắng */
-    border-color: #475569 !important;
-}
-
-[data-bs-theme="dark"] .table-secondary td,
-[data-bs-theme="dark"] .table-secondary .text-dark,
-[data-bs-theme="dark"] .table-secondary .text-muted {
-    color: #e2e8f0 !important;
-    opacity: 0.8;
-}
-
-/* FIX LỖI: Dòng thường bị chìm chữ */
-[data-bs-theme="dark"] #taskTableBody td,
-[data-bs-theme="dark"] #taskTableBody .fw-bold,
-[data-bs-theme="dark"] #taskTableBody .text-dark {
-    color: #e2e8f0 !important;
-}
-
-[data-bs-theme="dark"] .table-hover>tbody>tr:hover>* {
-    color: #fff;
-    background-color: #334155;
-}
-
-/* --- FIX INPUT & BUTTONS --- */
-[data-bs-theme="dark"] .form-control,
-[data-bs-theme="dark"] .form-select {
-    background-color: #0f172a;
-    border-color: #475569;
-    color: #e2e8f0;
-}
-
-[data-bs-theme="dark"] .form-control::placeholder {
-    color: #64748b;
-}
-
-/* Search Input Dark */
-[data-bs-theme="dark"] #searchInput {
-    background-color: #1e293b;
-    border-color: #334155;
-    color: #fff;
-}
-
-[data-bs-theme="dark"] #searchInput:focus {
-    border-color: #60a5fa;
-    background-color: #0f172a;
-}
-
-/* Nút viền (Xem lịch) */
-[data-bs-theme="dark"] .btn-outline-secondary {
-    color: #cbd5e1 !important;
-    border-color: #64748b !important;
-    background-color: transparent;
-}
-
-[data-bs-theme="dark"] .btn-outline-secondary:hover {
-    color: #fff !important;
-    background-color: #334155 !important;
-    border-color: #94a3b8 !important;
-}
-
-/* Nút tròn */
-[data-bs-theme="dark"] .btn-circle-custom {
-    background-color: #1e293b;
-    border-color: #475569;
-    color: #cbd5e1;
-}
-
-[data-bs-theme="dark"] .btn-circle-custom:hover {
-    background-color: #334155;
-    color: white;
-}
-
-/* Dropdown & Modal */
-[data-bs-theme="dark"] .dropdown-menu {
-    background-color: #1e293b;
-    border-color: #475569;
-}
-
-[data-bs-theme="dark"] .dropdown-item {
-    color: #e2e8f0;
-}
-
-[data-bs-theme="dark"] .dropdown-item:hover {
-    background-color: #334155;
-}
-
-[data-bs-theme="dark"] .modal-content {
-    background-color: #1e293b;
-    border: 1px solid #475569;
-}
-
-[data-bs-theme="dark"] #searchSuggestions {
-    background-color: #1e293b;
-    border-color: #334155;
-    color: #e2e8f0;
-}
-
-[data-bs-theme="dark"] .suggestion-item {
-    border-bottom-color: #334155;
-}
-
-[data-bs-theme="dark"] .suggestion-item:hover {
-    background-color: #334155;
-}
-
-/* Widgets */
-[data-bs-theme="dark"] .weekly-item:hover {
-    background-color: #334155;
-}
-
-[data-bs-theme="dark"] .date-box {
-    background-color: #334155;
-    color: #94a3b8;
-}
-
-[data-bs-theme="dark"] .date-box .date {
-    color: #e2e8f0;
-}
-
-[data-bs-theme="dark"] .card-focus {
-    border: 1px solid #334155;
-}
-
-[data-bs-theme="dark"] #userAvatar {
-    border-color: #3b82f6;
-}
-
-/* LEGEND DARK MODE */
-[data-bs-theme="dark"] .chart-legend-item {
-    border-bottom-color: #334155;
-}
-
-[data-bs-theme="dark"] .legend-value {
-    color: #e2e8f0;
-}
-
-/* Responsive Mobile Adjustments */
+/* Responsive */
 @media (max-width: 576px) {
     .header-custom .container {
-        padding-left: 10px;
-        padding-right: 10px;
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
 
     .navbar-brand-text {
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
 
-    .btn-responsive-text {
+    .btn-action-custom span {
         display: none;
     }
 
     .table-responsive {
-        font-size: 0.85rem;
-    }
-
-    .modal-dialog {
-        margin: 0.5rem;
-    }
-
-    .card-stat {
-        margin-bottom: 0.5rem;
-    }
-
-    .mb-5 {
-        margin-bottom: 1.5rem !important;
+        font-size: 0.8rem;
     }
 }
